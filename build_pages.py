@@ -51,3 +51,5 @@ print('Built five pages;',len(qas),'questions')
 exec(Path('/workspace/sites/yuanjie/extend_team.py').read_text())
 
 exec(Path("/workspace/sites/yuanjie/extend_projects.py").read_text())
+
+exec(Path("/workspace/sites/yuanjie/extend_jiutai.py").read_text())
