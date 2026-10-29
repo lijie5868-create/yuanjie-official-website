@@ -49,3 +49,5 @@ js='''<script>const input=document.querySelector('#search'),rows=[...document.qu
 page('qa.html','問與答',body,js)
 print('Built five pages;',len(qas),'questions')
 exec(Path('/workspace/sites/yuanjie/extend_team.py').read_text())
+
+exec(Path("/workspace/sites/yuanjie/extend_projects.py").read_text())
