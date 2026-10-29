@@ -35,6 +35,7 @@ for p,n in zip(u+c,nums):
  if n in sketches:
   src=next(upload.glob(sketches[n]+'*素描*.jpg'));name='sketch-'+str(n)+'.jpg';shutil.copy(src,assets/name);p['sketch']='assets/'+name
  p['specs']={k.strip():v.strip() for line in p.pop('lines') if '：' in line for k,v in [line.split('：',1)]}
+ if p['slug']=='project-9':p['name']='泰安街危老案(泰安街七號、九號)'
  rows.append(p)
 (base/'projects.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2))
 print('Projects:',len(rows));print([(p['name'],p['source_image'] or p['image'] or '無對應圖片') for p in rows])
