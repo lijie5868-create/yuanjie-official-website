@@ -62,4 +62,5 @@ exec(Path("/workspace/sites/yuanjie/extend_taian_journal.py").read_text())
 
 exec(Path("/workspace/sites/yuanjie/extend_update_20261030.py").read_text())
 
+exec(Path("/workspace/sites/yuanjie/extend_update_20261030_2.py").read_text())
 exec(Path("/workspace/sites/yuanjie/build_fonts.py").read_text())
