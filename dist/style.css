@@ -138,3 +138,42 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .hero-copy h1{font-size:25px}
  .hero-copy p{font-size:12px}
 }
+
+/* Home belief: quiet, aligned figures that work with published CMS content. */
+.founder .company-statistics{padding:0;margin:20px 0 23px;border:0}
+.founder .stat-intro{margin:0 0 8px;font:400 17px/1.6 'Noto Serif TC',serif;color:#1A1D20}
+.founder .stat-total{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:18px;align-items:end;margin:0;padding:0 0 18px;font-size:inherit;line-height:1.1;font-weight:400;color:#4A6984}
+.founder .stat-total>span{display:inline-flex;align-items:baseline;gap:6px;min-width:0;font:400 clamp(34px,3.2vw,46px)/1.15 'Noto Serif TC',serif;white-space:nowrap}
+.founder .stat-total>span:last-child{font-size:clamp(39px,3.8vw,52px)}
+.founder .stat-total small{margin:0;font:400 16px/1.2 'Noto Serif TC',serif;color:#4A6984}
+.founder .stat-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:0;padding:15px 0 0;border-top:1px solid #CFD4D7}
+.founder .stat-split p{margin:0;font:400 15px/1.85 'Noto Serif TC',serif;color:#37414A}
+.founder .stat-split p+p{padding-left:23px;border-left:1px solid #CFD4D7}
+.founder .stat-split strong{font-size:17px;font-weight:600}
+.founder .stat-split b{font-size:21px;font-weight:600;color:#4A6984}
+.founder .rule+p{margin:0;padding-top:20px;border-top:1px solid var(--gold);line-height:1.9}
+.founder .text-link{margin-top:10px}
+
+@media(max-width:1100px){
+ .founder .stat-total{gap:10px}
+ .founder .stat-total>span{font-size:34px}
+ .founder .stat-total>span:last-child{font-size:39px}
+}
+@media(max-width:800px){
+ .founder .stat-total{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+ .founder .stat-total>span{font-size:40px}
+ .founder .stat-total>span:last-child{font-size:47px}
+}
+@media(max-width:600px){
+ .founder .company-statistics{margin:16px 0 21px}
+ .founder .stat-intro{font-size:15px}
+ .founder .stat-total{gap:8px;padding-bottom:15px}
+ .founder .stat-total>span{font-size:clamp(30px,9vw,40px)}
+ .founder .stat-total>span:last-child{font-size:clamp(34px,10vw,45px)}
+ .founder .stat-total small{font-size:13px}
+ .founder .stat-split{padding-top:12px}
+ .founder .stat-split p{font-size:14px}
+ .founder .stat-split p+p{padding-left:17px}
+ .founder .stat-split b{font-size:19px}
+ .founder .rule+p{padding-top:17px}
+}
