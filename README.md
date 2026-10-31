@@ -25,6 +25,7 @@
 - [開發與維運文件](docs/DEVELOPMENT.md)
 - [後台操作手冊](docs/ADMIN-GUIDE.md)
 - [修改日誌](CHANGELOG.md)
+- [ChatGPT Project 設定與資料來源](docs/CHATGPT-PROJECT.md)
 - [專案地區資料核對](district-verification.md)
 
 ## 專案目錄
