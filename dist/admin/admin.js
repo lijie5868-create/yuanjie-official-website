@@ -9,6 +9,7 @@ const $=id=>document.getElementById(id);
 let pages=[];
 let navigation=[];
 let current=null;
+let dashboardLoading=false;
 
 function showMessage(target,text,error=false){
   $(target).textContent=text;
@@ -210,12 +211,23 @@ $('imageUpload').onchange=async event=>{
     message('圖片已上傳並插入草稿。記得儲存或發布。');
   }catch(error){message(error.message,true)}
 };
-supabase.auth.onAuthStateChange(async(_event,session)=>{
+async function loadDashboard(){
+  if(dashboardLoading||pages.length)return;
+  dashboardLoading=true;
+  try{
+    await fetchPages();
+    await fetchNavigation();
+  }catch(error){
+    message(error.message,true);
+  }finally{
+    dashboardLoading=false;
+  }
+}
+
+supabase.auth.onAuthStateChange((_event,session)=>{
   const valid=allowedEmails.has(session?.user?.email?.toLowerCase());
   $('login').hidden=valid;
   $('app').hidden=!valid;
   $('signOut').hidden=!valid;
-  if(valid&&!pages.length){
-    try{await fetchPages();await fetchNavigation()}catch(error){message(error.message,true)}
-  }
+  if(valid&&!pages.length)setTimeout(loadDashboard,0);
 });
