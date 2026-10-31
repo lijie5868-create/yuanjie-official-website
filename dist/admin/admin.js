@@ -1,4 +1,5 @@
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
+import {createImageEditor} from "./image-editor.js?v=1";
 
 const cfg=window.YUANJIE_CONFIG;
 const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com"]);
@@ -10,6 +11,9 @@ let pages=[];
 let navigation=[];
 let current=null;
 let dashboardLoading=false;
+let pageDirty=false;
+let navigationDirty=false;
+const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
 
 function showMessage(target,text,error=false){
   $(target).textContent=text;
@@ -20,16 +24,23 @@ function message(text,error=false){showMessage('appMessage',text,error)}
 function navigationMessage(text,error=false){showMessage('navigationMessage',text,error)}
 
 function editorDocument(html){
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><link rel="stylesheet" href="${basePath}style.css"><style>body{margin:0;padding:18px;background:#fff}a{pointer-events:none}</style></head><body>${html}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${basePath}style.css"><style>body{margin:0;padding:18px;background:#fff}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body>${html}</body></html>`;
 }
 
 function loadEditor(page){
+  if(pageDirty&&!confirm('目前頁面有尚未儲存的修改。要放棄修改並切換頁面嗎？'))return;
   current=page;
+  pageDirty=false;
   $('title').value=page.title;
   $('description').value=page.meta_description;
+  $('visitPage').href=`${basePath}${page.file_name}`;
   const frame=$('visualEditor');
   frame.srcdoc=editorDocument(page.main_html);
-  frame.onload=()=>{frame.contentDocument.designMode='on'};
+  frame.onload=()=>{
+    frame.contentDocument.designMode='on';
+    imageEditor.bindFrame();
+    frame.contentDocument.addEventListener('input',()=>{pageDirty=true});
+  };
   document.querySelectorAll('#pageList button[data-slug]').forEach(button=>{
     button.classList.toggle('active',button.dataset.slug===page.slug);
   });
@@ -40,7 +51,9 @@ function loadEditor(page){
 function mainHtml(){
   const main=$('visualEditor').contentDocument.querySelector('main');
   if(!main)throw new Error('頁面內容缺少 main 區塊，請重新載入後再試。');
-  return main.outerHTML;
+  const copy=main.cloneNode(true);
+  copy.querySelectorAll('[data-admin-selected]').forEach(image=>image.removeAttribute('data-admin-selected'));
+  return copy.outerHTML;
 }
 
 function pageButton(page){
@@ -140,6 +153,7 @@ async function saveNavigationDraft(){
   if(error)throw error;
   navigation=data;
   renderNavigation();
+  navigationDirty=false;
   navigationMessage('選單草稿已儲存，正式網站尚未變更。');
 }
 
@@ -149,7 +163,7 @@ async function publishNavigation(){
   const rows=navigation.map(({nav_key,label,subtitle,href,nav_order,is_visible})=>({nav_key,label,subtitle,href,nav_order,is_visible,published_at:publishedAt}));
   const {error}=await supabase.from('published_navigation').upsert(rows,{onConflict:'nav_key'});
   if(error)throw error;
-  navigationMessage('選單已發布。系統將在約 5 分鐘內更新正式網站。');
+  navigationMessage('選單已發布。重新整理正式網站即可看到更新。');
 }
 
 async function saveDraft(){
@@ -157,7 +171,9 @@ async function saveDraft(){
   const {data,error}=await supabase.from('cms_pages').update(payload).eq('id',current.id).select().single();
   if(error)throw error;
   Object.assign(current,data);
-  loadEditor(current);
+  pageDirty=false;
+  $('savedAt').textContent=`上次儲存：${new Date(current.updated_at).toLocaleString('zh-TW')}`;
+  renderPageList($('pageSearch').value);
   message('草稿已儲存，正式網站尚未變更。');
 }
 
@@ -166,7 +182,7 @@ async function publish(){
   const payload={slug:current.slug,file_name:current.file_name,title:current.title,meta_description:current.meta_description,main_html:current.main_html,sort_order:current.sort_order,published_at:new Date().toISOString()};
   const {error}=await supabase.from('published_pages').upsert(payload,{onConflict:'slug'});
   if(error)throw error;
-  message('發布完成。系統將在約 5 分鐘內更新正式網站。');
+  message('發布完成。重新整理正式網站即可看到更新。');
 }
 
 function switchView(view){
@@ -181,6 +197,10 @@ function switchView(view){
 
 document.querySelectorAll('.admin-tabs button').forEach(button=>button.onclick=()=>switchView(button.dataset.view));
 $('pageSearch').oninput=event=>renderPageList(event.target.value);
+for(const id of ['title','description'])$(id).addEventListener('input',()=>{pageDirty=true});
+$('navigationList').addEventListener('input',()=>{navigationDirty=true});
+$('navigationList').addEventListener('change',()=>{navigationDirty=true});
+window.addEventListener('beforeunload',event=>{if(pageDirty||navigationDirty){event.preventDefault();event.returnValue=''}});
 $('loginForm').onsubmit=async event=>{
   event.preventDefault();
   const email=$('email').value.trim().toLowerCase();
@@ -198,19 +218,6 @@ document.querySelectorAll('[data-command]').forEach(button=>button.onclick=()=>{
   const value=command==='createLink'?prompt('請輸入連結網址'):null;
   $('visualEditor').contentDocument.execCommand(command,false,value);
 });
-$('imageUpload').onchange=async event=>{
-  try{
-    const file=event.target.files[0];
-    if(!file)return;
-    const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'-');
-    const path=`${Date.now()}-${safe}`;
-    const {error}=await supabase.storage.from('site-media').upload(path,file,{upsert:false});
-    if(error)throw error;
-    const {data}=supabase.storage.from('site-media').getPublicUrl(path);
-    $('visualEditor').contentDocument.execCommand('insertImage',false,data.publicUrl);
-    message('圖片已上傳並插入草稿。記得儲存或發布。');
-  }catch(error){message(error.message,true)}
-};
 async function loadDashboard(){
   if(dashboardLoading||pages.length)return;
   dashboardLoading=true;
