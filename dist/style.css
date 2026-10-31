@@ -58,3 +58,35 @@ body{background:var(--paper);color:var(--ink)}header{padding-left:var(--gutter);
 /* Stable, eager original-photo viewport at every breakpoint. */
 .group-photo-stable,.team-home .group-photo-stable{height:auto;aspect-ratio:auto;max-width:648px;background:transparent}
 .group-photo-stable svg{display:block;width:100%;height:auto;overflow:hidden}
+
+/* Intrinsic HTML dimensions reserve space; CSS controls responsive display size. */
+img{max-width:100%;height:auto}
+/* Uniform landscape thumbnails, with the full photograph visible inside each frame. */
+.meeting-gallery img,.gallery img,.gallery button:first-child img,
+.heping-gallery img,.journal-grid img,.taian-journal-grid img{
+ display:block;width:100%;height:auto;aspect-ratio:4/3;
+ object-fit:contain;object-position:center;background:#E5E8EA;
+}
+.meeting-gallery button:hover img{transform:none}
+.meeting-gallery button,.meeting-gallery figure,
+.gallery button,.heping-gallery>*,.journal-grid>*,.taian-journal-grid>*{min-width:0;max-width:100%}
+/* Full-size views always fit the viewport, independently of thumbnail rules. */
+dialog img,.case-dialog img,.gallery-dialog img{width:auto;height:auto;max-width:100%;object-fit:contain;aspect-ratio:auto}
+.assessment-dialog img{width:min(230px,100%);height:auto;max-height:none}
+@media(max-width:800px){
+ .wrap>*,.case-overview>*,.footer-contact-grid>*{min-width:0}
+ .gallery,.meeting-gallery,.heping-gallery,.journal-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+ .case-dialog,.gallery-dialog{width:94vw;max-height:90dvh;overflow:auto}
+ .case-dialog img,.gallery-dialog img{max-height:70dvh}
+ .footer-details p{overflow-wrap:anywhere}
+}
+@media(max-width:380px){
+ header{padding-inline:12px}
+ .brand-lockup{gap:8px;white-space:normal;min-width:0}
+ .brand-mark{width:40px;height:40px;flex-shrink:0}
+ .brand-lines strong{font-size:17px}
+ .brand-lines small{font-size:12px!important;letter-spacing:1px!important}
+ header nav{gap:6px;width:100%}
+ header nav a{font-size:12px;letter-spacing:0}
+ header nav span{font-size:11px}
+}
