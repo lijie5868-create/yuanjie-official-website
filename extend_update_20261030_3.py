@@ -2,7 +2,7 @@ from pathlib import Path
 import json,re
 from PIL import Image
 base=Path('/workspace/sites/yuanjie');root=base/'dist'
-locations={'shidong':'士林區','project-2':'大安區','project-3':'中山區','project-4':'松山區','project-5':'中正區','project-6':'中正區','project-xinguang-urban':'文山區','project-wuxing':'信義區','project-14':'松山區','project-15':'大安區','project-16':'大安區','project-17':'中正區','project-18':'中正區','project-19':'中山區','project-20':'萬華區','project-8':'大安區','project-9':'中正區','project-10':'文山區','project-12':'中正區'}
+locations={'heping':'大安區','shidong':'士林區','project-2':'大安區','project-3':'中山區','project-4':'松山區','project-5':'中正區','project-6':'中正區','project-xinguang-urban':'文山區','project-wuxing':'信義區','project-14':'松山區','project-15':'大安區','project-16':'大安區','project-17':'中正區','project-18':'中正區','project-19':'中山區','project-20':'萬華區','project-8':'大安區','project-9':'中正區','project-10':'文山區','project-12':'中正區'}
 (base/'project-districts.json').write_text(json.dumps(locations,ensure_ascii=False,indent=2))
 def location(slug):return '臺北市'+locations[slug] if slug in locations else '臺北市｜行政區待確認'
 for p in projects:
@@ -30,14 +30,18 @@ s=re.sub(r'<section class="team-section"><div class="wrap"><div class="section-h
 # Respect the original asset dimensions in editorial photographs and project renders.
 for f in root.glob('*.html'):
  s=f.read_text()
+ # A normal-flow SVG viewport crops the original board without absolute-positioned
+ # lazy images. The photograph pixels remain untouched and load immediately.
+ s=re.sub(r'<div class="group-photo"><img[^>]*></div>', '<div class="group-photo group-photo-stable"><svg xmlns="http://www.w3.org/2000/svg" viewBox="309 68 648 484" width="648" height="484" role="img" aria-label="元捷菁英團隊合影"><image href="assets/team-photo-source.jpg" x="0" y="0" width="1008" height="577" /></svg></div>',s)
  def cap(m):
   tag=m[0];src=re.search('src="([^"]+)"',tag)
   if not src:return tag
   asset=root/src[1]
   if not asset.exists():return tag
   w,h=Image.open(asset).size
-  return tag[:-1]+f' data-original-width="{w}" data-original-height="{h}">'
+  tag=re.sub(r'\s(?:width|height)="[^"]*"','',tag)
+  return tag[:-1]+f' width="{w}" height="{h}" data-original-width="{w}" data-original-height="{h}">'
  s=re.sub(r'<img\b[^>]*>',cap,s)
  f.write_text(s)
 with (root/'style.css').open('a') as f:f.write((base/'update_20261030_3.css').read_text())
-print('Applied 70% content width, separate homepage categories, 19 verified districts and original-size image limits')
+print('Applied 70% content width, separate homepage categories, 20 verified districts and original-size image limits')

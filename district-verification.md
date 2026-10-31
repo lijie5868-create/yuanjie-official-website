@@ -17,4 +17,6 @@ Labels combine the supplied project names, source-image filenames and neighbourh
 - Wanda: Wanhua — https://www.tcooc.gov.taipei/cp.aspx?n=d6636c188a8adc8e&s=73CBE562C2DE564B
 - Fuxing South reconstruction: supplied filename explicitly states Daan.
 
-Unresolved: Heping East urban, Heping East reconstruction, Xinyi Road reconstruction. Road names span multiple districts; no project-specific section/address was established. Display Taipei City / district pending. Do not use an unrelated same-road reconstruction news article to assign the district.
+- Heping East reconstruction: Daan — explicitly confirmed by the user on 2026-10-31.
+
+Unresolved: Heping East urban, Xinyi Road reconstruction. Road names span multiple districts; no project-specific section/address was established. Display Taipei City / district pending. Do not use an unrelated same-road reconstruction news article to assign the district.
