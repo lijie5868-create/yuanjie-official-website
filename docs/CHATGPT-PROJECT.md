@@ -7,9 +7,9 @@
 ```text
 這個 Project 用於持續開發與維護「元捷建設官方網站」。優先沿用現有網站、內容和品牌風格；依使用者當次要求調整，過往設計決定不是永久限制。
 
-最新程式與開發文件以 GitHub repository https://github.com/lijie5868-create/yuanjie-official-website 的 main 分支為準。修改前先查看 README.md、docs/DEVELOPMENT.md、docs/ADMIN-GUIDE.md、CHANGELOG.md，並核對正式網站與後台現況；舊聊天或 Project 上傳文件若與最新版本不同，以可驗證的最新版本為準。
+最新程式與開發文件以 GitHub repository https://github.com/lijie5868-create/yuanjie-official-website 的 main 分支為準。修改前先查看 AGENTS.md、README.md、docs/DEVELOPMENT.md、docs/ADMIN-GUIDE.md、docs/BACKUP-RESTORE.md、CHANGELOG.md，並核對正式網站與後台現況；舊聊天或 Project 上傳文件若與最新版本不同，以可驗證的最新版本為準。
 
-正式修改完成時，檢查桌面與手機版、相關後台功能及部署結果，更新相關文件與 CHANGELOG.md，推送 GitHub，並同步桌面「喵老大／元捷官方網站（本地程式碼）」備份。Supabase 僅使用元捷專用專案，勿混用私人 Threads 專案；勿將密鑰放進前端或文件。重大品牌方向、權限或不可逆資料變更先確認；一般實作選擇可自主完成。
+正式修改完成時，檢查桌面與手機版、相關後台功能及部署結果，更新相關文件與 CHANGELOG.md，執行 Supabase 及本地資產備份後推送 GitHub。Supabase 僅使用 project ref `cbibiadnvthklhgbgxhq` 的元捷專用專案，勿混用其他專案；勿將密鑰放進前端或文件。重大品牌方向、權限或不可逆資料變更先確認；一般實作選擇可自主完成。
 ```
 
 ## 建議的 Project 資料來源
@@ -21,6 +21,7 @@
 | 專案總覽與正式網址 | [README](https://github.com/lijie5868-create/yuanjie-official-website/blob/main/README.md) |
 | 架構、部署、備份與維運 | [開發與維運文件](https://github.com/lijie5868-create/yuanjie-official-website/blob/main/docs/DEVELOPMENT.md) |
 | 後台操作方式 | [後台操作手冊](https://github.com/lijie5868-create/yuanjie-official-website/blob/main/docs/ADMIN-GUIDE.md) |
+| 備份與災難還原 | [備份與還原手冊](https://github.com/lijie5868-create/yuanjie-official-website/blob/main/docs/BACKUP-RESTORE.md) |
 | 功能與修改歷史 | [修改日誌](https://github.com/lijie5868-create/yuanjie-official-website/blob/main/CHANGELOG.md) |
 | 本 Project 設定範本 | [ChatGPT Project 設定](https://github.com/lijie5868-create/yuanjie-official-website/blob/main/docs/CHATGPT-PROJECT.md) |
 

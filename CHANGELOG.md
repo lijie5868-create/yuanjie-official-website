@@ -2,6 +2,16 @@
 
 本文件記錄正式網站、後台與維運流程的使用者可見修改。日期使用臺北時間。
 
+## 2026-11-03
+
+### 正式網域與完整備份
+
+- 將 GitHub Pages 自訂網域設為 `lijie5867.com` 並啟用 HTTPS。
+- 核對 Supabase production project 無 Edge Function，Storage `site-media` 目前為空。
+- 匯出 30 個已發布頁面與 5 組導覽；確認 CMS 草稿與已發布內容完全一致。
+- 新增可重複執行的 Supabase 公開資料備份與本地資產完整性檢查工具。
+- 建立 `AGENTS.md`、備份還原手冊及日期化 GitHub 備份分支流程。
+
 ## 2026-11-01
 
 ### 文件與備份

@@ -1,6 +1,6 @@
 # 後台操作手冊
 
-後台網址：<https://lijie5868-create.github.io/yuanjie-official-website/admin/>
+後台網址：<https://lijie5867.com/admin/>
 
 ## 登入
 

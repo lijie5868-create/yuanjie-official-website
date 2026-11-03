@@ -16,23 +16,24 @@
 
 | 用途 | 位置 |
 | --- | --- |
-| 主要工作資料夾 | `/Users/chiayu/Documents/ChatGPT/元捷官方網站` |
-| 本機桌面備份 | `/Users/chiayu/Desktop/喵老大/元捷官方網站（本地程式碼）` |
+| 本機工作與備份資料夾 | `/Users/kaipeitseng/Desktop/元捷官方網站（本地程式碼）` |
 | GitHub repository | `lijie5868-create/yuanjie-official-website` |
 | 正式分支 | `main` |
+| 正式網址 | `https://lijie5867.com/` |
+| Supabase production project ref | `cbibiadnvthklhgbgxhq` |
 
-每次正式修改完成後，應確認三處的 Git commit 相同：
+每次正式修改完成後，應確認本地與 GitHub 的 Git commit 相同：
 
 ```sh
 git rev-parse HEAD
-git -C '/Users/chiayu/Desktop/喵老大/元捷官方網站（本地程式碼）' rev-parse HEAD
 git ls-remote origin refs/heads/main
 ```
 
-同步桌面備份：
+重要版本另建立日期化備份分支；完整備份與還原方式見 [`BACKUP-RESTORE.md`](BACKUP-RESTORE.md)。
 
 ```sh
-rsync -a --exclude '.DS_Store' ./ '/Users/chiayu/Desktop/喵老大/元捷官方網站（本地程式碼）/'
+python3 scripts/backup_public_supabase.py
+python3 scripts/audit_local_backup.py
 ```
 
 ## 主要程式
@@ -48,6 +49,8 @@ rsync -a --exclude '.DS_Store' ./ '/Users/chiayu/Desktop/喵老大/元捷官方�
 | `dist/admin/config.js` | 瀏覽器可用的 Supabase URL 與 publishable key |
 | `scripts/build_from_supabase.py` | 部署時把已發布內容寫入靜態 HTML |
 | `scripts/export_cms_seed.py` | 從靜態頁面重新產生內容 seed migration |
+| `scripts/backup_public_supabase.py` | 匯出公開 CMS 與 Storage 內容 |
+| `scripts/audit_local_backup.py` | 盤點本地圖片與文字並驗證資產引用 |
 
 `dist/admin/config.js` 只能放 Supabase publishable key。不得把 secret key 或 service role key 放入網站、GitHub 或前端程式。
 
@@ -136,8 +139,9 @@ GitHub repository 必須設定：
 5. Commit 並推送 `main`。
 6. 確認 GitHub Actions 成功。
 7. 以帶版本參數的網址重新整理正式頁面，例如 `?rev=<commit>`。
-8. 同步桌面備份並確認三處 commit 一致。
-9. 在 `CHANGELOG.md` 記錄使用者可見的功能與重要維運修改。
+8. 確認本地與 GitHub 的 commit 一致。
+9. 更新 Supabase 與本地資產備份，建立重要版本的日期化備份分支。
+10. 在 `CHANGELOG.md` 記錄使用者可見的功能與重要維運修改。
 
 ## 常見問題
 
