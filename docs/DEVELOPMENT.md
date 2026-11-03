@@ -74,6 +74,12 @@ python3 scripts/audit_local_backup.py
 
 新增或移除管理員時，兩處必須一起修改並部署。只改前端不能取得資料庫權限，只改資料庫則登入畫面仍會拒絕。
 
+目前授權管理員：
+
+- `lijie5868@gmail.com`
+- `ru8ru8u8@gmail.com`
+- `lazyunclek@gmail.com`
+
 ## 草稿與發布流程
 
 ```text

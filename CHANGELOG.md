@@ -4,6 +4,10 @@
 
 ## 2026-11-03
 
+### 後台管理權限
+
+- 新增 `lazyunclek@gmail.com` 為後台管理員，並同步更新前端允許名單、CMS RLS 與圖片 Storage policy。
+
 ### 正式網域與完整備份
 
 - 將 GitHub Pages 自訂網域設為 `lijie5867.com` 並啟用 HTTPS。

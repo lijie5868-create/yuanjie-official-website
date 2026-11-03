@@ -1,8 +1,8 @@
 {
   "scope": "local text, source, generated website and image files",
-  "text_file_count": 78,
+  "text_file_count": 79,
   "image_file_count": 68,
-  "total_bytes": 40847653,
+  "total_bytes": 40850635,
   "checked_local_asset_references": 171,
   "missing_local_asset_references": [],
   "files": [
@@ -33,8 +33,8 @@
     {
       "path": "CHANGELOG.md",
       "type": "text",
-      "bytes": 2706,
-      "sha256": "3a76964542ba3b405b3f63953e52ce0843f6dbc60014a1f40162dc4c9fb3fbae"
+      "bytes": 2856,
+      "sha256": "fd0e562926f4043c14fdc8490a46d2f73aaffc67aa6491d71e649e1d42d97735"
     },
     {
       "path": "README.md",
@@ -75,8 +75,8 @@
     {
       "path": "dist/admin/admin.js",
       "type": "text",
-      "bytes": 10780,
-      "sha256": "31a5030846f2a2842c0b29756ee7dc49be3b94c842415b8598335edaf448ecee"
+      "bytes": 10803,
+      "sha256": "f1b255d4d4fa08bbfd2bdef7c6a78f9f6020e483d65803df2694f85529338bf9"
     },
     {
       "path": "dist/admin/config.js",
@@ -94,7 +94,7 @@
       "path": "dist/admin/index.html",
       "type": "text",
       "bytes": 6083,
-      "sha256": "e514406781ff718656ab374e858b600ba5e7009843ff7836df8bb20daf81a423"
+      "sha256": "36cbebf3ec159d335151927fc4a384f1972765dd8c949c882199dceeeb8467ee"
     },
     {
       "path": "dist/assets/3399F4B1-9682-42D1-9B37-70127EAA28B1.jpg",
@@ -705,8 +705,8 @@
     {
       "path": "docs/DEVELOPMENT.md",
       "type": "text",
-      "bytes": 6592,
-      "sha256": "fa7240585688e34fa9ef465ca8ce7e4d134c98481f25529ca7c4449bfeac8e04"
+      "bytes": 6691,
+      "sha256": "0bb7b66d464fd0a09e03ac8d89334d9634fdf272d6285fc9047211f7d0dc539f"
     },
     {
       "path": "extend_contact.py",
@@ -845,6 +845,12 @@
       "type": "text",
       "bytes": 2700,
       "sha256": "2dba696619e93b53fe9683ccdef8aa5ea01e7f7908d56753b65b83e7ad0677ce"
+    },
+    {
+      "path": "supabase/migrations/20261103030728_add_lazyunclek_admin.sql",
+      "type": "text",
+      "bytes": 2710,
+      "sha256": "a0e4227c27ae3eef292d68927c1fb1e23b40e90072133514017f14275e553516"
     },
     {
       "path": "supabase-final-project.png",

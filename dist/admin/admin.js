@@ -2,7 +2,7 @@ import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=1";
 
 const cfg=window.YUANJIE_CONFIG;
-const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com"]);
+const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunclek@gmail.com"]);
 const primaryPages=new Set(["home","about","team","urban","renewal","qa"]);
 const basePath=location.pathname.replace(/admin\/?$/,'');
 const supabase=createClient(cfg.supabaseUrl,cfg.publishableKey);
