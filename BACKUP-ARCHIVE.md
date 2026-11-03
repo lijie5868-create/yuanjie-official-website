@@ -2,18 +2,22 @@
 
 備份分支：`codex/backup-2026-11-03`
 
-完整 ZIP 因 GitHub 網頁單檔限制，分成以下檔案：
+完整 ZIP 因 GitHub 網頁單檔限制，分成以下七個檔案：
 
 ```text
-yuanjie-official-website-backup-2026-11-03.zip.part-00
-yuanjie-official-website-backup-2026-11-03.zip.part-01
-yuanjie-official-website-backup-2026-11-03.zip.part-02
+yuanjie-official-website-backup-2026-11-03.zip.chunk-00
+yuanjie-official-website-backup-2026-11-03.zip.chunk-01
+yuanjie-official-website-backup-2026-11-03.zip.chunk-02
+yuanjie-official-website-backup-2026-11-03.zip.chunk-03
+yuanjie-official-website-backup-2026-11-03.zip.chunk-04
+yuanjie-official-website-backup-2026-11-03.zip.chunk-05
+yuanjie-official-website-backup-2026-11-03.zip.chunk-06
 ```
 
-下載三個檔案後，在同一資料夾執行：
+下載七個檔案後，在同一資料夾執行：
 
 ```bash
-cat yuanjie-official-website-backup-2026-11-03.zip.part-* > yuanjie-official-website-backup-2026-11-03.zip
+cat yuanjie-official-website-backup-2026-11-03.zip.chunk-* > yuanjie-official-website-backup-2026-11-03.zip
 shasum -a 256 yuanjie-official-website-backup-2026-11-03.zip
 unzip -t yuanjie-official-website-backup-2026-11-03.zip
 ```
