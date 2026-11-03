@@ -1,8 +1,8 @@
 {
   "scope": "local text, source, generated website and image files",
-  "text_file_count": 77,
+  "text_file_count": 78,
   "image_file_count": 68,
-  "total_bytes": 40846931,
+  "total_bytes": 40847653,
   "checked_local_asset_references": 171,
   "missing_local_asset_references": [],
   "files": [
@@ -23,6 +23,12 @@
       "type": "text",
       "bytes": 1758,
       "sha256": "521298bee1d7f531a5b91a8be24fc0ef36f43d84ad4c73956a068e1245a14829"
+    },
+    {
+      "path": "BACKUP-ARCHIVE.md",
+      "type": "text",
+      "bytes": 722,
+      "sha256": "eccca5368dacc8eb43ee87fcf7b6bf617eca1b55a37ad8affe8a9f6d31190b24"
     },
     {
       "path": "CHANGELOG.md",
