@@ -10,7 +10,7 @@
 
 ## 開始修改前
 
-1. 閱讀 `README.md`、`docs/DEVELOPMENT.md`、`docs/ADMIN-GUIDE.md`、`docs/BACKUP-RESTORE.md` 與 `CHANGELOG.md`。
+1. 閱讀 `README.md`、`docs/DEVELOPMENT.md`、`docs/ADMIN-GUIDE.md`、`docs/BACKUP-RESTORE.md`、`docs/NEW-COMPUTER-HANDOFF.md` 與 `CHANGELOG.md`。
 2. 執行 `git status --short`，保留使用者尚未提交的修改。
 3. 需要修改 Supabase 前，先核對 production project ref，避免操作其他專案。
 4. 不得把 service role、secret key、密碼或 access token 寫入 repository。
@@ -32,3 +32,4 @@
 - 每次重要發布建立日期化 tag 或 `codex/backup-YYYY-MM-DD` 快照分支。
 - `backups/supabase-public/` 保存可公開讀取的 CMS 內容；`backups/local-files-manifest.json` 保存本地圖片與文字檔案的 SHA-256 清單。
 - 還原流程以 `docs/BACKUP-RESTORE.md` 為準。
+- 換電腦或換 GPT 帳號的接手流程以 `docs/NEW-COMPUTER-HANDOFF.md` 為準；新 Agent 必須從 repository 與線上服務重新核對現況，不能假設能讀取舊帳號的聊天、Project 設定或外部連線。

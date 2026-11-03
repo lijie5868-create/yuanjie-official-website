@@ -45,6 +45,8 @@ git diff --check
 
 Git 本身保存每次 commit 歷史。重要版本另建立 `codex/backup-YYYY-MM-DD` 快照分支，方便非工程人員在 GitHub 直接找到完整狀態。正式部署仍以 `main` 為準。
 
+若只是換電腦或換 GPT 帳號繼續維護現有網站，請依 [`NEW-COMPUTER-HANDOFF.md`](NEW-COMPUTER-HANDOFF.md) 操作；以下「網站還原」步驟用於重建部署設定，不是日常換機必做事項。
+
 ## 網站還原
 
 1. Clone GitHub repository。

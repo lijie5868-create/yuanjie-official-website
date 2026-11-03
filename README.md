@@ -27,6 +27,7 @@
 - [修改日誌](CHANGELOG.md)
 - [備份與災難還原](docs/BACKUP-RESTORE.md)
 - [ChatGPT Project 設定與資料來源](docs/CHATGPT-PROJECT.md)
+- [換電腦與換 GPT 帳號接手](docs/NEW-COMPUTER-HANDOFF.md)
 - [專案地區資料核對](district-verification.md)
 
 ## 專案目錄
