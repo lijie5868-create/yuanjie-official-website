@@ -4,8 +4,8 @@
 
 ## 網址
 
-- 正式網站：<https://lijie5868-create.github.io/yuanjie-official-website/>
-- 管理後台：<https://lijie5868-create.github.io/yuanjie-official-website/admin/>
+- 正式網站：<https://lijie5867.com/>
+- 管理後台：<https://lijie5867.com/admin/>
 - GitHub：<https://github.com/lijie5868-create/yuanjie-official-website>
 
 ## 主要功能
@@ -25,6 +25,7 @@
 - [開發與維運文件](docs/DEVELOPMENT.md)
 - [後台操作手冊](docs/ADMIN-GUIDE.md)
 - [修改日誌](CHANGELOG.md)
+- [備份與災難還原](docs/BACKUP-RESTORE.md)
 - [ChatGPT Project 設定與資料來源](docs/CHATGPT-PROJECT.md)
 - [專案地區資料核對](district-verification.md)
 
@@ -34,6 +35,7 @@
 dist/                  正式網站、後台與前端資源
 scripts/               Supabase 內容匯出與靜態頁面產生工具
 supabase/migrations/   資料庫、權限、Storage 與初始內容版本
+backups/               Supabase 公開內容與本地檔案雜湊清單
 .github/workflows/     GitHub Pages 自動部署流程
 docs/                  開發與操作文件
 ```
