@@ -11,9 +11,10 @@
 ## 開始修改前
 
 1. 閱讀 `README.md`、`docs/DEVELOPMENT.md`、`docs/ADMIN-GUIDE.md`、`docs/BACKUP-RESTORE.md`、`docs/NEW-COMPUTER-HANDOFF.md` 與 `CHANGELOG.md`。
-2. 執行 `git status --short`，保留使用者尚未提交的修改。
-3. 需要修改 Supabase 前，先核對 production project ref，避免操作其他專案。
-4. 不得把 service role、secret key、密碼或 access token 寫入 repository。
+2. 每次在任何電腦開始修改前，先執行 `git status --short --branch` 與 `git fetch origin`，比較本機分支和 `origin/main`；保留使用者尚未提交的修改。
+3. 若工作目錄乾淨且本機 `main` 落後於 `origin/main`，先執行 `git pull --ff-only` 再修改。若有未提交修改、分支分歧或無法快轉，先查明並安全處理，不得強制覆蓋或重置使用者資料。
+4. 需要修改 Supabase 前，先核對 production project ref，避免操作其他專案。
+5. 不得把 service role、secret key、密碼或 access token 寫入 repository。
 
 ## 修改與驗證
 
