@@ -96,6 +96,8 @@ dialog img,.case-dialog img,.gallery-dialog img{width:auto;height:auto;max-width
 html,body{max-width:100%;overflow-x:clip}
 header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .wrap,.reading,.qa-layout,.page-head,.breadcrumbs,.footer-contact-grid,.footer-bottom{width:var(--content-width)}
+/* Keep the full page flow visible while reading long project pages. */
+header{position:relative;top:auto}
 @media(max-width:800px){
  :root{--content-width:calc(100% - 40px)}
  header{position:relative;top:auto}

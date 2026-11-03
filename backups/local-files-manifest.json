@@ -2,7 +2,7 @@
   "scope": "local text, source, generated website and image files",
   "text_file_count": 79,
   "image_file_count": 68,
-  "total_bytes": 40850635,
+  "total_bytes": 40850851,
   "checked_local_asset_references": 171,
   "missing_local_asset_references": [],
   "files": [
@@ -33,8 +33,8 @@
     {
       "path": "CHANGELOG.md",
       "type": "text",
-      "bytes": 2856,
-      "sha256": "fd0e562926f4043c14fdc8490a46d2f73aaffc67aa6491d71e649e1d42d97735"
+      "bytes": 2965,
+      "sha256": "d531decf6103ded97c725c9af4548393c1c927dcfd352f7305ca9dfae298638f"
     },
     {
       "path": "README.md",
@@ -663,8 +663,8 @@
     {
       "path": "dist/style.css",
       "type": "text",
-      "bytes": 52492,
-      "sha256": "c81c496c3e87a4fd2b3830d9531af537c718bd9dc2bb91c17221e6c0d37a53b9"
+      "bytes": 52599,
+      "sha256": "92a27ce65785d33041d4b98f58c2544d06378bf544aa928eae496f4c0ecd2e89"
     },
     {
       "path": "dist/team.html",
