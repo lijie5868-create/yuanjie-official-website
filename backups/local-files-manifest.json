@@ -1,9 +1,9 @@
 {
   "scope": "local text, source, generated website and image files",
   "text_file_count": 79,
-  "image_file_count": 68,
-  "total_bytes": 40851423,
-  "checked_local_asset_references": 171,
+  "image_file_count": 69,
+  "total_bytes": 41191177,
+  "checked_local_asset_references": 172,
   "missing_local_asset_references": [],
   "files": [
     {
@@ -33,8 +33,8 @@
     {
       "path": "CHANGELOG.md",
       "type": "text",
-      "bytes": 3138,
-      "sha256": "d1f175bd469cf7c89ffc6f341bc3f55e459697c8dc86d25471cbacac275ae81c"
+      "bytes": 3263,
+      "sha256": "14cd9da32df701413be518acff5dfe1635b401bfaf30e78bacb1b63be95a6725"
     },
     {
       "path": "README.md",
@@ -64,7 +64,7 @@
       "path": "dist/about.html",
       "type": "text",
       "bytes": 11945,
-      "sha256": "84d5fc5e12cae308fead1cc189d11e81d3c13a5c04e13cb1e55ad4eaabae046a"
+      "sha256": "de5e1b359f2674dee28d0b710c972e83e18f5fdaf82818695a107cbfd7c6dae8"
     },
     {
       "path": "dist/admin/admin.css",
@@ -487,6 +487,12 @@
       "sha256": "01e5a5d35796e3086b0eaf34fbfc2e720f1e52a80f016f0ecf77008e3122339d"
     },
     {
+      "path": "dist/assets/xinguang-urban.webp",
+      "type": "image",
+      "bytes": 339934,
+      "sha256": "7cbc5664b0edee214c7a1d53d6fc1e762513ca1d8dc05ea6aefeda51010ece8c"
+    },
+    {
       "path": "dist/assets/yuanjie-logo-transparent.png",
       "type": "image",
       "bytes": 791514,
@@ -496,25 +502,25 @@
       "path": "dist/chengyu.html",
       "type": "text",
       "bytes": 8950,
-      "sha256": "6aaeb41e8634dc4bb80e5f0229920310ae2a3c9c31a57c0eb5bc15d7aeb52ec9"
+      "sha256": "d2a5c153394d0d1e6ef6bf64e428ef4b43aa30c91eb47f78685ad3cc1b7702ac"
     },
     {
       "path": "dist/heping.html",
       "type": "text",
       "bytes": 7891,
-      "sha256": "7d722919f744cd886f5fb872e74ff93066cc957cf61d98af1ddc6fbd0da04ff2"
+      "sha256": "beafcaa9969831a4db84c6e84b0b53cc3ba4b0daa968a060678e1c8a592ad8be"
     },
     {
       "path": "dist/index.html",
       "type": "text",
       "bytes": 8425,
-      "sha256": "f271a71be317a9943616403c9915dba6d57e2a0a164580c98776827b5e23187c"
+      "sha256": "c7e60f4659e4a714d83b1b6c9b070527ab317d494b81a29fbc64d6405de199d5"
     },
     {
       "path": "dist/jiutai.html",
       "type": "text",
       "bytes": 9109,
-      "sha256": "b4efc8846988c4c5f16fda358743c3a64170a869d8d92908a10966b1194052fb"
+      "sha256": "01a456ef3e156a39a2b4b8ba726c892bf1dbfdab0e463c62ff9e9e190c41e3bd"
     },
     {
       "path": "dist/live-content.js",
@@ -525,158 +531,158 @@
     {
       "path": "dist/project-10.html",
       "type": "text",
-      "bytes": 5870,
-      "sha256": "efd2ac103bed4b4e58275858b8c22955845dcfb31691b2970c7b1043e8a3c6b0"
+      "bytes": 5852,
+      "sha256": "5f2768b76afac4fbc1a1a3c0c11ac5ae00fee8660fd469498737317994924bda"
     },
     {
       "path": "dist/project-12.html",
       "type": "text",
-      "bytes": 5873,
-      "sha256": "b5be60dabf47a23a4d3f656eb9b35ae23ccea30489ea8f89b771b0fca8d57aaa"
+      "bytes": 5855,
+      "sha256": "5c0afc96503d3715e631e90ceea7fcd260d363223683e420cd6cae17ad6c0c82"
     },
     {
       "path": "dist/project-13.html",
       "type": "text",
-      "bytes": 5880,
-      "sha256": "721e71c6cad60fc1daa11a9e059bb4e069f749b95737322379d5d5fa7ba22a4d"
+      "bytes": 5862,
+      "sha256": "a724fa68ff30e1a471c641952f8a34fd6fe2fd0720928387271dce1a863179cd"
     },
     {
       "path": "dist/project-14.html",
       "type": "text",
-      "bytes": 6433,
-      "sha256": "5cf395114a64030c8af7b52b86d171b10d8cb077c004f4c08f4be7cd97acb0d4"
+      "bytes": 6415,
+      "sha256": "25d441d9c2c090ae5211520fb4dd62039a7799ee70881af605a53d203b3c6278"
     },
     {
       "path": "dist/project-15.html",
       "type": "text",
-      "bytes": 6528,
-      "sha256": "52491d9353d1f70d69a8d9778ff41d15ebc59d797fdb58226ceaea52ca009413"
+      "bytes": 6510,
+      "sha256": "fa715b82b84db3b357ad6b019d388de3ee0163400a7077314875a6ab69ee4206"
     },
     {
       "path": "dist/project-16.html",
       "type": "text",
-      "bytes": 6488,
-      "sha256": "230688cd6d9ddec65a76b36ab6e2581c54d90a6ab57a7d34934b831f42b82662"
+      "bytes": 6470,
+      "sha256": "896a67812e3c71dae484bf0fe8eccabf9f434b5cf5bb3ee0c6245cc6649d21ac"
     },
     {
       "path": "dist/project-17.html",
       "type": "text",
-      "bytes": 6364,
-      "sha256": "629c8de79dad116c2a0090d712fe2601b2682f23b6dc63bb9db5c09fcbb5c1f1"
+      "bytes": 6346,
+      "sha256": "55f66cfab73505cdc8a5fc9982bbfe368910c1d9d74b344fd96bec2255a5c152"
     },
     {
       "path": "dist/project-18.html",
       "type": "text",
-      "bytes": 6460,
-      "sha256": "6cdb308fe06e4191d753debd8d5753a12eeb9c276357dd66dd0bb77522e1e3c8"
+      "bytes": 6442,
+      "sha256": "71d51b236ee93857c89084c28700eae89451389fe82df45bce5db49cd71271d7"
     },
     {
       "path": "dist/project-19.html",
       "type": "text",
-      "bytes": 6318,
-      "sha256": "044a5aed343c815795c47a11cc6f46f19cf4e682bd8d8327992da0e25a995fce"
+      "bytes": 6300,
+      "sha256": "39d5e4569c3ba282a14486028e2eab6f56018e27bb4a769c4aadf73a9fbe9cff"
     },
     {
       "path": "dist/project-2.html",
       "type": "text",
-      "bytes": 9356,
-      "sha256": "1e6f6ff7c991fad3fd369088374e326247f10f0a70ffcd90d93673bcd534df41"
+      "bytes": 9338,
+      "sha256": "2385f1f255917c5287be7d2d4ef1046c12bd01d571439ae9e05f1f37fbd2a8e8"
     },
     {
       "path": "dist/project-20.html",
       "type": "text",
-      "bytes": 6741,
-      "sha256": "b1b9ce7546eb65005584e42f76e066cefabcd2d6f38d3fdb50a74a9c438306ec"
+      "bytes": 6723,
+      "sha256": "b15a239fbb181e81d5b475be46b5621fc20864fde344a9333c341dc5b07e206a"
     },
     {
       "path": "dist/project-3.html",
       "type": "text",
-      "bytes": 6757,
-      "sha256": "14573cb28da9ed8b223b8e6bcb163f4d23f345107b8fed50bbf5228b5ba5f053"
+      "bytes": 6739,
+      "sha256": "b2ebd4fee9b51e144b2866b47ea789aa087ed981232745c949ed728c3c83fa8c"
     },
     {
       "path": "dist/project-4.html",
       "type": "text",
-      "bytes": 6828,
-      "sha256": "e5f5c986e8fd46d84655aa7eca46e52d2c904109581167b25e04876557ea0a25"
+      "bytes": 6810,
+      "sha256": "bc8b607a7ce4ca63e4b2ba2c16775271c23b676d12521b43478536f80121b5e5"
     },
     {
       "path": "dist/project-5.html",
       "type": "text",
-      "bytes": 6668,
-      "sha256": "9637798a43fcc3c552409c057ae6b9030fa21c48877e14ae0b68c8adca97d2a2"
+      "bytes": 6650,
+      "sha256": "5f0155d411649cb43186438bdd42df1f88450cc6d5ed27761ebc4254fc5a334d"
     },
     {
       "path": "dist/project-6.html",
       "type": "text",
-      "bytes": 6358,
-      "sha256": "7e0e0ced4d09220f55004bfb7508517936650870048f27fa43474dfb24bcf4c5"
+      "bytes": 6340,
+      "sha256": "6691763db36e16045a5438e9c2ba2ffedf0ec543e74b5dfb563b9a81a2152e67"
     },
     {
       "path": "dist/project-7.html",
       "type": "text",
-      "bytes": 7192,
-      "sha256": "626ba8740d48efc80851a2b5e2742e205ab02dffeb22ee0331a002a8019cc3ce"
+      "bytes": 7174,
+      "sha256": "b8a5bf1098c54e1520162b1b2c54792f3e4e72fe44258e43f3efe180b8426e15"
     },
     {
       "path": "dist/project-8.html",
       "type": "text",
-      "bytes": 5869,
-      "sha256": "38958a8faad6263e3ab703baf20ce0b51421bf7a16f9cb28fab13b6f7b51cf78"
+      "bytes": 5851,
+      "sha256": "953db570fef7a8107d08b0b8a8aa31cb20954fca79261d8c82f71784b3bf1a16"
     },
     {
       "path": "dist/project-9.html",
       "type": "text",
-      "bytes": 7246,
-      "sha256": "106770d8c7983cf1d2da9ec7a8794be85dc75e311265d1a2bd96542c055aeb1b"
+      "bytes": 7228,
+      "sha256": "a5cbc82afd26429e7a4fb94eccb6be179fa1f416db9a11a5fa1fe820fd3835a3"
     },
     {
       "path": "dist/project-wuxing.html",
       "type": "text",
-      "bytes": 6473,
-      "sha256": "df95d721dc19768a2eebc70cecc5517e6a1be1b428b34134f1eb6ce4b14465b2"
+      "bytes": 6455,
+      "sha256": "dcba576cc521f96d885b1c093641e951b473cf547216f196d1258b8c85745095"
     },
     {
       "path": "dist/project-xinguang-urban.html",
       "type": "text",
-      "bytes": 6161,
-      "sha256": "ac618aba639e638d708cc621df672f8a62cdce0bbaee8c3c470e37ab9ca0bd8b"
+      "bytes": 6344,
+      "sha256": "918f6b808101b4daa68a71498c915766a6777abceda7f62a74868668eb81fb01"
     },
     {
       "path": "dist/qa.html",
       "type": "text",
       "bytes": 29782,
-      "sha256": "2e84a8e260b880c3bc29c33d885ccc567ec97c475201fb037aa72833a5cd850e"
+      "sha256": "54186082eb25b694cbf668b0550e12017373feaff2c7f59074709edcf16bca48"
     },
     {
       "path": "dist/renewal.html",
       "type": "text",
       "bytes": 6599,
-      "sha256": "b4e4865519c3e6f91737186d774abe2eea8b63fbaf6192171479cab889e45cc0"
+      "sha256": "ddd5b8545354044f1068d58dfe4590303d0de70cba2a49c5d00555655a8e6071"
     },
     {
       "path": "dist/shidong.html",
       "type": "text",
       "bytes": 9875,
-      "sha256": "a84c972fa125382c9e924b0c243e0b11c5754f5330577be7bbe7f36f9c67642c"
+      "sha256": "1e7d043f9f56432b3929fc70776a100d27fb7e6b72b915ff924d6084c7bc89e7"
     },
     {
       "path": "dist/style.css",
       "type": "text",
-      "bytes": 52638,
-      "sha256": "5fad476b15a6c90ce74075ed3b47a15383152f765885adbc8802f8ec477e5d63"
+      "bytes": 52492,
+      "sha256": "c81c496c3e87a4fd2b3830d9531af537c718bd9dc2bb91c17221e6c0d37a53b9"
     },
     {
       "path": "dist/team.html",
       "type": "text",
       "bytes": 11149,
-      "sha256": "73389f6777c598151c9948019de521383ed386efa4d3760111dc18f5b41fd953"
+      "sha256": "ad3ddd6921c865a3c8a6d1a99de29ab7cdfa71ce0c0715f50fc09b4fc40bd9f6"
     },
     {
       "path": "dist/urban.html",
       "type": "text",
       "bytes": 11017,
-      "sha256": "450616f45f871cc2f215c7f53eaf9df1336740155b7acdaab38677558365b757"
+      "sha256": "8982b61adc3be933c9956861070e8bcd7dc4ea2e5719badaeb175e5e6deec965"
     },
     {
       "path": "district-verification.md",

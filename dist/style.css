@@ -96,8 +96,6 @@ dialog img,.case-dialog img,.gallery-dialog img{width:auto;height:auto;max-width
 html,body{max-width:100%;overflow-x:clip}
 header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .wrap,.reading,.qa-layout,.page-head,.breadcrumbs,.footer-contact-grid,.footer-bottom{width:var(--content-width)}
-/* Project-detail headers leave the viewport with the page, so they never cover project content. */
-.case-page header{position:relative;top:auto}
 @media(max-width:800px){
  :root{--content-width:calc(100% - 40px)}
  header{position:relative;top:auto}
