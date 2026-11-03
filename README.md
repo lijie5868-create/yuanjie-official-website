@@ -20,15 +20,11 @@
 - GitHub Actions 定期產生搜尋引擎可讀的靜態備援頁面
 - Supabase 無法連線時保留最近一次部署的網站內容
 
-## 文件
+## 文件與備份
 
-- [開發與維運文件](docs/DEVELOPMENT.md)
-- [後台操作手冊](docs/ADMIN-GUIDE.md)
-- [修改日誌](CHANGELOG.md)
-- [備份與災難還原](docs/BACKUP-RESTORE.md)
-- [ChatGPT Project 設定與資料來源](docs/CHATGPT-PROJECT.md)
-- [換電腦與換 GPT 帳號接手](docs/NEW-COMPUTER-HANDOFF.md)
-- [專案地區資料核對](district-verification.md)
+完整開發文件、修改日誌、公開 CMS 資料備份與跨電腦接手手冊已移至私人 repository [`yuanjie-official-website-backup`](https://github.com/lijie5868-create/yuanjie-official-website-backup)。需由有權限的 GitHub 帳號登入後閱讀。網站程式與正式部署仍在本公開 repository；兩個 repository 分別保存 Git 紀錄。
+
+公開資料核對：[專案地區資料核對](district-verification.md)。既有公開 Git 歷史仍可能包含搬移前的文件與備份。
 
 ## 專案目錄
 
@@ -36,9 +32,5 @@
 dist/                  正式網站、後台與前端資源
 scripts/               Supabase 內容匯出與靜態頁面產生工具
 supabase/migrations/   資料庫、權限、Storage 與初始內容版本
-backups/               Supabase 公開內容與本地檔案雜湊清單
 .github/workflows/     GitHub Pages 自動部署流程
-docs/                  開發與操作文件
 ```
-
-目前正式版本與桌面備份的位置及核對方式記錄在[開發與維運文件](docs/DEVELOPMENT.md#原始碼與備份)。

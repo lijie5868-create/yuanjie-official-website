@@ -2,4 +2,7 @@ supabase-*.png
 supabase/.temp/
 __pycache__/
 *.pyc
+backups/
+docs/
+CHANGELOG.md
 

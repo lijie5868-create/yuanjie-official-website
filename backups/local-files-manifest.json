@@ -1,8 +1,8 @@
 {
   "scope": "local text, source, generated website and image files",
-  "text_file_count": 79,
+  "text_file_count": 74,
   "image_file_count": 69,
-  "total_bytes": 41191177,
+  "total_bytes": 41172845,
   "checked_local_asset_references": 172,
   "missing_local_asset_references": [],
   "files": [
@@ -21,8 +21,8 @@
     {
       "path": "AGENTS.md",
       "type": "text",
-      "bytes": 1758,
-      "sha256": "521298bee1d7f531a5b91a8be24fc0ef36f43d84ad4c73956a068e1245a14829"
+      "bytes": 2384,
+      "sha256": "5010831a0e054b87b2418bbf6599a328f559a30cd9372575789f1d26afe18ed7"
     },
     {
       "path": "BACKUP-ARCHIVE.md",
@@ -31,16 +31,10 @@
       "sha256": "eccca5368dacc8eb43ee87fcf7b6bf617eca1b55a37ad8affe8a9f6d31190b24"
     },
     {
-      "path": "CHANGELOG.md",
-      "type": "text",
-      "bytes": 3263,
-      "sha256": "14cd9da32df701413be518acff5dfe1635b401bfaf30e78bacb1b63be95a6725"
-    },
-    {
       "path": "README.md",
       "type": "text",
-      "bytes": 1802,
-      "sha256": "0ec8a97792f16ff8fc6d66ea00a3a0e13947fc6a140a5a946fa029ed43fdcb15"
+      "bytes": 1780,
+      "sha256": "da1c03a3649da3405b14409668c6734f68badcc173889935268cd54a238baf22"
     },
     {
       "path": "about.txt",
@@ -689,30 +683,6 @@
       "type": "text",
       "bytes": 2172,
       "sha256": "a131156aed6e77805e0a0ae72a703cea15d7276a9989ac4255d1ff65bd7baf6e"
-    },
-    {
-      "path": "docs/ADMIN-GUIDE.md",
-      "type": "text",
-      "bytes": 3282,
-      "sha256": "cf5596bedc0ac630b5ce8a09a2e97c248aebd485fd6941208b9f463f098aa0de"
-    },
-    {
-      "path": "docs/BACKUP-RESTORE.md",
-      "type": "text",
-      "bytes": 3074,
-      "sha256": "bd82a31b908c43c13954d48094402a4258e0cf1f5ae4671547af174e3fcf2a8b"
-    },
-    {
-      "path": "docs/CHATGPT-PROJECT.md",
-      "type": "text",
-      "bytes": 2626,
-      "sha256": "1b34ce39a11b18bc10d1722c6e7900785cb69a4c49dab2fe1d4b17f060361724"
-    },
-    {
-      "path": "docs/DEVELOPMENT.md",
-      "type": "text",
-      "bytes": 6691,
-      "sha256": "0bb7b66d464fd0a09e03ac8d89334d9634fdf272d6285fc9047211f7d0dc539f"
     },
     {
       "path": "extend_contact.py",
