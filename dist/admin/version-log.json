@@ -1,5 +1,12 @@
 [
   {
+    "commit": "254b31334b512dab917ec30770a9c74e828b97ae",
+    "short_commit": "254b313",
+    "committed_at": "2026-11-04T10:19:28+08:00",
+    "summary": "ui: split engineering log and add bilingual history",
+    "summary_zh": "拆分工程日誌，加入月份篩選與中英雙語建置歷程"
+  },
+  {
     "commit": "f55fa30df6390fc73cdca94cf5d3a15010d02467",
     "short_commit": "f55fa30",
     "committed_at": "2026-11-04T10:02:37+08:00",
@@ -119,13 +126,6 @@
     "summary_zh": "更新還原手冊，指向完整備份版本"
   },
   {
-    "commit": "e5fb67f22041f8792ff9c3c8e46b57b126cb7df7",
-    "short_commit": "e5fb67f",
-    "committed_at": "2026-11-03T10:53:02+08:00",
-    "summary": "backup: add complete archive chunk 1",
-    "summary_zh": "建立完整網站備份的第一分卷"
-  },
-  {
     "commit": "e0cea1f0bea40926c0e7c17e79f3ff420be20ccb",
     "short_commit": "e0cea1f",
     "committed_at": "2026-11-03T10:52:23+08:00",
@@ -133,25 +133,11 @@
     "summary_zh": "記錄小型備份分卷的使用方式"
   },
   {
-    "commit": "99b93e4fcc49ea03a8e2cc49dc4d48fe12d3ab32",
-    "short_commit": "99b93e4",
-    "committed_at": "2026-11-03T10:51:13+08:00",
-    "summary": "backup: add complete archive part 3",
-    "summary_zh": "完成網站完整備份的第三分卷"
-  },
-  {
     "commit": "2526c5bc410c96a6e6410e08a367780f0b8c8d3d",
     "short_commit": "2526c5b",
     "committed_at": "2026-11-03T10:50:35+08:00",
     "summary": "docs: add split archive recovery instructions",
     "summary_zh": "補充大型備份分卷的還原步驟"
-  },
-  {
-    "commit": "2eba86780fe96a72bcd53a9fd602dba1a7ea70e3",
-    "short_commit": "2eba867",
-    "committed_at": "2026-11-03T10:49:27+08:00",
-    "summary": "backup: add recovery agent and project index",
-    "summary_zh": "新增復原工具與專案檔案索引"
   },
   {
     "commit": "77164eac6fddfb7f67139892b96b518a84a8e1ea",

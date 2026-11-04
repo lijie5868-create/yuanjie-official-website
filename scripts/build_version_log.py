@@ -66,6 +66,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: add drag sorting for navigation": "導覽選單加入滑鼠拖曳排序",
     "feat: add admin engineering log": "建立工程日誌，記錄網站版本與管理員操作",
     "ui: split engineering log and add bilingual history": "拆分工程日誌，加入月份篩選與中英雙語建置歷程",
+    "fix: keep website history on deployed main branch": "網站更新只保留正式主線版本，排除未部署的備份分支",
 }
 
 
@@ -81,7 +82,7 @@ def main():
         [
             "git",
             "log",
-            "--all",
+            "main",
             "--date=iso-strict",
             "--pretty=format:%H%x1f%h%x1f%cI%x1f%s%x1e",
         ],
