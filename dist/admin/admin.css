@@ -14,6 +14,11 @@ header span, .hint, small, .dashboard-heading p, .navigation-intro p { color: #7
 .login h1 { margin: 0 0 10px; font-family: serif; font-size: 34px; }
 .login p { line-height: 1.7; }
 .login form, .toolbar > div, .edit-tools, .navigation-actions { display: flex; gap: 8px; }
+.login .login-form { flex-direction: column; gap: 14px; }
+.login-form label { display: grid; gap: 6px; color: #555; font-size: 14px; }
+.login-links { display: flex; justify-content: space-between; gap: 12px; }
+.login .text-button { min-height: auto; padding: 3px 0; color: #684c31; background: transparent; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.login .text-button:hover { filter: none; color: #302d29; }
 input, textarea, select { width: 100%; min-width: 0; border: 1px solid #c9c8c0; border-radius: 7px; padding: 10px 11px; background: #fff; color: inherit; font: inherit; }
 input:focus, textarea:focus { outline: 2px solid #9d7a5538; border-color: #8a6742; }
 button, .upload { border: 0; border-radius: 7px; padding: 10px 16px; background: #6a5035; color: #fff; font: inherit; cursor: pointer; }
@@ -195,6 +200,8 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
   .login { width: 100%; margin: 7vh 0 0; padding: 28px 22px; }
   .login h1 { font-size: 30px; }
   .login form, .login form > * { width: 100%; min-width: 0; }
+  .login-links { align-items: flex-start; flex-direction: column; }
+  .login .text-button { width: auto; min-height: 32px; text-align: left; }
   .login button { min-height: 46px; }
   .dashboard-heading h1 { font-size: 30px; }
   .dashboard-heading p { font-size: 14px; line-height: 1.6; }

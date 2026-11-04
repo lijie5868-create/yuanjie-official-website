@@ -685,12 +685,39 @@ $('navigationList').addEventListener('dragend',()=>{
   document.querySelectorAll('.navigation-row.dragging,.navigation-row.drag-target').forEach(row=>row.classList.remove('dragging','drag-target'));
 });
 window.addEventListener('beforeunload',event=>{if(pageDirty||navigationDirty){event.preventDefault();event.returnValue=''}});
-$('loginForm').onsubmit=async event=>{
+$('passwordLoginForm').onsubmit=async event=>{
   event.preventDefault();
   const email=$('email').value.trim().toLowerCase();
   if(!allowedEmails.has(email)){$('loginMessage').textContent='此信箱沒有後台權限。';return}
+  $('loginMessage').textContent='登入中…';
+  const {error}=await supabase.auth.signInWithPassword({email,password:$('password').value});
+  $('loginMessage').textContent=error?'Email 或密碼不正確。':'';
+};
+$('magicLinkLogin').onclick=async()=>{
+  const email=$('email').value.trim().toLowerCase();
+  if(!allowedEmails.has(email)){$('loginMessage').textContent='此信箱沒有後台權限。';return}
+  $('loginMessage').textContent='寄送中…';
   const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:location.href,shouldCreateUser:true}});
   $('loginMessage').textContent=error?error.message:'登入連結已寄出，請到信箱收信。';
+};
+$('resetPassword').onclick=async()=>{
+  const email=$('email').value.trim().toLowerCase();
+  if(!allowedEmails.has(email)){$('loginMessage').textContent='此信箱沒有後台權限。';return}
+  $('loginMessage').textContent='寄送中…';
+  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  $('loginMessage').textContent=error?error.message:'密碼設定連結已寄出，請到信箱收信。';
+};
+$('passwordRecoveryForm').onsubmit=async event=>{
+  event.preventDefault();
+  const password=$('newPassword').value;
+  if(password.length<8){$('passwordRecoveryMessage').textContent='密碼至少需要 8 個字元。';return}
+  if(password!==$('confirmPassword').value){$('passwordRecoveryMessage').textContent='兩次輸入的密碼不一致。';return}
+  $('passwordRecoveryMessage').textContent='儲存中…';
+  const {error}=await supabase.auth.updateUser({password});
+  if(error){$('passwordRecoveryMessage').textContent=error.message;return}
+  $('passwordRecovery').hidden=true;
+  const {data:{session}}=await supabase.auth.getSession();
+  showAuthenticatedState(session);
 };
 $('save').onclick=()=>saveDraft().catch(error=>message(error.message,true));
 $('publish').onclick=()=>publish().catch(error=>message(error.message,true));
@@ -716,12 +743,24 @@ async function loadDashboard(){
   }
 }
 
-supabase.auth.onAuthStateChange((_event,session)=>{
+function showAuthenticatedState(session){
   const valid=allowedEmails.has(session?.user?.email?.toLowerCase());
   $('login').hidden=valid;
+  $('passwordRecovery').hidden=true;
   $('app').hidden=!valid;
   $('signOut').hidden=!valid;
   if(valid)requestAnimationFrame(renderSidebarWidth);
   if(valid)renderAdministrators(session.user.email||'');
   if(valid&&!pages.length)setTimeout(loadDashboard,0);
+}
+
+supabase.auth.onAuthStateChange((event,session)=>{
+  if(event==='PASSWORD_RECOVERY'){
+    $('login').hidden=true;
+    $('passwordRecovery').hidden=false;
+    $('app').hidden=true;
+    $('signOut').hidden=true;
+    return;
+  }
+  showAuthenticatedState(session);
 });

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=16">
+  <link rel="stylesheet" href="admin.css?v=17">
 </head>
 <body>
   <div class="shell">
@@ -16,12 +16,36 @@
 
     <section id="login" class="card login">
       <h1>管理員登入</h1>
-      <p>登入連結只會寄到公司後台管理信箱。</p>
-      <form id="loginForm">
-        <input id="email" type="email" value="lijie5868@gmail.com" required>
-        <button>寄送登入連結</button>
+      <p>使用已授權的管理員 Email 登入網站後台。</p>
+      <form id="passwordLoginForm" class="login-form">
+        <label>Email
+          <input id="email" type="email" value="lijie5868@gmail.com" autocomplete="username" required>
+        </label>
+        <label>密碼
+          <input id="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button id="passwordLoginButton">使用密碼登入</button>
+        <div class="login-links">
+          <button id="magicLinkLogin" type="button" class="text-button">改用 Email 登入連結</button>
+          <button id="resetPassword" type="button" class="text-button">設定／忘記密碼</button>
+        </div>
       </form>
       <p id="loginMessage" class="message"></p>
+    </section>
+
+    <section id="passwordRecovery" class="card login" hidden>
+      <h1>設定新密碼</h1>
+      <p>請設定至少 8 個字元的新密碼，完成後即可直接進入後台。</p>
+      <form id="passwordRecoveryForm" class="login-form">
+        <label>新密碼
+          <input id="newPassword" type="password" minlength="8" autocomplete="new-password" required>
+        </label>
+        <label>再次輸入新密碼
+          <input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required>
+        </label>
+        <button id="savePasswordButton">儲存新密碼</button>
+      </form>
+      <p id="passwordRecoveryMessage" class="message"></p>
     </section>
 
     <main id="app" hidden>
@@ -181,6 +205,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script type="module" src="admin.js?v=15"></script>
+  <script type="module" src="admin.js?v=16"></script>
 </body>
 </html>
