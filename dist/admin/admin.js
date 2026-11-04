@@ -14,6 +14,8 @@ let dashboardLoading=false;
 let pageDirty=false;
 let navigationDirty=false;
 let activityLoaded=false;
+let activityRecords=[];
+let websiteVersions=[];
 const expandedPageGroups=new Set(['主要頁面']);
 const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
 const pageLayout=document.querySelector('.pages-layout');
@@ -288,7 +290,30 @@ function formatLogTime(value){
   return new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value));
 }
 
-function renderActivity(records){
+function monthKey(value){
+  const date=new Date(value);
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+}
+
+function monthLabel(value){
+  const [year,month]=value.split('-');
+  return `${year} 年 ${Number(month)} 月`;
+}
+
+function populateMonthFilter(selectId,records,dateField){
+  const select=$(selectId);
+  const previous=select.value;
+  const months=[...new Set(records.map(record=>monthKey(record[dateField])))].sort().reverse();
+  const options=[new Option('全部月份',''),...months.map(month=>new Option(monthLabel(month),month))];
+  select.replaceChildren(...options);
+  if(months.includes(previous))select.value=previous;
+}
+
+function renderActivity(){
+  const selectedMonth=$('adminActivityMonth').value;
+  const records=selectedMonth
+    ?activityRecords.filter(record=>monthKey(record.created_at)===selectedMonth)
+    :activityRecords;
   const groups=new Map();
   records.forEach(record=>{
     const key=`${record.transaction_id}:${record.action}`;
@@ -322,27 +347,47 @@ function renderActivity(records){
   if(!entries.length){
     const empty=document.createElement('p');
     empty.className='activity-empty';
-    empty.textContent='工程日誌啟用後，新的後台修改會顯示在這裡。';
+    empty.textContent=selectedMonth?'這個月份沒有管理員操作紀錄。':'工程日誌啟用後，新的後台修改會顯示在這裡。';
     entries.push(empty);
   }
   $('activityList').replaceChildren(...entries);
 }
 
-function renderVersions(versions){
+function renderVersions(){
+  const selectedMonth=$('websiteActivityMonth').value;
+  const versions=selectedMonth
+    ?websiteVersions.filter(version=>monthKey(version.committed_at)===selectedMonth)
+    :websiteVersions;
   const entries=versions.map(version=>{
     const article=document.createElement('article');
     article.className='version-entry';
     const time=document.createElement('time');
     time.dateTime=version.committed_at;
     time.textContent=formatLogTime(version.committed_at);
-    const summary=document.createElement('strong');
-    summary.textContent=version.summary;
+    const copy=document.createElement('div');
+    copy.className='version-entry-copy';
+    const summaryZh=document.createElement('strong');
+    summaryZh.textContent=version.summary_zh||version.summary;
+    const summaryEn=document.createElement('p');
+    summaryEn.lang='en';
+    summaryEn.textContent=version.summary;
+    copy.append(summaryZh,summaryEn);
     const commit=document.createElement('code');
     commit.textContent=version.short_commit;
-    article.append(time,summary,commit);
+    article.append(time,copy,commit);
     return article;
   });
+  if(!entries.length){
+    const empty=document.createElement('p');
+    empty.className='activity-empty';
+    empty.textContent='這個月份沒有網站更新紀錄。';
+    entries.push(empty);
+  }
   $('versionList').replaceChildren(...entries);
+  if(websiteVersions.length){
+    const earliest=websiteVersions.at(-1);
+    $('versionHistorySummary').textContent=`現存紀錄共 ${websiteVersions.length} 次，可回溯至 ${formatLogTime(earliest.committed_at)}。`;
+  }
 }
 
 async function fetchActivity(){
@@ -358,8 +403,12 @@ async function fetchActivity(){
     })
   ]);
   if(activityResult.error)throw activityResult.error;
-  renderActivity(activityResult.data||[]);
-  renderVersions(versionResult||[]);
+  activityRecords=activityResult.data||[];
+  websiteVersions=versionResult||[];
+  populateMonthFilter('adminActivityMonth',activityRecords,'created_at');
+  populateMonthFilter('websiteActivityMonth',websiteVersions,'committed_at');
+  renderActivity();
+  renderVersions();
   activityLoaded=true;
   activityMessage('');
 }
@@ -399,6 +448,18 @@ function switchView(view){
 }
 
 document.querySelectorAll('.admin-tabs button').forEach(button=>button.onclick=()=>switchView(button.dataset.view));
+function switchActivityView(view){
+  document.querySelectorAll('.activity-tabs button').forEach(button=>{
+    const active=button.dataset.activityView===view;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-selected',String(active));
+  });
+  $('adminActivityPanel').hidden=view!=='admin';
+  $('websiteActivityPanel').hidden=view!=='website';
+}
+document.querySelectorAll('.activity-tabs button').forEach(button=>button.onclick=()=>switchActivityView(button.dataset.activityView));
+$('adminActivityMonth').onchange=renderActivity;
+$('websiteActivityMonth').onchange=renderVersions;
 $('pageSearch').oninput=event=>renderPageList(event.target.value);
 for(const id of ['title','description'])$(id).addEventListener('input',()=>{pageDirty=true});
 $('navigationList').addEventListener('input',()=>{navigationDirty=true});
