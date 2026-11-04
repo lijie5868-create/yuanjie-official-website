@@ -69,6 +69,7 @@ SUMMARY_TRANSLATIONS = {
     "fix: keep website history on deployed main branch": "網站更新只保留正式主線版本，排除未部署的備份分支",
     "feat: add administrator directory": "後台新增管理員名單頁面，顯示目前授權帳號",
     "ui: compact admin navigation header": "縮短後台頂部區域，讓操作面板更快出現在畫面中",
+    "ui: reduce admin brand bar height": "縮小後台品牌列文字、按鈕與上下留白",
 }
 
 

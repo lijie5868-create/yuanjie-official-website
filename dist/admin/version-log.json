@@ -1,5 +1,12 @@
 [
   {
+    "commit": "77f608014442802ed75c0c3d32cf1ebf67a9b761",
+    "short_commit": "77f6080",
+    "committed_at": "2026-11-04T10:42:02+08:00",
+    "summary": "ui: compact admin navigation header",
+    "summary_zh": "縮短後台頂部區域，讓操作面板更快出現在畫面中"
+  },
+  {
     "commit": "9e3765903d32ff8424ab158f72b1357d596705e6",
     "short_commit": "9e37659",
     "committed_at": "2026-11-04T10:36:43+08:00",
