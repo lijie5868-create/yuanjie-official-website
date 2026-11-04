@@ -179,14 +179,13 @@ function navigationRow(item){
   row.className='navigation-row';
   row.dataset.key=item.nav_key;
   row.innerHTML=`
+    <div class="order-controls"><button type="button" class="drag-handle" title="拖曳調整位置" aria-label="拖曳調整位置">⠿</button><button type="button" class="order-button move-up" aria-label="向前移動">↑</button><button type="button" class="order-button move-down" aria-label="向後移動">↓</button></div>
     <label><span>選單名稱</span><input data-field="label"></label>
     <label><span>第二行副標</span><input data-field="subtitle"></label>
     <div class="destination"><span>連結頁面</span><strong></strong><small></small></div>
-    <label><span>順序</span><input data-field="nav_order" type="number" step="10"></label>
     <label class="visibility"><input data-field="is_visible" type="checkbox"><span>顯示</span></label>`;
   row.querySelector('[data-field="label"]').value=item.label;
   row.querySelector('[data-field="subtitle"]').value=item.subtitle||'';
-  row.querySelector('[data-field="nav_order"]').value=item.nav_order;
   row.querySelector('[data-field="is_visible"]').checked=item.is_visible;
   const matchingPage=pages.find(page=>page.file_name===item.href);
   row.querySelector('.destination strong').textContent=matchingPage?.title||item.nav_key;
@@ -196,6 +195,27 @@ function navigationRow(item){
 
 function renderNavigation(){
   $('navigationList').replaceChildren(...navigation.sort((a,b)=>a.nav_order-b.nav_order).map(navigationRow));
+  updateNavigationOrderControls();
+}
+
+function navigationRows(){return [...document.querySelectorAll('.navigation-row')]}
+
+function updateNavigationOrderControls(){
+  const rows=navigationRows();
+  rows.forEach((row,index)=>{
+    row.querySelector('.move-up').disabled=index===0;
+    row.querySelector('.move-down').disabled=index===rows.length-1;
+  });
+}
+
+function moveNavigationRow(row,direction){
+  const sibling=direction<0?row.previousElementSibling:row.nextElementSibling;
+  if(!sibling)return;
+  if(direction<0)sibling.before(row);
+  else sibling.after(row);
+  navigationDirty=true;
+  updateNavigationOrderControls();
+  row.querySelector('.drag-handle').focus();
 }
 
 async function fetchNavigation(){
@@ -206,7 +226,7 @@ async function fetchNavigation(){
 }
 
 function navigationPayload(){
-  return [...document.querySelectorAll('.navigation-row')].map(row=>{
+  return navigationRows().map((row,index)=>{
     const original=navigation.find(item=>item.nav_key===row.dataset.key);
     const label=row.querySelector('[data-field="label"]').value.trim();
     if(!label)throw new Error('選單名稱不能留空。');
@@ -215,7 +235,7 @@ function navigationPayload(){
       label,
       subtitle:row.querySelector('[data-field="subtitle"]').value.trim(),
       href:original.href,
-      nav_order:Number(row.querySelector('[data-field="nav_order"]').value)||0,
+      nav_order:(index+1)*10,
       is_visible:row.querySelector('[data-field="is_visible"]').checked,
       updated_at:new Date().toISOString()
     };
@@ -276,6 +296,51 @@ $('pageSearch').oninput=event=>renderPageList(event.target.value);
 for(const id of ['title','description'])$(id).addEventListener('input',()=>{pageDirty=true});
 $('navigationList').addEventListener('input',()=>{navigationDirty=true});
 $('navigationList').addEventListener('change',()=>{navigationDirty=true});
+$('navigationList').addEventListener('click',event=>{
+  const row=event.target.closest('.navigation-row');
+  if(!row)return;
+  if(event.target.closest('.move-up'))moveNavigationRow(row,-1);
+  if(event.target.closest('.move-down'))moveNavigationRow(row,1);
+});
+let draggedNavigationRow=null;
+$('navigationList').addEventListener('pointerdown',event=>{
+  const handle=event.target.closest('.drag-handle');
+  if(!handle||event.pointerType==='touch')return;
+  handle.closest('.navigation-row').draggable=true;
+});
+$('navigationList').addEventListener('pointerup',event=>{
+  const row=event.target.closest('.navigation-row');
+  if(row&&!draggedNavigationRow)row.draggable=false;
+});
+$('navigationList').addEventListener('dragstart',event=>{
+  const row=event.target.closest('.navigation-row');
+  if(!row||!row.draggable)return;
+  draggedNavigationRow=row;
+  row.classList.add('dragging');
+  event.dataTransfer.effectAllowed='move';
+  event.dataTransfer.setData('text/plain',row.dataset.key);
+});
+$('navigationList').addEventListener('dragover',event=>{
+  if(!draggedNavigationRow)return;
+  event.preventDefault();
+  const target=event.target.closest('.navigation-row');
+  document.querySelectorAll('.navigation-row.drag-target').forEach(row=>row.classList.remove('drag-target'));
+  if(!target||target===draggedNavigationRow)return;
+  target.classList.add('drag-target');
+  const before=event.clientY<target.getBoundingClientRect().top+target.offsetHeight/2;
+  target[before?'before':'after'](draggedNavigationRow);
+});
+$('navigationList').addEventListener('drop',event=>{
+  if(!draggedNavigationRow)return;
+  event.preventDefault();
+  navigationDirty=true;
+  updateNavigationOrderControls();
+});
+$('navigationList').addEventListener('dragend',()=>{
+  if(draggedNavigationRow)draggedNavigationRow.draggable=false;
+  draggedNavigationRow=null;
+  document.querySelectorAll('.navigation-row.dragging,.navigation-row.drag-target').forEach(row=>row.classList.remove('dragging','drag-target'));
+});
 window.addEventListener('beforeunload',event=>{if(pageDirty||navigationDirty){event.preventDefault();event.returnValue=''}});
 $('loginForm').onsubmit=async event=>{
   event.preventDefault();
