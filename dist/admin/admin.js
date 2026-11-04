@@ -13,6 +13,7 @@ let current=null;
 let dashboardLoading=false;
 let pageDirty=false;
 let navigationDirty=false;
+let activityLoaded=false;
 const expandedPageGroups=new Set(['主要頁面']);
 const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
 const pageLayout=document.querySelector('.pages-layout');
@@ -91,6 +92,7 @@ function showMessage(target,text,error=false){
 
 function message(text,error=false){showMessage('appMessage',text,error)}
 function navigationMessage(text,error=false){showMessage('navigationMessage',text,error)}
+function activityMessage(text,error=false){showMessage('activityMessage',text,error)}
 
 function editorDocument(html){
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${basePath}style.css"><style>body{margin:0;padding:18px;background:#fff}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body>${html}</body></html>`;
@@ -249,6 +251,7 @@ async function saveNavigationDraft(){
   navigation=data;
   renderNavigation();
   navigationDirty=false;
+  activityLoaded=false;
   navigationMessage('選單草稿已儲存，正式網站尚未變更。');
 }
 
@@ -258,7 +261,107 @@ async function publishNavigation(){
   const rows=navigation.map(({nav_key,label,subtitle,href,nav_order,is_visible})=>({nav_key,label,subtitle,href,nav_order,is_visible,published_at:publishedAt}));
   const {error}=await supabase.from('published_navigation').upsert(rows,{onConflict:'nav_key'});
   if(error)throw error;
+  activityLoaded=false;
   navigationMessage('選單已發布。重新整理正式網站即可看到更新。');
+}
+
+const activityActionLabels={
+  page_draft_saved:'儲存頁面草稿',
+  page_published:'發布頁面',
+  navigation_draft_saved:'儲存導覽草稿',
+  navigation_published:'發布導覽選單'
+};
+const activityFieldLabels={
+  title:'頁面標題',
+  meta_description:'搜尋摘要',
+  main_html:'頁面內容',
+  label:'選單名稱',
+  subtitle:'第二行副標',
+  nav_order:'排列位置',
+  is_visible:'顯示狀態',
+  href:'連結頁面',
+  file_name:'頁面檔名',
+  sort_order:'頁面排序'
+};
+
+function formatLogTime(value){
+  return new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value));
+}
+
+function renderActivity(records){
+  const groups=new Map();
+  records.forEach(record=>{
+    const key=`${record.transaction_id}:${record.action}`;
+    if(!groups.has(key))groups.set(key,{...record,targets:[],fields:new Set()});
+    const group=groups.get(key);
+    if(record.entity_label&&!group.targets.includes(record.entity_label))group.targets.push(record.entity_label);
+    (record.changed_fields||[]).forEach(field=>group.fields.add(field));
+  });
+  const entries=[...groups.values()].map(group=>{
+    const article=document.createElement('article');
+    article.className='activity-entry';
+    const heading=document.createElement('div');
+    heading.className='activity-entry-heading';
+    const title=document.createElement('h3');
+    title.textContent=activityActionLabels[group.action]||group.action;
+    const time=document.createElement('time');
+    time.dateTime=group.created_at;
+    time.textContent=formatLogTime(group.created_at);
+    heading.append(title,time);
+    const target=document.createElement('p');
+    target.textContent=group.targets.length?group.targets.join('、'):'網站設定';
+    const fields=document.createElement('p');
+    const fieldNames=[...group.fields].map(field=>activityFieldLabels[field]||field);
+    fields.textContent=fieldNames.length?`變更：${fieldNames.join('、')}`:'完成重新發布';
+    const actor=document.createElement('p');
+    actor.className='activity-actor';
+    actor.textContent=`管理員：${group.actor_email}`;
+    article.append(heading,target,fields,actor);
+    return article;
+  });
+  if(!entries.length){
+    const empty=document.createElement('p');
+    empty.className='activity-empty';
+    empty.textContent='工程日誌啟用後，新的後台修改會顯示在這裡。';
+    entries.push(empty);
+  }
+  $('activityList').replaceChildren(...entries);
+}
+
+function renderVersions(versions){
+  const entries=versions.map(version=>{
+    const article=document.createElement('article');
+    article.className='version-entry';
+    const time=document.createElement('time');
+    time.dateTime=version.committed_at;
+    time.textContent=formatLogTime(version.committed_at);
+    const summary=document.createElement('strong');
+    summary.textContent=version.summary;
+    const commit=document.createElement('code');
+    commit.textContent=version.short_commit;
+    article.append(time,summary,commit);
+    return article;
+  });
+  $('versionList').replaceChildren(...entries);
+}
+
+async function fetchActivity(){
+  activityMessage('正在讀取工程日誌…');
+  const [activityResult,versionResult]=await Promise.all([
+    supabase.from('admin_activity_log')
+      .select('id,transaction_id,action,entity_type,entity_key,entity_label,actor_email,changed_fields,created_at')
+      .order('created_at',{ascending:false})
+      .limit(300),
+    fetch('version-log.json',{cache:'no-store'}).then(response=>{
+      if(!response.ok)throw new Error('無法讀取網站版本紀錄。');
+      return response.json();
+    })
+  ]);
+  if(activityResult.error)throw activityResult.error;
+  renderActivity(activityResult.data||[]);
+  renderVersions(versionResult||[]);
+  activityLoaded=true;
+  activityMessage('');
 }
 
 async function saveDraft(){
@@ -267,6 +370,7 @@ async function saveDraft(){
   if(error)throw error;
   Object.assign(current,data);
   pageDirty=false;
+  activityLoaded=false;
   $('savedAt').textContent=`上次儲存：${new Date(current.updated_at).toLocaleString('zh-TW')}`;
   renderPageList($('pageSearch').value);
   message('草稿已儲存，正式網站尚未變更。');
@@ -277,6 +381,7 @@ async function publish(){
   const payload={slug:current.slug,file_name:current.file_name,title:current.title,meta_description:current.meta_description,main_html:current.main_html,sort_order:current.sort_order,published_at:new Date().toISOString()};
   const {error}=await supabase.from('published_pages').upsert(payload,{onConflict:'slug'});
   if(error)throw error;
+  activityLoaded=false;
   message('發布完成。重新整理正式網站即可看到更新。');
 }
 
@@ -288,7 +393,9 @@ function switchView(view){
   });
   $('pagesView').hidden=view!=='pages';
   $('navigationView').hidden=view!=='navigation';
+  $('activityView').hidden=view!=='activity';
   if(view==='pages')requestAnimationFrame(renderSidebarWidth);
+  if(view==='activity'&&!activityLoaded)fetchActivity().catch(error=>activityMessage(error.message,true));
 }
 
 document.querySelectorAll('.admin-tabs button').forEach(button=>button.onclick=()=>switchView(button.dataset.view));
@@ -353,6 +460,7 @@ $('save').onclick=()=>saveDraft().catch(error=>message(error.message,true));
 $('publish').onclick=()=>publish().catch(error=>message(error.message,true));
 $('saveNavigation').onclick=()=>saveNavigationDraft().catch(error=>navigationMessage(error.message,true));
 $('publishNavigation').onclick=()=>publishNavigation().catch(error=>navigationMessage(error.message,true));
+$('activityRefresh').onclick=()=>fetchActivity().catch(error=>activityMessage(error.message,true));
 $('signOut').onclick=()=>supabase.auth.signOut();
 document.querySelectorAll('[data-command]').forEach(button=>button.onclick=()=>{
   const command=button.dataset.command;

@@ -87,6 +87,25 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
 .destination strong, .destination small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .visibility { display: flex; justify-content: center; align-items: center; gap: 7px; }
 .visibility input { width: 18px; height: 18px; accent-color: #6a5035; }
+.activity-layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(280px, .75fr); gap: 20px; align-items: start; }
+.activity-card, .version-card { padding: 26px; }
+.activity-heading { display: flex; justify-content: space-between; gap: 24px; align-items: start; margin-bottom: 20px; }
+.activity-heading h2, .version-card h2 { margin: 3px 0 6px; font-family: serif; font-size: 25px; }
+.activity-heading p, .version-card > p { margin: 0; color: #70716c; line-height: 1.65; }
+.activity-heading button { flex: 0 0 auto; }
+.activity-list, .version-list { display: grid; gap: 10px; }
+.activity-entry { padding: 15px 16px; border: 1px solid #e2dfd8; border-radius: 10px; background: #faf9f6; }
+.activity-entry-heading { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+.activity-entry h3 { margin: 0; font-size: 16px; }
+.activity-entry time, .version-entry time { color: #77736c; font-size: 12px; white-space: nowrap; }
+.activity-entry p { margin: 8px 0 0; color: #55534e; line-height: 1.55; }
+.activity-entry .activity-actor { color: #78634e; font-size: 12px; }
+.version-list { margin-top: 18px; }
+.version-entry { padding: 12px 0; border-top: 1px solid #e6e2da; }
+.version-entry:first-child { padding-top: 0; border-top: 0; }
+.version-entry strong { display: block; margin: 3px 0; font-size: 14px; line-height: 1.45; }
+.version-entry code { color: #7b5a39; font-size: 12px; }
+.activity-empty { padding: 28px 12px; color: #77736c; text-align: center; border: 1px dashed #d8d3ca; border-radius: 10px; }
 .image-dialog { width: min(92vw, 850px); max-height: 92vh; overflow: auto; padding: 24px; border: 1px solid #deddd6; border-radius: 14px; box-shadow: 0 20px 70px #0004; color: #20211f; background: #fff; }
 .image-dialog::backdrop { background: #14110ec2; }
 .image-dialog-heading, .image-dialog-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -103,6 +122,7 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 @media (max-width: 980px) {
+  .activity-layout { grid-template-columns: 1fr; }
   .navigation-intro { align-items: flex-start; flex-direction: column; }
   .navigation-labels { display: none; }
   .navigation-row { grid-template-columns: 104px repeat(2, minmax(0, 1fr)); }
@@ -139,7 +159,7 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
   .login button { min-height: 46px; }
   .dashboard-heading h1 { font-size: 30px; }
   .dashboard-heading p { font-size: 14px; line-height: 1.6; }
-  .admin-tabs { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .admin-tabs { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
   .admin-tabs button { padding-inline: 8px; }
   .page-list { grid-template-columns: 1fr; }
   .page-sidebar { max-height: 420px; overflow: auto; }
@@ -155,6 +175,10 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
   .order-controls { grid-row: auto; grid-template-columns: minmax(80px, 1fr) 48px 48px; }
   .drag-handle { grid-row: auto; min-height: 44px; }
   .visibility { align-self: auto; }
+  .activity-card, .version-card { padding: 16px; }
+  .activity-heading { flex-direction: column; gap: 14px; }
+  .activity-heading button { width: 100%; }
+  .activity-entry-heading { align-items: start; flex-direction: column; gap: 5px; }
   .image-dialog { width: calc(100vw - 20px); max-height: 95vh; padding: 16px; }
   .image-controls { grid-template-columns: 1fr; }
   .image-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; }

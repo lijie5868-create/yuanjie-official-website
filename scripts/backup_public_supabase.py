@@ -110,6 +110,7 @@ def main():
         "excludes": [
             "Auth users and sessions",
             "private draft tables",
+            "admin activity audit log",
             "project secrets",
             "Edge Function source code",
         ],
