@@ -1,5 +1,12 @@
 [
   {
+    "commit": "20be4ab5cc8efe6013b6b9301b84f5b901cea145",
+    "short_commit": "20be4ab",
+    "committed_at": "2026-11-04T11:13:10+08:00",
+    "summary": "ui: refine homepage team section",
+    "summary_zh": "重整首頁團隊介紹，平衡照片、文字與下方合作內容"
+  },
+  {
     "commit": "5663ae0fe1a9eb87db1caeca763bff096d662b1b",
     "short_commit": "5663ae0",
     "committed_at": "2026-11-04T11:08:40+08:00",

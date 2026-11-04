@@ -250,3 +250,24 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .team-home .copy{margin:16px 0 14px}
  .cooperation{padding-top:8px}
 }
+
+/* Project index — consistent editorial cards for photos and planning placeholders. */
+.case-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:42px 28px}
+.case-grid .case-card{display:grid;grid-template-rows:auto 1fr;align-content:start}
+.case-grid .case-card>img,
+.case-grid .case-placeholder{
+ display:block;
+ width:100%;
+ height:auto;
+ aspect-ratio:4/3;
+ object-fit:contain;
+ background:#E5E8EA;
+}
+.case-grid .case-placeholder{display:flex}
+.case-grid .case-card-copy{padding:20px 0 22px}
+@media(max-width:900px){
+ .case-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:34px 22px}
+}
+@media(max-width:600px){
+ .case-grid{grid-template-columns:1fr;gap:30px}
+}
