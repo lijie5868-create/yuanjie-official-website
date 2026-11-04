@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=14">
+  <link rel="stylesheet" href="admin.css?v=15">
 </head>
 <body>
   <div class="shell">
@@ -118,11 +118,13 @@
                 <p>記錄頁面草稿、正式發布與導覽選單修改。紀錄由資料庫自動產生，無法從後台刪除。</p>
               </div>
               <div class="activity-actions">
+                <span id="adminActivityCount" class="activity-count"></span>
                 <label>紀錄月份<select id="adminActivityMonth" aria-label="篩選管理員操作月份"></select></label>
                 <button type="button" id="activityRefresh" class="secondary">重新整理</button>
               </div>
             </div>
             <div id="activityList" class="activity-list" aria-live="polite"></div>
+            <nav id="adminActivityPagination" class="log-pagination" aria-label="管理員操作紀錄分頁"></nav>
             <p id="activityMessage" class="message"></p>
         </section>
 
@@ -134,6 +136,7 @@
               <p>保留從接手前端網站、建立後台，到持續維運優化的每一次程式版本。</p>
             </div>
             <div class="activity-actions">
+              <span id="websiteActivityCount" class="activity-count"></span>
               <label>紀錄月份<select id="websiteActivityMonth" aria-label="篩選網站更新月份"></select></label>
             </div>
           </div>
@@ -144,6 +147,7 @@
           </div>
           <p id="versionHistorySummary" class="history-summary"></p>
             <div id="versionList" class="version-list"></div>
+            <nav id="websiteActivityPagination" class="log-pagination" aria-label="網站更新紀錄分頁"></nav>
         </section>
       </section>
 
@@ -176,6 +180,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script type="module" src="admin.js?v=12"></script>
+  <script type="module" src="admin.js?v=13"></script>
 </body>
 </html>

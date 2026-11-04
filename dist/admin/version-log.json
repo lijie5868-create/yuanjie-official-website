@@ -1,5 +1,12 @@
 [
   {
+    "commit": "472c3acafdb94ef4218bd013d1255bb4af70cde8",
+    "short_commit": "472c3ac",
+    "committed_at": "2026-11-04T12:42:43+08:00",
+    "summary": "ui: recolor value illustrations for brand",
+    "summary_zh": "將四張理念插畫的綠色改為元捷品牌金色，保留全部文字"
+  },
+  {
     "commit": "249fa62668b7816e73aab0e907cdbdf072a01a39",
     "short_commit": "249fa62",
     "committed_at": "2026-11-04T12:40:16+08:00",

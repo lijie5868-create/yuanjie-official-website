@@ -98,6 +98,7 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
 .activity-heading h2, .version-card h2 { margin: 3px 0 6px; font-family: serif; font-size: 25px; }
 .activity-heading p { max-width: 760px; margin: 0; color: #70716c; line-height: 1.65; }
 .activity-actions { display: flex; flex: 0 0 auto; gap: 10px; align-items: end; }
+.activity-count { align-self: center; white-space: nowrap; padding: 7px 11px; border-radius: 999px; color: #674a2e; background: #f0ebe4; font-size: 13px; font-weight: 700; }
 .activity-actions label { display: grid; gap: 5px; min-width: 170px; color: #77736c; font-size: 12px; }
 .activity-actions select { min-height: 42px; background: #fff; }
 .activity-actions button { min-height: 42px; flex: 0 0 auto; }
@@ -122,6 +123,11 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
 .version-entry p { margin: 0; color: #77736c; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
 .version-entry code { color: #7b5a39; font-size: 12px; }
 .activity-empty { padding: 28px 12px; color: #77736c; text-align: center; border: 1px dashed #d8d3ca; border-radius: 10px; }
+.log-pagination { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+.log-pagination button { min-width: 40px; min-height: 40px; padding: 8px 11px; color: #4d4b46; background: #efede8; }
+.log-pagination button.current { color: #fff; background: #6a5035; }
+.log-pagination button:disabled { opacity: .38; cursor: default; }
+.log-pagination span { padding: 0 3px; color: #77736c; }
 .administrators-card { padding: 26px; }
 .administrators-heading { display: flex; justify-content: space-between; gap: 24px; align-items: start; margin-bottom: 22px; }
 .administrators-heading h2 { margin: 3px 0 6px; font-family: serif; font-size: 25px; }
@@ -209,6 +215,7 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
   .activity-card, .version-card { padding: 16px; }
   .activity-heading { flex-direction: column; gap: 14px; }
   .activity-actions { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); width: 100%; }
+  .activity-count { justify-self: start; }
   .activity-actions label { min-width: 0; }
   .activity-actions button { align-self: end; }
   .activity-entry-heading { align-items: start; flex-direction: column; gap: 5px; }

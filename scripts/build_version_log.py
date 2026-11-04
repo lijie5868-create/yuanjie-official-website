@@ -84,6 +84,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: use licensed illustrated value cards": "四個核心理念改用可商用的 Storyset 人物線稿，保留原文並標註插畫來源",
     "fix: refresh licensed value illustrations": "修正圖片快取造成的舊插畫顯示，改用新版人物線稿檔名",
     "ui: recolor value illustrations for brand": "將四張理念插畫的綠色改為元捷品牌金色，保留全部文字",
+    "feat: paginate engineering logs": "工程日誌加入頁碼與總筆數，可查看完整的管理員操作及網站更新歷史",
 }
 
 

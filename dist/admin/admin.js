@@ -16,6 +16,9 @@ let navigationDirty=false;
 let activityLoaded=false;
 let activityRecords=[];
 let websiteVersions=[];
+const logPageSize=20;
+let adminActivityPage=1;
+let websiteActivityPage=1;
 const expandedPageGroups=new Set(['主要頁面']);
 const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
 const pageLayout=document.querySelector('.pages-layout');
@@ -309,11 +312,7 @@ function populateMonthFilter(selectId,records,dateField){
   if(months.includes(previous))select.value=previous;
 }
 
-function renderActivity(){
-  const selectedMonth=$('adminActivityMonth').value;
-  const records=selectedMonth
-    ?activityRecords.filter(record=>monthKey(record.created_at)===selectedMonth)
-    :activityRecords;
+function groupedActivityRecords(records){
   const groups=new Map();
   records.forEach(record=>{
     const key=`${record.transaction_id}:${record.action}`;
@@ -322,7 +321,60 @@ function renderActivity(){
     if(record.entity_label&&!group.targets.includes(record.entity_label))group.targets.push(record.entity_label);
     (record.changed_fields||[]).forEach(field=>group.fields.add(field));
   });
-  const entries=[...groups.values()].map(group=>{
+  return [...groups.values()];
+}
+
+function renderPagination(containerId,currentPage,totalItems,onSelect){
+  const container=$(containerId);
+  const totalPages=Math.max(1,Math.ceil(totalItems/logPageSize));
+  container.replaceChildren();
+  container.hidden=totalItems<=logPageSize;
+  if(container.hidden)return;
+  const button=(label,page,options={})=>{
+    const item=document.createElement('button');
+    item.type='button';
+    item.textContent=label;
+    item.disabled=Boolean(options.disabled);
+    if(options.current){
+      item.className='current';
+      item.setAttribute('aria-current','page');
+    }
+    item.setAttribute('aria-label',options.label||`第 ${page} 頁`);
+    item.onclick=()=>onSelect(page);
+    return item;
+  };
+  container.append(button('上一頁',Math.max(1,currentPage-1),{disabled:currentPage===1,label:'上一頁'}));
+  const visible=new Set([1,totalPages,currentPage-2,currentPage-1,currentPage,currentPage+1,currentPage+2]);
+  const pages=[...visible].filter(page=>page>=1&&page<=totalPages).sort((a,b)=>a-b);
+  pages.forEach((page,index)=>{
+    if(index&&page-pages[index-1]>1){
+      const gap=document.createElement('span');
+      gap.textContent='…';
+      gap.setAttribute('aria-hidden','true');
+      container.append(gap);
+    }
+    container.append(button(String(page),page,{current:page===currentPage}));
+  });
+  container.append(button('下一頁',Math.min(totalPages,currentPage+1),{disabled:currentPage===totalPages,label:'下一頁'}));
+}
+
+function logRangeLabel(page,total){
+  if(!total)return '共 0 筆';
+  const first=(page-1)*logPageSize+1;
+  const last=Math.min(page*logPageSize,total);
+  return `第 ${first}–${last} 筆，共 ${total} 筆`;
+}
+
+function renderActivity(){
+  const selectedMonth=$('adminActivityMonth').value;
+  const records=selectedMonth
+    ?activityRecords.filter(record=>monthKey(record.created_at)===selectedMonth)
+    :activityRecords;
+  const groups=groupedActivityRecords(records);
+  const totalPages=Math.max(1,Math.ceil(groups.length/logPageSize));
+  adminActivityPage=Math.min(adminActivityPage,totalPages);
+  const visible=groups.slice((adminActivityPage-1)*logPageSize,adminActivityPage*logPageSize);
+  const entries=visible.map(group=>{
     const article=document.createElement('article');
     article.className='activity-entry';
     const heading=document.createElement('div');
@@ -351,6 +403,12 @@ function renderActivity(){
     entries.push(empty);
   }
   $('activityList').replaceChildren(...entries);
+  $('adminActivityCount').textContent=logRangeLabel(adminActivityPage,groups.length);
+  renderPagination('adminActivityPagination',adminActivityPage,groups.length,page=>{
+    adminActivityPage=page;
+    renderActivity();
+    $('adminActivityPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  });
 }
 
 function renderVersions(){
@@ -358,7 +416,10 @@ function renderVersions(){
   const versions=selectedMonth
     ?websiteVersions.filter(version=>monthKey(version.committed_at)===selectedMonth)
     :websiteVersions;
-  const entries=versions.map(version=>{
+  const totalPages=Math.max(1,Math.ceil(versions.length/logPageSize));
+  websiteActivityPage=Math.min(websiteActivityPage,totalPages);
+  const visible=versions.slice((websiteActivityPage-1)*logPageSize,websiteActivityPage*logPageSize);
+  const entries=visible.map(version=>{
     const article=document.createElement('article');
     article.className='version-entry';
     const time=document.createElement('time');
@@ -384,9 +445,15 @@ function renderVersions(){
     entries.push(empty);
   }
   $('versionList').replaceChildren(...entries);
+  $('websiteActivityCount').textContent=logRangeLabel(websiteActivityPage,versions.length);
+  renderPagination('websiteActivityPagination',websiteActivityPage,versions.length,page=>{
+    websiteActivityPage=page;
+    renderVersions();
+    $('websiteActivityPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  });
   if(websiteVersions.length){
     const earliest=websiteVersions.at(-1);
-    $('versionHistorySummary').textContent=`現存紀錄共 ${websiteVersions.length} 次，可回溯至 ${formatLogTime(earliest.committed_at)}。`;
+    $('versionHistorySummary').textContent=`全部網站更新共 ${websiteVersions.length} 筆，可回溯至 ${formatLogTime(earliest.committed_at)}。`;
   }
 }
 
@@ -415,19 +482,33 @@ function renderAdministrators(currentEmail=''){
 
 async function fetchActivity(){
   activityMessage('正在讀取工程日誌…');
-  const [activityResult,versionResult]=await Promise.all([
+  const activityColumns='id,transaction_id,action,entity_type,entity_key,entity_label,actor_email,changed_fields,created_at';
+  const [firstActivityResult,versionResult]=await Promise.all([
     supabase.from('admin_activity_log')
-      .select('id,transaction_id,action,entity_type,entity_key,entity_label,actor_email,changed_fields,created_at')
+      .select(activityColumns,{count:'exact'})
       .order('created_at',{ascending:false})
-      .limit(300),
+      .order('id',{ascending:false})
+      .range(0,999),
     fetch('version-log.json',{cache:'no-store'}).then(response=>{
       if(!response.ok)throw new Error('無法讀取網站版本紀錄。');
       return response.json();
     })
   ]);
-  if(activityResult.error)throw activityResult.error;
-  activityRecords=activityResult.data||[];
+  if(firstActivityResult.error)throw firstActivityResult.error;
+  activityRecords=firstActivityResult.data||[];
+  const totalActivityRows=firstActivityResult.count||activityRecords.length;
+  for(let from=activityRecords.length;from<totalActivityRows;from+=1000){
+    const {data,error}=await supabase.from('admin_activity_log')
+      .select(activityColumns)
+      .order('created_at',{ascending:false})
+      .order('id',{ascending:false})
+      .range(from,Math.min(from+999,totalActivityRows-1));
+    if(error)throw error;
+    activityRecords.push(...(data||[]));
+  }
   websiteVersions=versionResult||[];
+  adminActivityPage=1;
+  websiteActivityPage=1;
   populateMonthFilter('adminActivityMonth',activityRecords,'created_at');
   populateMonthFilter('websiteActivityMonth',websiteVersions,'committed_at');
   renderActivity();
@@ -482,8 +563,8 @@ function switchActivityView(view){
   $('websiteActivityPanel').hidden=view!=='website';
 }
 document.querySelectorAll('.activity-tabs button').forEach(button=>button.onclick=()=>switchActivityView(button.dataset.activityView));
-$('adminActivityMonth').onchange=renderActivity;
-$('websiteActivityMonth').onchange=renderVersions;
+$('adminActivityMonth').onchange=()=>{adminActivityPage=1;renderActivity()};
+$('websiteActivityMonth').onchange=()=>{websiteActivityPage=1;renderVersions()};
 $('pageSearch').oninput=event=>renderPageList(event.target.value);
 for(const id of ['title','description'])$(id).addEventListener('input',()=>{pageDirty=true});
 $('navigationList').addEventListener('input',()=>{navigationDirty=true});
