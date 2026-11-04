@@ -350,3 +350,46 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .page-head+.wrap,
  .page-head+.qa-layout{padding-top:24px}
 }
+
+/* Subtle image zoom for clickable project cards and photo viewers. */
+@media(hover:hover) and (pointer:fine){
+ .case-card{overflow:hidden}
+ .case-card-copy{position:relative;z-index:1;background:var(--paper)}
+ .case-card>img,
+ .gallery button img,
+ .meeting-gallery button img,
+ .press-gallery button img,
+ .heping-gallery button img,
+ .journal-grid button img,
+ .taian-journal-grid button img,
+ .portfolio-zoom img,
+ .image-zoom img{transition:transform .35s ease,filter .35s ease;transform-origin:center}
+ .gallery button,
+ .meeting-gallery button,
+ .press-gallery button,
+ .heping-gallery button,
+ .journal-grid button,
+ .taian-journal-grid button,
+ .portfolio-zoom,
+ .image-zoom{overflow:hidden}
+ .case-card:hover>img,
+ .gallery button:hover img,
+ .meeting-gallery button:hover img,
+ .press-gallery button:hover img,
+ .heping-gallery button:hover img,
+ .journal-grid button:hover img,
+ .taian-journal-grid button:hover img,
+ .portfolio-zoom:hover img,
+ .image-zoom:hover img{transform:scale(1.025);filter:brightness(1.035)}
+}
+@media(prefers-reduced-motion:reduce){
+ .case-card>img,
+ .gallery button img,
+ .meeting-gallery button img,
+ .press-gallery button img,
+ .heping-gallery button img,
+ .journal-grid button img,
+ .taian-journal-grid button img,
+ .portfolio-zoom img,
+ .image-zoom img{transition:none!important;transform:none!important}
+}

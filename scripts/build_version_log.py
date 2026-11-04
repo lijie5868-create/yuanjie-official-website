@@ -78,6 +78,7 @@ SUMMARY_TRANSLATIONS = {
     "feat: add project location filters": "新增建案縣市與行政區標籤，可快速篩選進行個案",
     "ui: compact urban project heading": "縮短進行個案頁首與篩選器間距，減少首屏空白",
     "ui: compact inner page headings": "統一縮短全站內頁標題區與首段內容間距",
+    "ui: add subtle image hover zoom": "為可點擊建案與照片加入輕微滑入縮放效果",
 }
 
 

@@ -1,5 +1,12 @@
 [
   {
+    "commit": "7859f440a294a22572d38316bf41001051e2c1e9",
+    "short_commit": "7859f44",
+    "committed_at": "2026-11-04T11:51:15+08:00",
+    "summary": "ui: compact inner page headings",
+    "summary_zh": "統一縮短全站內頁標題區與首段內容間距"
+  },
+  {
     "commit": "e51fdbc82dde07068a9aa50374c93be38e84437c",
     "short_commit": "e51fdbc",
     "committed_at": "2026-11-04T11:48:27+08:00",
