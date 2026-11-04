@@ -13,6 +13,7 @@ let current=null;
 let dashboardLoading=false;
 let pageDirty=false;
 let navigationDirty=false;
+const expandedPageGroups=new Set(['主要頁面']);
 const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
 
 function showMessage(target,text,error=false){
@@ -75,10 +76,16 @@ function renderPageList(filter=''){
   for(const [heading,predicate] of [["主要頁面",page=>primaryPages.has(page.slug)],["個案頁面",page=>!primaryPages.has(page.slug)]]){
     const grouped=matches.filter(predicate);
     if(!grouped.length)continue;
-    const group=document.createElement('section');
+    const group=document.createElement('details');
     group.className='page-group';
-    const title=document.createElement('h3');
+    group.open=Boolean(query)||expandedPageGroups.has(heading);
+    const title=document.createElement('summary');
     title.textContent=heading;
+    group.addEventListener('toggle',()=>{
+      if(query)return;
+      if(group.open)expandedPageGroups.add(heading);
+      else expandedPageGroups.delete(heading);
+    });
     group.append(title,...grouped.map(pageButton));
     list.append(group);
   }
