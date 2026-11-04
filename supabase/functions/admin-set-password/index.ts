@@ -15,9 +15,7 @@ Deno.serve(async request => {
   if (!url || !secret) return reply(503, '伺服器尚未設定完成。');
   const admin = createClient(url, secret, { auth: { autoRefreshToken: false, persistSession: false } });
   const { data: { user }, error: authError } = await admin.auth.getUser(token);
-  if (authError || !user?.email_confirmed_at) return reply(403, '請使用管理員帳號登入。');
-  const { data: callerRole, error: roleError } = await admin.from('site_user_roles').select('role,email').eq('user_id', user.id).single();
-  if (roleError || callerRole?.role !== 'admin' || callerRole.email !== user.email?.toLowerCase() || !admins.has(callerRole.email)) return reply(403, '只有管理員可以設定臨時密碼。');
+  if (authError || !user?.email || !admins.has(user.email.toLowerCase())) return reply(403, '只有管理員可以操作。');
   let body: { action?: unknown; email?: unknown; password?: unknown };
   try { body = await request.json(); } catch { return reply(400, '請檢查輸入內容。'); }
   if (body.action === 'list_roles') {

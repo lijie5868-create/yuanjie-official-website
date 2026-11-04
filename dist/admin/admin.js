@@ -539,11 +539,20 @@ function renderAdministrators(currentEmail=''){
 }
 
 async function loadRoleList(){
-  const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{action:'list_roles'}});
-  if(error||!Array.isArray(data?.roles))return;
+  const output=$('adminPasswordMessage');
+  output.textContent='正在讀取帳號名單…';
+  let data,error;
+  try{({data,error}=await supabase.functions.invoke('admin-set-password',{body:{action:'list_roles'}}))}
+  catch{output.textContent='帳號名單載入失敗，請重新整理後台。';return}
+  if(error||!Array.isArray(data?.roles)){
+    const detail=await error?.context?.json?.().catch(()=>null);
+    output.textContent=detail?.message||'帳號名單載入失敗，請重新整理後台。';
+    return;
+  }
   const select=$('targetAdmin');
   select.replaceChildren(new Option('請選擇',''),...data.roles.map(item=>new Option(`${item.email}（${item.role==='admin'?'管理員':'員工'}）`,item.email)));
   roleListLoaded=true;
+  output.textContent='';
 }
 
 $('createEmployeeForm').onsubmit=async event=>{
@@ -557,7 +566,8 @@ $('createEmployeeForm').onsubmit=async event=>{
   output.textContent='建立中…';
   try{
     const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{action:'create_employee',email,password}});
-    output.textContent=error?data?.message||'建立失敗。':data.message;
+    const detail=error?await error.context?.json?.().catch(()=>null):null;
+    output.textContent=error?detail?.message||'建立失敗。':data.message;
     if(!error){$('employeeEmail').value='';$('employeePassword').value='';roleListLoaded=false;loadRoleList()}
   }catch{output.textContent='建立失敗。'}
   finally{button.disabled=false}
@@ -574,7 +584,8 @@ $('adminPasswordForm').onsubmit=async event=>{
   button.disabled=true;
   try{
     const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{action:'set_password',email,password}});
-    output.textContent=error?data?.message||'設定失敗，請稍後重試。':data.message;
+    const detail=error?await error.context?.json?.().catch(()=>null):null;
+    output.textContent=error?detail?.message||'設定失敗，請稍後重試。':data.message;
     if(!error)$('temporaryPassword').value='';
   }catch{output.textContent='設定失敗，請稍後重試。'}
   finally{button.disabled=false}
