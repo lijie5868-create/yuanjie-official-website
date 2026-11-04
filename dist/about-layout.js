@@ -2,7 +2,39 @@
 (() => {
   document.body.classList.add('about-page');
 
+  function organizeValues() {
+    const section = document.querySelector('main .values-section');
+    if (!section || section.classList.contains('values-organized')) return;
+    const wheel = section.querySelector('.value-wheel');
+    const definitions = section.querySelector('.value-definitions');
+    const cards = definitions && Array.from(definitions.children);
+    if (!wheel || cards?.length !== 4) return;
+
+    const illustrations = [
+      'value-professional.svg',
+      'value-integrity.svg',
+      'value-responsibility.svg',
+      'value-passion.svg'
+    ];
+    cards.forEach((card, index) => {
+      card.classList.add('value-card');
+      const number = document.createElement('span');
+      number.className = 'value-card-number';
+      number.textContent = String(index + 1).padStart(2, '0');
+      const image = document.createElement('img');
+      image.src = `assets/${illustrations[index]}`;
+      image.alt = '';
+      image.width = 280;
+      image.height = 180;
+      image.loading = 'lazy';
+      card.prepend(number, image);
+    });
+    wheel.remove();
+    section.classList.add('values-organized');
+  }
+
   function organize() {
+    organizeValues();
     const article = document.querySelector('main article.reading');
     if (!article || article.classList.contains('about-organized')) return;
 

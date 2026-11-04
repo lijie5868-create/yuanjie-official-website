@@ -426,3 +426,25 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .about-chapter h2{font-size:23px}
  .about-chapter p{font-size:16px}
 }
+
+/* Four original architectural illustrations replace the old value wheel. */
+.about-page .values-section{padding-top:42px;padding-bottom:48px}
+.about-page .values-section .section-title{margin:7px 0 0;font-size:clamp(28px,2.5vw,38px);line-height:1.45}
+.about-page .values-section .values-layout{display:block;margin-top:32px}
+.about-page .values-section .value-definitions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+.about-page .values-section .value-card{min-width:0;display:flex;flex-direction:column;align-items:flex-start;padding:18px 18px 22px;border:1px solid #D3D8DA;border-top:2px solid #C5A880;background:#F8F8F6}
+.about-page .value-card-number{font:400 30px/1.1 Georgia,serif;color:#AEBAC0}
+.about-page .value-card img{display:block;width:100%;height:150px;object-fit:contain;margin:4px 0 17px}
+.about-page .value-card dt{width:100%;margin:0 0 9px;padding-top:13px;border-top:1px solid #CFD4D7;font:400 24px/1.4 'Noto Serif TC',serif;letter-spacing:1px;color:#1A1D20}
+.about-page .value-card dd{font-size:15px;line-height:1.8;color:#525B61}
+@media(max-width:900px){
+ .about-page .values-section .value-definitions{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .about-page .values-section{padding-top:28px;padding-bottom:34px}
+ .about-page .values-section .values-layout{margin-top:24px}
+ .about-page .values-section .value-definitions{grid-template-columns:1fr;gap:14px}
+ .about-page .values-section .value-card{padding:16px 18px 19px}
+ .about-page .value-card img{height:125px;margin:0 0 12px}
+ .about-page .value-card dt{font-size:22px}
+}

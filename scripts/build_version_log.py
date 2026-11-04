@@ -80,6 +80,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: compact inner page headings": "統一縮短全站內頁標題區與首段內容間距",
     "ui: add subtle image hover zoom": "為可點擊建案與照片加入輕微滑入縮放效果",
     "ui: organize philosophy longform": "整理公司理念長文版面並加入章節索引，保留完整原文",
+    "ui: redesign core values cards": "以原創建築線條插圖呈現四個核心理念，保留全部文字",
 }
 
 
