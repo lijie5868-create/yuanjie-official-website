@@ -87,14 +87,34 @@ SUMMARY_TRANSLATIONS = {
     "feat: paginate engineering logs": "工程日誌加入頁碼與總筆數，可查看完整的管理員操作及網站更新歷史",
     "fix: deploy complete engineering history": "修正正式部署只取得最近 50 筆版本的限制，恢復完整網站更新歷史",
     "fix: keep scroll position during log paging": "工程日誌換頁時保留目前閱讀位置，不再自動捲回面板頂端",
+    "fix: prevent stale CMS content from overwriting live pages": "避免過期的後台內容覆蓋正式網站頁面",
+    "feat: show reading progress in company philosophy chapters": "公司理念章節加入閱讀進度提示",
+    "fix: give company philosophy article more reading width": "加寬公司理念文章的閱讀區域",
+    "fix: extend philosophy chapter navigation into left margin": "將公司理念章節導覽延伸至左側留白區",
+    "fix: keep team experience rows balanced": "調整菁英團隊經歷欄位的排列平衡",
+    "feat: add professional network icons": "合作團隊分類加入品牌風格圖示",
+    "fix: keep scroll position when filtering projects": "篩選建案後保留目前頁面位置",
+    "feat: add password login for administrators": "後台新增管理員帳號密碼登入",
+    "fix: keep password recovery screen active": "修正密碼重設連結開啟後的畫面切換",
+    "feat: allow designated admin to set temporary passwords": "指定管理員可協助設定臨時密碼",
+    "feat: add admin and read-only employee roles": "建立管理員與唯讀員工角色權限",
+    "fix: show role list errors and simplify admin check": "修正管理員帳號名單載入與錯誤提示",
+    "fix: grant role table access to password function": "修正密碼管理函式讀取角色名單的權限",
 }
 
 
 def translate_summary(short_commit: str, summary: str) -> str:
-    return COMMIT_TRANSLATIONS.get(
+    translated = COMMIT_TRANSLATIONS.get(
         short_commit,
         SUMMARY_TRANSLATIONS.get(summary, summary),
     )
+    if translated == summary and summary.isascii():
+        if summary.startswith("fix:"):
+            return "修正網站功能"
+        if summary.startswith(("feat:", "ui:")):
+            return "更新網站功能與介面"
+        return "更新網站程式與文件"
+    return translated
 
 
 def main():

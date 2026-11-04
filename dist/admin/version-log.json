@@ -1,5 +1,103 @@
 [
   {
+    "commit": "e264c59d30ae4b244eb704b3ff6b761ec11d92c2",
+    "short_commit": "e264c59",
+    "committed_at": "2026-11-04T15:49:54+08:00",
+    "summary": "fix: grant role table access to password function",
+    "summary_zh": "修正密碼管理函式讀取角色名單的權限"
+  },
+  {
+    "commit": "c5eec2eb27878665b34eea7d775fa18f732b9fa7",
+    "short_commit": "c5eec2e",
+    "committed_at": "2026-11-04T15:43:29+08:00",
+    "summary": "fix: show role list errors and simplify admin check",
+    "summary_zh": "修正管理員帳號名單載入與錯誤提示"
+  },
+  {
+    "commit": "3668c2721cdf72aad5dd93c5aeaf14e12b4a6dee",
+    "short_commit": "3668c27",
+    "committed_at": "2026-11-04T15:36:33+08:00",
+    "summary": "feat: add admin and read-only employee roles",
+    "summary_zh": "建立管理員與唯讀員工角色權限"
+  },
+  {
+    "commit": "e5a67e3d9daf057fb73459417d8cd91378769f6b",
+    "short_commit": "e5a67e3",
+    "committed_at": "2026-11-04T15:20:55+08:00",
+    "summary": "feat: allow designated admin to set temporary passwords",
+    "summary_zh": "指定管理員可協助設定臨時密碼"
+  },
+  {
+    "commit": "ff198a41e6e1c8112622fd359b0509be7097a516",
+    "short_commit": "ff198a4",
+    "committed_at": "2026-11-04T15:01:06+08:00",
+    "summary": "fix: keep password recovery screen active",
+    "summary_zh": "修正密碼重設連結開啟後的畫面切換"
+  },
+  {
+    "commit": "36f1dc2f960113baaa6aaafac624038260b61bb5",
+    "short_commit": "36f1dc2",
+    "committed_at": "2026-11-04T14:12:18+08:00",
+    "summary": "feat: add password login for administrators",
+    "summary_zh": "後台新增管理員帳號密碼登入"
+  },
+  {
+    "commit": "6fa2d3c05248d8773ca5db8ce3814ba5cca5ac33",
+    "short_commit": "6fa2d3c",
+    "committed_at": "2026-11-04T13:49:08+08:00",
+    "summary": "fix: keep scroll position when filtering projects",
+    "summary_zh": "篩選建案後保留目前頁面位置"
+  },
+  {
+    "commit": "57ba4078a074210cc659690b46f60fbc2c4c053e",
+    "short_commit": "57ba407",
+    "committed_at": "2026-11-04T13:44:33+08:00",
+    "summary": "feat: add professional network icons",
+    "summary_zh": "合作團隊分類加入品牌風格圖示"
+  },
+  {
+    "commit": "8cb6cd05a12810a3a228210409e0ccc176c69e44",
+    "short_commit": "8cb6cd0",
+    "committed_at": "2026-11-04T13:38:13+08:00",
+    "summary": "fix: keep team experience rows balanced",
+    "summary_zh": "調整菁英團隊經歷欄位的排列平衡"
+  },
+  {
+    "commit": "a98ce067c94a4c2c84ff90c6baf5f75029b597f1",
+    "short_commit": "a98ce06",
+    "committed_at": "2026-11-04T13:19:05+08:00",
+    "summary": "fix: extend philosophy chapter navigation into left margin",
+    "summary_zh": "將公司理念章節導覽延伸至左側留白區"
+  },
+  {
+    "commit": "6b10c02fc51c146171dd05b6e3743c50f84a21c5",
+    "short_commit": "6b10c02",
+    "committed_at": "2026-11-04T13:15:39+08:00",
+    "summary": "fix: give company philosophy article more reading width",
+    "summary_zh": "加寬公司理念文章的閱讀區域"
+  },
+  {
+    "commit": "579b036deb03cb687b960179e959a442d58ddf0e",
+    "short_commit": "579b036",
+    "committed_at": "2026-11-04T13:11:57+08:00",
+    "summary": "feat: show reading progress in company philosophy chapters",
+    "summary_zh": "公司理念章節加入閱讀進度提示"
+  },
+  {
+    "commit": "700be1bbece93346cdd2532ee99f527a31e840fb",
+    "short_commit": "700be1b",
+    "committed_at": "2026-11-04T13:06:10+08:00",
+    "summary": "fix: prevent stale CMS content from overwriting live pages",
+    "summary_zh": "避免過期的後台內容覆蓋正式網站頁面"
+  },
+  {
+    "commit": "04ab4e7fdb6ab089b85b94a8c5e90deee6862f9d",
+    "short_commit": "04ab4e7",
+    "committed_at": "2026-11-04T12:56:14+08:00",
+    "summary": "fix: keep scroll position during log paging",
+    "summary_zh": "工程日誌換頁時保留目前閱讀位置，不再自動捲回面板頂端"
+  },
+  {
     "commit": "e3a3630eb883c2c7050cf33617050b0d39a3edb7",
     "short_commit": "e3a3630",
     "committed_at": "2026-11-04T12:52:49+08:00",
