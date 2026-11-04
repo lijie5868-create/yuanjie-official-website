@@ -1,5 +1,12 @@
 [
   {
+    "commit": "5663ae0fe1a9eb87db1caeca763bff096d662b1b",
+    "short_commit": "5663ae0",
+    "committed_at": "2026-11-04T11:08:40+08:00",
+    "summary": "ui: redesign homepage featured projects",
+    "summary_zh": "重整首頁精選建案，整合圖片、案名、摘要與入口"
+  },
+  {
     "commit": "382afe09db9f8052a0fdeeb8e1a29b1f95b7b8b5",
     "short_commit": "382afe0",
     "committed_at": "2026-11-04T10:49:38+08:00",

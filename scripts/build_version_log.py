@@ -72,6 +72,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: reduce admin brand bar height": "縮小後台品牌列文字、按鈕與上下留白",
     "ui: compact public website header": "縮小正式網站頁首、Logo、公司文字與導覽選單高度",
     "ui: redesign homepage featured projects": "重整首頁精選建案，整合圖片、案名、摘要與入口",
+    "ui: refine homepage team section": "重整首頁團隊介紹，平衡照片、文字與下方合作內容",
 }
 
 
