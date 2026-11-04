@@ -1,5 +1,12 @@
 [
   {
+    "commit": "9e3765903d32ff8424ab158f72b1357d596705e6",
+    "short_commit": "9e37659",
+    "committed_at": "2026-11-04T10:36:43+08:00",
+    "summary": "feat: add administrator directory",
+    "summary_zh": "後台新增管理員名單頁面，顯示目前授權帳號"
+  },
+  {
     "commit": "ab05ca69394e8235ba5933bb7de344b77a7b2a01",
     "short_commit": "ab05ca6",
     "committed_at": "2026-11-04T10:21:01+08:00",

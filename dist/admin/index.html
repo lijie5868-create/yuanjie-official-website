@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=12">
+  <link rel="stylesheet" href="admin.css?v=13">
 </head>
 <body>
   <div class="shell">
@@ -25,18 +25,20 @@
     </section>
 
     <main id="app" hidden>
-      <div class="dashboard-heading">
-        <div>
-          <h1>網站內容管理</h1>
-          <p>先儲存草稿，確認後再發布到正式網站。</p>
+      <div class="dashboard-toolbar">
+        <div class="dashboard-heading">
+          <div>
+            <h1>網站內容管理</h1>
+            <p>先儲存草稿，確認後再發布到正式網站。</p>
+          </div>
         </div>
+        <nav class="admin-tabs" aria-label="後台功能">
+          <button type="button" class="active" data-view="pages">網站頁面</button>
+          <button type="button" data-view="navigation">導覽選單</button>
+          <button type="button" data-view="activity">工程日誌</button>
+          <button type="button" data-view="administrators">管理員</button>
+        </nav>
       </div>
-      <nav class="admin-tabs" aria-label="後台功能">
-        <button type="button" class="active" data-view="pages">網站頁面</button>
-        <button type="button" data-view="navigation">導覽選單</button>
-        <button type="button" data-view="activity">工程日誌</button>
-        <button type="button" data-view="administrators">管理員</button>
-      </nav>
 
       <section id="pagesView" class="admin-view">
         <div class="pages-layout">

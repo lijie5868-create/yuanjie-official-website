@@ -68,6 +68,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: split engineering log and add bilingual history": "拆分工程日誌，加入月份篩選與中英雙語建置歷程",
     "fix: keep website history on deployed main branch": "網站更新只保留正式主線版本，排除未部署的備份分支",
     "feat: add administrator directory": "後台新增管理員名單頁面，顯示目前授權帳號",
+    "ui: compact admin navigation header": "縮短後台頂部區域，讓操作面板更快出現在畫面中",
 }
 
 
