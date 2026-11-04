@@ -290,7 +290,17 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .team-page .team-section .copy{margin:0;line-height:1.8}
 .team-page .network{gap:26px 36px;margin-top:28px}
 .team-page .network article{padding-top:14px}
-.team-page .network h3{margin:6px 0 9px;line-height:1.5}
+.team-page .network h3{display:flex;align-items:center;gap:12px;margin:6px 0 9px;line-height:1.5}
+.team-page .network h3::before{content:"";width:34px;height:34px;flex:0 0 34px;background:center/contain no-repeat}
+.team-page .network article:nth-child(1) h3::before{background-image:url("assets/network-builder.svg")}
+.team-page .network article:nth-child(2) h3::before{background-image:url("assets/network-design.svg")}
+.team-page .network article:nth-child(3) h3::before{background-image:url("assets/network-bank.svg")}
+.team-page .network article:nth-child(4) h3::before{background-image:url("assets/network-management.svg")}
+.team-page .network article:nth-child(5) h3::before{background-image:url("assets/network-valuation.svg")}
+.team-page .network article:nth-child(6) h3::before{background-image:url("assets/network-project.svg")}
+.team-page .network article:nth-child(7) h3::before{background-image:url("assets/network-structure.svg")}
+.team-page .network article:nth-child(8) h3::before{background-image:url("assets/network-renewal.svg")}
+.team-page .network article:nth-child(9) h3::before{background-image:url("assets/network-contractor.svg")}
 .team-page .network p{margin:0;line-height:1.8}
 .team-page .network+.note{margin-top:28px;padding-top:18px}
 .team-page .press-description{margin:12px 0 0;line-height:1.85}
