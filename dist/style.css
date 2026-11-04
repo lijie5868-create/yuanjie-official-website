@@ -393,3 +393,36 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .portfolio-zoom img,
  .image-zoom img{transition:none!important;transform:none!important}
 }
+
+/* Company philosophy: a readable long-form article with chapter navigation. */
+.about-page article.reading{max-width:1400px;padding-top:42px;padding-bottom:64px}
+.about-reading-layout{display:grid;grid-template-columns:220px minmax(0,820px);justify-content:space-between;gap:clamp(40px,6vw,100px)}
+.about-chapters{align-self:start;position:sticky;top:88px;display:grid;gap:0;border-top:2px solid #C5A880}
+.about-chapters-title{padding:16px 0 8px;color:#4A6984;font-size:12px;letter-spacing:2px}
+.about-chapters a{display:flex;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid #CFD4D7;color:#37414A;font-size:13px;line-height:1.55}
+.about-chapters a:hover,.about-chapters a:focus-visible{color:#4A6984}
+.about-chapters a span{flex:none;color:#9B8060;font:13px Georgia,serif}
+.about-reading-content{min-width:0}
+.about-opening{padding:22px 28px 22px 30px;border-left:2px solid #C5A880;background:#E9ECEE}
+.about-opening p{margin:0 0 12px;font-size:16px;line-height:1.85}
+.about-opening p:last-child{margin-bottom:0}
+.about-opening p:first-child{color:#263A44;font-family:'Noto Serif TC',serif;font-size:19px;line-height:1.8}
+.about-chapter{padding:34px 0 30px;border-bottom:1px solid #CFD4D7;scroll-margin-top:86px}
+.about-chapter h2{margin:0 0 18px;padding:0;border:0;color:#1A1D20;font-size:clamp(24px,2.1vw,31px);line-height:1.5;letter-spacing:1px}
+.about-chapter p{margin:0 0 14px;font-size:16px;line-height:1.85;letter-spacing:.01em}
+.about-chapter p:last-child{margin-bottom:0}
+@media(max-width:900px){
+ .about-reading-layout{grid-template-columns:1fr;gap:26px}
+ .about-chapters{position:static;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px}
+ .about-chapters-title{grid-column:1/-1}
+}
+@media(max-width:600px){
+ .about-page article.reading{padding-top:26px;padding-bottom:40px}
+ .about-chapters{grid-template-columns:1fr;gap:0}
+ .about-chapters a{padding:9px 0}
+ .about-opening{padding:18px 18px 18px 20px}
+ .about-opening p:first-child{font-size:17px}
+ .about-chapter{padding:28px 0 25px}
+ .about-chapter h2{font-size:23px}
+ .about-chapter p{font-size:16px}
+}

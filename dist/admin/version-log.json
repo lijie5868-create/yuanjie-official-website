@@ -1,5 +1,12 @@
 [
   {
+    "commit": "2223e49ecd7d74c30151cfe4e37abf962356c9d8",
+    "short_commit": "2223e49",
+    "committed_at": "2026-11-04T11:56:50+08:00",
+    "summary": "ui: add subtle image hover zoom",
+    "summary_zh": "為可點擊建案與照片加入輕微滑入縮放效果"
+  },
+  {
     "commit": "7859f440a294a22572d38316bf41001051e2c1e9",
     "short_commit": "7859f44",
     "committed_at": "2026-11-04T11:51:15+08:00",

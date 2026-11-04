@@ -79,6 +79,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: compact urban project heading": "縮短進行個案頁首與篩選器間距，減少首屏空白",
     "ui: compact inner page headings": "統一縮短全站內頁標題區與首段內容間距",
     "ui: add subtle image hover zoom": "為可點擊建案與照片加入輕微滑入縮放效果",
+    "ui: organize philosophy longform": "整理公司理念長文版面並加入章節索引，保留完整原文",
 }
 
 
