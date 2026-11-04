@@ -336,3 +336,17 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .urban-page .page-head .crumb{margin-bottom:14px}
  .urban-page main>.wrap{padding-top:22px}
 }
+
+/* Shared inner-page heading rhythm across the site. */
+.page-head{padding-top:28px;padding-bottom:28px}
+.page-head .crumb{margin-bottom:20px}
+.page-head h1{margin:8px 0 10px;line-height:1.35}
+.page-head .lead{margin-top:0;margin-bottom:0;line-height:1.75}
+.page-head+.wrap,
+.page-head+.qa-layout{padding-top:32px}
+@media(max-width:600px){
+ .page-head{padding-top:22px;padding-bottom:22px}
+ .page-head .crumb{margin-bottom:14px}
+ .page-head+.wrap,
+ .page-head+.qa-layout{padding-top:24px}
+}

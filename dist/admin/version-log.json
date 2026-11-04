@@ -1,5 +1,12 @@
 [
   {
+    "commit": "e51fdbc82dde07068a9aa50374c93be38e84437c",
+    "short_commit": "e51fdbc",
+    "committed_at": "2026-11-04T11:48:27+08:00",
+    "summary": "ui: compact urban project heading",
+    "summary_zh": "縮短進行個案頁首與篩選器間距，減少首屏空白"
+  },
+  {
     "commit": "a5a35f78d21b854717cb46ff5431fa0c4aa5b243",
     "short_commit": "a5a35f7",
     "committed_at": "2026-11-04T11:44:06+08:00",

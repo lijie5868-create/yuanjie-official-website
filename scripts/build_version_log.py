@@ -77,6 +77,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: tighten team page rhythm": "縮緊團隊頁人物資料與合作名單間距，改善文字閱讀節奏",
     "feat: add project location filters": "新增建案縣市與行政區標籤，可快速篩選進行個案",
     "ui: compact urban project heading": "縮短進行個案頁首與篩選器間距，減少首屏空白",
+    "ui: compact inner page headings": "統一縮短全站內頁標題區與首段內容間距",
 }
 
 
