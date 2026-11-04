@@ -8,8 +8,11 @@ const basePath=location.pathname.replace(/admin\/?$/,'');
 const supabase=createClient(cfg.supabaseUrl,cfg.publishableKey);
 const $=id=>document.getElementById(id);
 let pages=[];
+let publishedPages=new Map();
 let navigation=[];
 let current=null;
+let publishedSnapshot=null;
+let editorLoadToken=0;
 let dashboardLoading=false;
 let pageDirty=false;
 let navigationDirty=false;
@@ -99,29 +102,74 @@ function message(text,error=false){showMessage('appMessage',text,error)}
 function navigationMessage(text,error=false){showMessage('navigationMessage',text,error)}
 function activityMessage(text,error=false){showMessage('activityMessage',text,error)}
 
-function editorDocument(html){
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${basePath}style.css"><style>body{margin:0;padding:18px;background:#fff}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body>${html}</body></html>`;
+function samePageContent(left,right){
+  return Boolean(left&&right&&left.title===right.title&&left.meta_description===right.meta_description&&left.main_html===right.main_html);
 }
 
-function loadEditor(page){
+function newerThan(left,right){
+  return Boolean(left&&(!right||new Date(left).getTime()>new Date(right).getTime()));
+}
+
+function snapshotPage(page){
+  return page?{slug:page.slug,title:page.title,meta_description:page.meta_description,main_html:page.main_html,published_at:page.published_at}:null;
+}
+
+async function editorDocument(page,html){
+  let bodyId='';
+  let bodyClass='';
+  let stylesheet=`${basePath}style.css`;
+  let previewScripts='';
+  try{
+    const response=await fetch(`${basePath}${page.file_name}?admin-preview=${Date.now()}`,{cache:'no-store'});
+    if(!response.ok)throw new Error(`無法載入頁面樣板：${response.status}`);
+    const template=new DOMParser().parseFromString(await response.text(),'text/html');
+    bodyId=template.body.id;
+    bodyClass=template.body.className;
+    stylesheet=template.querySelector('link[rel="stylesheet"]')?.getAttribute('href')||stylesheet;
+    previewScripts=[...template.querySelectorAll('script[src]')]
+      .map(script=>script.getAttribute('src'))
+      .filter(src=>src&&(src.split(/[?#]/)[0].endsWith('/about-layout.js')||src.split(/[?#]/)[0]==='about-layout.js'))
+      .map(src=>`<script src="${src}" defer></script>`).join('');
+  }catch(error){
+    console.warn('Using the basic editor preview.',error);
+  }
+  const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${html}${previewScripts}</body></html>`;
+}
+
+async function loadEditor(page){
   if(pageDirty&&!confirm('目前頁面有尚未儲存的修改。要放棄修改並切換頁面嗎？'))return;
+  const loadToken=++editorLoadToken;
   current=page;
   pageDirty=false;
-  $('title').value=page.title;
-  $('description').value=page.meta_description;
+  const published=publishedPages.get(page.slug)||null;
+  const staleDraft=Boolean(published&&!samePageContent(page,published)&&newerThan(published.published_at,page.updated_at));
+  const source=staleDraft?published:page;
+  publishedSnapshot=snapshotPage(published);
+  $('title').value=source.title;
+  $('description').value=source.meta_description;
   $('visitPage').href=`${basePath}${page.file_name}`;
   const frame=$('visualEditor');
-  frame.srcdoc=editorDocument(page.main_html);
+  $('publish').disabled=true;
+  $('contentSafetyStatus').classList.toggle('warning',staleDraft);
+  $('contentSafetyStatus').textContent=staleDraft
+    ?'正式網站版本比後台草稿新，已自動載入正式版本，避免舊草稿覆蓋。'
+    :'預覽已套用正式頁面的版型；發布前會再次檢查版本，避免覆蓋其他人的更新。';
+  const previewDocument=await editorDocument(page,source.main_html);
+  if(loadToken!==editorLoadToken)return;
   frame.onload=()=>{
-    frame.contentDocument.designMode='on';
+    const main=frame.contentDocument.querySelector('main');
+    if(main)main.contentEditable='true';
     imageEditor.bindFrame();
     frame.contentDocument.addEventListener('input',()=>{pageDirty=true});
+    $('publish').disabled=false;
   };
+  frame.srcdoc=previewDocument;
   document.querySelectorAll('#pageList button[data-slug]').forEach(button=>{
     button.classList.toggle('active',button.dataset.slug===page.slug);
   });
   $('savedAt').textContent=page.updated_at?`上次儲存：${new Date(page.updated_at).toLocaleString('zh-TW')}`:'';
-  message('');
+  message(staleDraft?'已保護此頁：目前編輯的是正式網站最新版，舊草稿不會直接覆蓋它。':'');
 }
 
 function mainHtml(){
@@ -139,7 +187,7 @@ function pageButton(page){
   button.innerHTML='<strong></strong><small></small>';
   button.querySelector('strong').textContent=page.title;
   button.querySelector('small').textContent=page.file_name;
-  button.onclick=()=>loadEditor(page);
+  button.onclick=()=>loadEditor(page).catch(error=>message(error.message,true));
   return button;
 }
 
@@ -174,11 +222,16 @@ function renderPageList(filter=''){
 }
 
 async function fetchPages(){
-  const {data,error}=await supabase.from('cms_pages').select('*').order('sort_order');
-  if(error)throw error;
-  pages=data;
+  const [draftResult,publishedResult]=await Promise.all([
+    supabase.from('cms_pages').select('*').order('sort_order'),
+    supabase.from('published_pages').select('slug,title,meta_description,main_html,published_at')
+  ]);
+  if(draftResult.error)throw draftResult.error;
+  if(publishedResult.error)throw publishedResult.error;
+  pages=draftResult.data;
+  publishedPages=new Map((publishedResult.data||[]).map(page=>[page.slug,page]));
   renderPageList();
-  if(pages.length)loadEditor(pages[0]);
+  if(pages.length)await loadEditor(pages[0]);
 }
 
 function navigationRow(item){
@@ -517,8 +570,9 @@ async function fetchActivity(){
 
 async function saveDraft(){
   const payload={title:$('title').value.trim(),meta_description:$('description').value.trim(),main_html:mainHtml(),updated_at:new Date().toISOString()};
-  const {data,error}=await supabase.from('cms_pages').update(payload).eq('id',current.id).select().single();
+  const {data,error}=await supabase.from('cms_pages').update(payload).eq('id',current.id).eq('updated_at',current.updated_at).select().maybeSingle();
   if(error)throw error;
+  if(!data)throw new Error('這份草稿已由其他管理員更新。為避免互相覆蓋，請重新整理後再編輯。');
   Object.assign(current,data);
   pageDirty=false;
   activityLoaded=false;
@@ -528,11 +582,29 @@ async function saveDraft(){
 }
 
 async function publish(){
+  const {data:serverPublished,error:readError}=await supabase.from('published_pages')
+    .select('slug,title,meta_description,main_html,published_at').eq('slug',current.slug).maybeSingle();
+  if(readError)throw readError;
+  const publishedChanged=publishedSnapshot
+    ?!serverPublished||serverPublished.published_at!==publishedSnapshot.published_at||!samePageContent(serverPublished,publishedSnapshot)
+    :Boolean(serverPublished);
+  if(publishedChanged)throw new Error('正式網站在你開啟此頁後已有更新。為避免覆蓋新版，請重新整理後再確認。');
   await saveDraft();
   const payload={slug:current.slug,file_name:current.file_name,title:current.title,meta_description:current.meta_description,main_html:current.main_html,sort_order:current.sort_order,published_at:new Date().toISOString()};
-  const {error}=await supabase.from('published_pages').upsert(payload,{onConflict:'slug'});
+  let result;
+  if(serverPublished){
+    result=await supabase.from('published_pages').update(payload).eq('slug',current.slug).eq('published_at',serverPublished.published_at).select().maybeSingle();
+  }else{
+    result=await supabase.from('published_pages').insert(payload).select().maybeSingle();
+  }
+  const {data,error}=result;
   if(error)throw error;
+  if(!data)throw new Error('正式網站剛剛已有其他更新，本次發布已停止；請重新整理後再確認。');
+  publishedSnapshot=snapshotPage(data);
+  publishedPages.set(current.slug,data);
   activityLoaded=false;
+  $('contentSafetyStatus').classList.remove('warning');
+  $('contentSafetyStatus').textContent='發布完成，後台草稿與正式網站已同步；本次發布前後版本已保留在管理員操作紀錄。';
   message('發布完成。重新整理正式網站即可看到更新。');
 }
 
