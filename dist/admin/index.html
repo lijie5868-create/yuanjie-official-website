@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=17">
+  <link rel="stylesheet" href="admin.css?v=18">
 </head>
 <body>
   <div class="shell">
@@ -187,6 +187,14 @@
             <span id="administratorCount" class="administrator-count"></span>
           </div>
           <div id="administratorList" class="administrator-list" aria-live="polite"></div>
+          <form id="adminPasswordForm" class="admin-password-form" hidden>
+            <h3>協助管理員設定臨時密碼</h3>
+            <p>此功能僅供指定管理員使用。設定後請安全地告知本人，並請對方登入後立即修改。</p>
+            <label>管理員帳號<select id="targetAdmin" required><option value="">請選擇</option><option value="lijie5868@gmail.com">lijie5868@gmail.com</option><option value="ru8ru8u8@gmail.com">ru8ru8u8@gmail.com</option><option value="lazyunclek@gmail.com">lazyunclek@gmail.com</option></select></label>
+            <label>臨時密碼<input id="temporaryPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+            <button type="submit">設定臨時密碼</button>
+            <p id="adminPasswordMessage" class="message" role="status"></p>
+          </form>
         </section>
       </section>
     </main>
@@ -205,6 +213,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script type="module" src="admin.js?v=17"></script>
+  <script type="module" src="admin.js?v=18"></script>
 </body>
 </html>

@@ -149,6 +149,9 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
 .administrator-status { flex: 0 0 auto; padding: 4px 8px; border-radius: 999px; color: #37643c; background: #e8f2e9; font-size: 11px; font-weight: 700; }
 .administrator-current { border-color: #a88560; box-shadow: 0 0 0 2px #a8856026; }
 .administrator-current .administrator-status { color: #fff; background: #6a5035; }
+.admin-password-form { display: grid; gap: 14px; max-width: 520px; margin-top: 28px; padding-top: 24px; border-top: 1px solid #e2dfd8; }
+.admin-password-form h3, .admin-password-form p { margin: 0; }
+.admin-password-form label { display: grid; gap: 6px; }
 .image-dialog { width: min(92vw, 850px); max-height: 92vh; overflow: auto; padding: 24px; border: 1px solid #deddd6; border-radius: 14px; box-shadow: 0 20px 70px #0004; color: #20211f; background: #fff; }
 .image-dialog::backdrop { background: #14110ec2; }
 .image-dialog-heading, .image-dialog-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; }

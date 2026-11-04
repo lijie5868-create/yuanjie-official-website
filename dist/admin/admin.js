@@ -513,6 +513,7 @@ function renderVersions(){
 
 function renderAdministrators(currentEmail=''){
   const normalizedCurrent=currentEmail.toLowerCase();
+  $('adminPasswordForm').hidden=normalizedCurrent!=='ru8ru8u8@gmail.com';
   const entries=[...allowedEmails].sort().map(email=>{
     const article=document.createElement('article');
     const current=email===normalizedCurrent;
@@ -533,6 +534,23 @@ function renderAdministrators(currentEmail=''){
   $('administratorList').replaceChildren(...entries);
   $('administratorCount').textContent=`共 ${entries.length} 位`;
 }
+
+$('adminPasswordForm').onsubmit=async event=>{
+  event.preventDefault();
+  const email=$('targetAdmin').value;
+  const password=$('temporaryPassword').value;
+  const output=$('adminPasswordMessage');
+  if(!allowedEmails.has(email)||password.length<12){output.textContent='請選擇管理員並輸入至少 12 個字元的臨時密碼。';return}
+  output.textContent='設定中…';
+  const button=$('adminPasswordForm').querySelector('button[type="submit"]');
+  button.disabled=true;
+  try{
+    const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{email,password}});
+    output.textContent=error?data?.message||'設定失敗，請稍後重試。':data.message;
+    if(!error)$('temporaryPassword').value='';
+  }catch{output.textContent='設定失敗，請稍後重試。'}
+  finally{button.disabled=false}
+};
 
 async function fetchActivity(){
   activityMessage('正在讀取工程日誌…');
