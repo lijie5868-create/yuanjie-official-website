@@ -1,5 +1,12 @@
 [
   {
+    "commit": "a5a35f78d21b854717cb46ff5431fa0c4aa5b243",
+    "short_commit": "a5a35f7",
+    "committed_at": "2026-11-04T11:44:06+08:00",
+    "summary": "feat: add project location filters",
+    "summary_zh": "新增建案縣市與行政區標籤，可快速篩選進行個案"
+  },
+  {
     "commit": "f1d4f51b7f58d42f8a1c757c75b472864a5e5ba4",
     "short_commit": "f1d4f51",
     "committed_at": "2026-11-04T11:27:06+08:00",

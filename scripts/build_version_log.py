@@ -76,6 +76,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: align project index cards": "統一建案列表圖片比例，調整為清楚的三欄作品集版面",
     "ui: tighten team page rhythm": "縮緊團隊頁人物資料與合作名單間距，改善文字閱讀節奏",
     "feat: add project location filters": "新增建案縣市與行政區標籤，可快速篩選進行個案",
+    "ui: compact urban project heading": "縮短進行個案頁首與篩選器間距，減少首屏空白",
 }
 
 

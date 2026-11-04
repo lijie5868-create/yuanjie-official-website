@@ -324,3 +324,15 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .project-filter-group>span{position:sticky;left:0;z-index:1;flex-basis:58px;background:#F8F8F5}
  .project-filter button{flex:0 0 auto}
 }
+
+/* Urban index heading — compact enough to keep filters in the first view. */
+.urban-page .page-head{padding-top:24px;padding-bottom:24px}
+.urban-page .page-head .crumb{margin-bottom:20px}
+.urban-page .page-head h1{margin:8px 0 10px;line-height:1.35}
+.urban-page .page-head .lead{margin:0;line-height:1.7}
+.urban-page main>.wrap{padding-top:28px}
+@media(max-width:600px){
+ .urban-page .page-head{padding-top:20px;padding-bottom:20px}
+ .urban-page .page-head .crumb{margin-bottom:14px}
+ .urban-page main>.wrap{padding-top:22px}
+}
