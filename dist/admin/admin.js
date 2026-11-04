@@ -15,6 +15,74 @@ let pageDirty=false;
 let navigationDirty=false;
 const expandedPageGroups=new Set(['主要頁面']);
 const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
+const pageLayout=document.querySelector('.pages-layout');
+const pageResizer=$('pageResizer');
+const sidebarWidthKey='yuanjie-admin-sidebar-width';
+let preferredSidebarWidth=250;
+let resizePointer=null;
+
+try{
+  const savedWidth=Number(localStorage.getItem(sidebarWidthKey));
+  if(Number.isFinite(savedWidth)&&savedWidth>0)preferredSidebarWidth=savedWidth;
+}catch{}
+
+function sidebarWidthLimits(){
+  const available=pageLayout.getBoundingClientRect().width;
+  return {min:220,max:Math.max(220,Math.min(600,Math.floor(available-16-16-420)))};
+}
+
+function renderSidebarWidth(){
+  const {min,max}=sidebarWidthLimits();
+  const width=Math.min(max,Math.max(min,Math.round(preferredSidebarWidth)));
+  pageLayout.style.setProperty('--page-sidebar-width',`${width}px`);
+  pageResizer.setAttribute('aria-valuemin',String(min));
+  pageResizer.setAttribute('aria-valuemax',String(max));
+  pageResizer.setAttribute('aria-valuenow',String(width));
+  pageResizer.setAttribute('aria-valuetext',`左側清單寬度 ${width} 像素`);
+  return width;
+}
+
+function saveSidebarWidth(){
+  preferredSidebarWidth=renderSidebarWidth();
+  try{localStorage.setItem(sidebarWidthKey,String(preferredSidebarWidth))}catch{}
+}
+
+pageResizer.addEventListener('pointerdown',event=>{
+  if(event.button!==0||matchMedia('(max-width: 850px)').matches)return;
+  resizePointer={id:event.pointerId,startX:event.clientX,startWidth:renderSidebarWidth()};
+  pageResizer.setPointerCapture(event.pointerId);
+  document.body.classList.add('resizing-pages');
+  event.preventDefault();
+});
+pageResizer.addEventListener('pointermove',event=>{
+  if(!resizePointer||event.pointerId!==resizePointer.id)return;
+  preferredSidebarWidth=resizePointer.startWidth+event.clientX-resizePointer.startX;
+  renderSidebarWidth();
+});
+function finishSidebarResize(event){
+  if(!resizePointer||event.pointerId!==resizePointer.id)return;
+  resizePointer=null;
+  document.body.classList.remove('resizing-pages');
+  if(pageResizer.hasPointerCapture(event.pointerId))pageResizer.releasePointerCapture(event.pointerId);
+  saveSidebarWidth();
+}
+pageResizer.addEventListener('pointerup',finishSidebarResize);
+pageResizer.addEventListener('pointercancel',finishSidebarResize);
+pageResizer.addEventListener('lostpointercapture',finishSidebarResize);
+pageResizer.addEventListener('keydown',event=>{
+  const {min,max}=sidebarWidthLimits();
+  const step=event.shiftKey?48:16;
+  const width=renderSidebarWidth();
+  if(event.key==='ArrowLeft')preferredSidebarWidth=width-step;
+  else if(event.key==='ArrowRight')preferredSidebarWidth=width+step;
+  else if(event.key==='Home')preferredSidebarWidth=min;
+  else if(event.key==='End')preferredSidebarWidth=max;
+  else return;
+  event.preventDefault();
+  saveSidebarWidth();
+});
+window.addEventListener('resize',renderSidebarWidth);
+renderSidebarWidth();
 
 function showMessage(target,text,error=false){
   $(target).textContent=text;
@@ -200,6 +268,7 @@ function switchView(view){
   });
   $('pagesView').hidden=view!=='pages';
   $('navigationView').hidden=view!=='navigation';
+  if(view==='pages')requestAnimationFrame(renderSidebarWidth);
 }
 
 document.querySelectorAll('.admin-tabs button').forEach(button=>button.onclick=()=>switchView(button.dataset.view));
@@ -243,5 +312,6 @@ supabase.auth.onAuthStateChange((_event,session)=>{
   $('login').hidden=valid;
   $('app').hidden=!valid;
   $('signOut').hidden=!valid;
+  if(valid)requestAnimationFrame(renderSidebarWidth);
   if(valid&&!pages.length)setTimeout(loadDashboard,0);
 });
