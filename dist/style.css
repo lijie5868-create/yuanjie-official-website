@@ -396,7 +396,7 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 
 /* Company philosophy: a readable long-form article with chapter navigation. */
 .about-page article.reading{max-width:1400px;padding-top:42px;padding-bottom:64px}
-.about-reading-layout{display:grid;grid-template-columns:220px minmax(0,820px);justify-content:space-between;gap:clamp(40px,6vw,100px)}
+.about-reading-layout{display:grid;grid-template-columns:180px minmax(0,900px);justify-content:center;gap:clamp(32px,4vw,56px)}
 .about-chapters{align-self:start;position:sticky;top:88px;display:grid;gap:0}
 .about-chapters-title{display:flex;justify-content:space-between;gap:12px;padding:14px 0 9px;color:#4A6984;font-size:12px;letter-spacing:2px}
 .about-reading-percent{color:#9B8060;font-family:Georgia,serif;letter-spacing:.04em}
