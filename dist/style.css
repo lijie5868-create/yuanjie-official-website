@@ -271,3 +271,36 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 @media(max-width:600px){
  .case-grid{grid-template-columns:1fr;gap:30px}
 }
+
+/* Team page — keep related names, roles and experience visually together. */
+.team-page .team-intro h2{margin:10px 0 12px;line-height:1.5;letter-spacing:2px}
+.team-page .team-intro .copy{margin:0;line-height:1.8}
+.team-page .architect-profile{gap:40px;padding:44px 0}
+.team-page .architect-profile h2{margin:6px 0 8px;line-height:1.4;letter-spacing:3px}
+.team-page .architect-office{margin:0 0 3px;line-height:1.55}
+.team-page .architect-role{margin:0 0 12px;line-height:1.65}
+.team-page .architect-list{margin:14px 0;line-height:1.8}
+.team-page .architect-list li{padding:1px 0}
+.team-page .architect-quote{margin:16px 0;line-height:1.7}
+.team-page .architect-profile h3{margin:16px 0 8px;line-height:1.5}
+.team-page .architect-profile .copy{margin:12px 0;line-height:1.8}
+.team-page .architect-profile .text-link,
+.team-page .architect-profile .team-section-link{padding:6px 0}
+.team-page .section-title{margin:8px 0 10px;line-height:1.5;letter-spacing:2px}
+.team-page .team-section .copy{margin:0;line-height:1.8}
+.team-page .network{gap:26px 36px;margin-top:28px}
+.team-page .network article{padding-top:14px}
+.team-page .network h3{margin:6px 0 9px;line-height:1.5}
+.team-page .network p{margin:0;line-height:1.8}
+.team-page .network+.note{margin-top:28px;padding-top:18px}
+.team-page .press-description{margin:12px 0 0;line-height:1.85}
+.team-page .press-gallery{margin-top:24px}
+@media(max-width:800px){
+ .team-page .architect-profile{gap:22px;padding:34px 0}
+ .team-page .network{gap:24px 22px;margin-top:24px}
+}
+@media(max-width:600px){
+ .team-page .architect-profile{padding:30px 0}
+ .team-page .portrait,.team-page .portrait.chou,.team-page .portrait.hsieh{width:min(100%,260px)}
+ .team-page .network{gap:22px}
+}

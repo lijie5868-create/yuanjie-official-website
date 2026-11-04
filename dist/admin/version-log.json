@@ -1,5 +1,12 @@
 [
   {
+    "commit": "125e24e1810e6ac710cb103930f13c316c3e882c",
+    "short_commit": "125e24e",
+    "committed_at": "2026-11-04T11:22:22+08:00",
+    "summary": "ui: align project index cards",
+    "summary_zh": "統一建案列表圖片比例，調整為清楚的三欄作品集版面"
+  },
+  {
     "commit": "20be4ab5cc8efe6013b6b9301b84f5b901cea145",
     "short_commit": "20be4ab",
     "committed_at": "2026-11-04T11:13:10+08:00",
