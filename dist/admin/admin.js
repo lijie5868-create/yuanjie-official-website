@@ -407,7 +407,6 @@ function renderActivity(){
   renderPagination('adminActivityPagination',adminActivityPage,groups.length,page=>{
     adminActivityPage=page;
     renderActivity();
-    $('adminActivityPanel').scrollIntoView({behavior:'smooth',block:'start'});
   });
 }
 
@@ -449,7 +448,6 @@ function renderVersions(){
   renderPagination('websiteActivityPagination',websiteActivityPage,versions.length,page=>{
     websiteActivityPage=page;
     renderVersions();
-    $('websiteActivityPanel').scrollIntoView({behavior:'smooth',block:'start'});
   });
   if(websiteVersions.length){
     const earliest=websiteVersions.at(-1);

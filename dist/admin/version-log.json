@@ -1,5 +1,12 @@
 [
   {
+    "commit": "e3a3630eb883c2c7050cf33617050b0d39a3edb7",
+    "short_commit": "e3a3630",
+    "committed_at": "2026-11-04T12:52:49+08:00",
+    "summary": "fix: deploy complete engineering history",
+    "summary_zh": "修正正式部署只取得最近 50 筆版本的限制，恢復完整網站更新歷史"
+  },
+  {
     "commit": "0c7992b83f2c1860439290790596af8164451944",
     "short_commit": "0c7992b",
     "committed_at": "2026-11-04T12:50:45+08:00",
