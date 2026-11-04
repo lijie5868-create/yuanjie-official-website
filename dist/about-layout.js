@@ -30,6 +30,13 @@
       card.prepend(number, image);
     });
     wheel.remove();
+    const credit = document.createElement('p');
+    credit.className = 'value-illustration-credit';
+    const creditLink = document.createElement('a');
+    creditLink.href = 'https://storyset.com/';
+    creditLink.textContent = 'Illustrations by Storyset';
+    credit.append(creditLink);
+    definitions.after(credit);
     section.classList.add('values-organized');
   }
 

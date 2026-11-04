@@ -81,6 +81,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: add subtle image hover zoom": "為可點擊建案與照片加入輕微滑入縮放效果",
     "ui: organize philosophy longform": "整理公司理念長文版面並加入章節索引，保留完整原文",
     "ui: redesign core values cards": "以原創建築線條插圖呈現四個核心理念，保留全部文字",
+    "ui: use licensed illustrated value cards": "四個核心理念改用可商用的 Storyset 人物線稿，保留原文並標註插畫來源",
 }
 
 

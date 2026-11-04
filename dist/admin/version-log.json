@@ -1,5 +1,12 @@
 [
   {
+    "commit": "f756ea555c9056d83c1a2d810c8a0a8a45582027",
+    "short_commit": "f756ea5",
+    "committed_at": "2026-11-04T12:30:47+08:00",
+    "summary": "ui: redesign core values cards",
+    "summary_zh": "以原創建築線條插圖呈現四個核心理念，保留全部文字"
+  },
+  {
     "commit": "1338e8a2a3c41d97e523138797e5a08c00c4d1f1",
     "short_commit": "1338e8a",
     "committed_at": "2026-11-04T12:19:01+08:00",
