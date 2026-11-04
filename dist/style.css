@@ -279,7 +279,7 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .team-page .architect-profile h2{margin:6px 0 8px;line-height:1.4;letter-spacing:3px}
 .team-page .architect-office{margin:0 0 3px;line-height:1.55}
 .team-page .architect-role{margin:0 0 12px;line-height:1.65}
-.team-page .architect-list{margin:14px 0;line-height:1.8}
+.team-page .architect-list{margin:14px 0;font-size:14px;line-height:1.8;column-gap:28px}
 .team-page .architect-list li{padding:1px 0}
 .team-page .architect-quote{margin:16px 0;line-height:1.7}
 .team-page .architect-profile h3{margin:16px 0 8px;line-height:1.5}
