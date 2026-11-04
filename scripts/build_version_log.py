@@ -82,6 +82,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: organize philosophy longform": "整理公司理念長文版面並加入章節索引，保留完整原文",
     "ui: redesign core values cards": "以原創建築線條插圖呈現四個核心理念，保留全部文字",
     "ui: use licensed illustrated value cards": "四個核心理念改用可商用的 Storyset 人物線稿，保留原文並標註插畫來源",
+    "fix: refresh licensed value illustrations": "修正圖片快取造成的舊插畫顯示，改用新版人物線稿檔名",
 }
 
 

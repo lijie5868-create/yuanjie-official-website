@@ -1,5 +1,12 @@
 [
   {
+    "commit": "310668ad92405e4460f03b1d021e3adbc198a24b",
+    "short_commit": "310668a",
+    "committed_at": "2026-11-04T12:37:40+08:00",
+    "summary": "ui: use licensed illustrated value cards",
+    "summary_zh": "四個核心理念改用可商用的 Storyset 人物線稿，保留原文並標註插畫來源"
+  },
+  {
     "commit": "f756ea555c9056d83c1a2d810c8a0a8a45582027",
     "short_commit": "f756ea5",
     "committed_at": "2026-11-04T12:30:47+08:00",
