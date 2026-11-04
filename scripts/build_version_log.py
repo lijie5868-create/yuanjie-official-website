@@ -85,6 +85,7 @@ SUMMARY_TRANSLATIONS = {
     "fix: refresh licensed value illustrations": "修正圖片快取造成的舊插畫顯示，改用新版人物線稿檔名",
     "ui: recolor value illustrations for brand": "將四張理念插畫的綠色改為元捷品牌金色，保留全部文字",
     "feat: paginate engineering logs": "工程日誌加入頁碼與總筆數，可查看完整的管理員操作及網站更新歷史",
+    "fix: deploy complete engineering history": "修正正式部署只取得最近 50 筆版本的限制，恢復完整網站更新歷史",
 }
 
 

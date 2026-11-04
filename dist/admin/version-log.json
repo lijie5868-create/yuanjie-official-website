@@ -1,5 +1,12 @@
 [
   {
+    "commit": "0c7992b83f2c1860439290790596af8164451944",
+    "short_commit": "0c7992b",
+    "committed_at": "2026-11-04T12:50:45+08:00",
+    "summary": "feat: paginate engineering logs",
+    "summary_zh": "工程日誌加入頁碼與總筆數，可查看完整的管理員操作及網站更新歷史"
+  },
+  {
     "commit": "472c3acafdb94ef4218bd013d1255bb4af70cde8",
     "short_commit": "472c3ac",
     "committed_at": "2026-11-04T12:42:43+08:00",
