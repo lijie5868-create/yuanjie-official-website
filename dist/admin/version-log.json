@@ -1,5 +1,12 @@
 [
   {
+    "commit": "ab05ca69394e8235ba5933bb7de344b77a7b2a01",
+    "short_commit": "ab05ca6",
+    "committed_at": "2026-11-04T10:21:01+08:00",
+    "summary": "fix: keep website history on deployed main branch",
+    "summary_zh": "網站更新只保留正式主線版本，排除未部署的備份分支"
+  },
+  {
     "commit": "254b31334b512dab917ec30770a9c74e828b97ae",
     "short_commit": "254b313",
     "committed_at": "2026-11-04T10:19:28+08:00",

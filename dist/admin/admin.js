@@ -390,6 +390,29 @@ function renderVersions(){
   }
 }
 
+function renderAdministrators(currentEmail=''){
+  const normalizedCurrent=currentEmail.toLowerCase();
+  const entries=[...allowedEmails].sort().map(email=>{
+    const article=document.createElement('article');
+    const current=email===normalizedCurrent;
+    article.className=`administrator-entry${current?' administrator-current':''}`;
+    const heading=document.createElement('div');
+    heading.className='administrator-entry-heading';
+    const address=document.createElement('strong');
+    address.textContent=email;
+    const status=document.createElement('span');
+    status.className='administrator-status';
+    status.textContent=current?'目前登入':'已授權';
+    const description=document.createElement('p');
+    description.textContent='可登入後台、編輯網站內容、管理導覽選單並查看工程日誌。';
+    heading.append(address,status);
+    article.append(heading,description);
+    return article;
+  });
+  $('administratorList').replaceChildren(...entries);
+  $('administratorCount').textContent=`共 ${entries.length} 位`;
+}
+
 async function fetchActivity(){
   activityMessage('正在讀取工程日誌…');
   const [activityResult,versionResult]=await Promise.all([
@@ -443,6 +466,7 @@ function switchView(view){
   $('pagesView').hidden=view!=='pages';
   $('navigationView').hidden=view!=='navigation';
   $('activityView').hidden=view!=='activity';
+  $('administratorsView').hidden=view!=='administrators';
   if(view==='pages')requestAnimationFrame(renderSidebarWidth);
   if(view==='activity'&&!activityLoaded)fetchActivity().catch(error=>activityMessage(error.message,true));
 }
@@ -547,5 +571,6 @@ supabase.auth.onAuthStateChange((_event,session)=>{
   $('app').hidden=!valid;
   $('signOut').hidden=!valid;
   if(valid)requestAnimationFrame(renderSidebarWidth);
+  if(valid)renderAdministrators(session.user.email||'');
   if(valid&&!pages.length)setTimeout(loadDashboard,0);
 });
