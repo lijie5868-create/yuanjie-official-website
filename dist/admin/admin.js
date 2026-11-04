@@ -6,6 +6,9 @@ const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunc
 const primaryPages=new Set(["home","about","team","urban","renewal","qa"]);
 const basePath=location.pathname.replace(/admin\/?$/,'');
 const supabase=createClient(cfg.supabaseUrl,cfg.publishableKey);
+const recoveryUrl=new URL(location.href);
+let settingPassword=recoveryUrl.searchParams.get('set-password')==='1'||new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
+let currentSession=null;
 const $=id=>document.getElementById(id);
 let pages=[];
 let publishedPages=new Map();
@@ -704,7 +707,7 @@ $('resetPassword').onclick=async()=>{
   const email=$('email').value.trim().toLowerCase();
   if(!allowedEmails.has(email)){$('loginMessage').textContent='此信箱沒有後台權限。';return}
   $('loginMessage').textContent='寄送中…';
-  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname+'?set-password=1'});
   $('loginMessage').textContent=error?error.message:'密碼設定連結已寄出，請到信箱收信。';
 };
 $('passwordRecoveryForm').onsubmit=async event=>{
@@ -715,9 +718,14 @@ $('passwordRecoveryForm').onsubmit=async event=>{
   $('passwordRecoveryMessage').textContent='儲存中…';
   const {error}=await supabase.auth.updateUser({password});
   if(error){$('passwordRecoveryMessage').textContent=error.message;return}
-  $('passwordRecovery').hidden=true;
-  const {data:{session}}=await supabase.auth.getSession();
-  showAuthenticatedState(session);
+  settingPassword=false;
+  $('newPassword').value='';
+  $('confirmPassword').value='';
+  const cleanUrl=new URL(location.href);
+  cleanUrl.searchParams.delete('set-password');
+  cleanUrl.hash='';
+  history.replaceState(null,'',cleanUrl);
+  showAuthenticatedState(currentSession);
 };
 $('save').onclick=()=>saveDraft().catch(error=>message(error.message,true));
 $('publish').onclick=()=>publish().catch(error=>message(error.message,true));
@@ -725,6 +733,10 @@ $('saveNavigation').onclick=()=>saveNavigationDraft().catch(error=>navigationMes
 $('publishNavigation').onclick=()=>publishNavigation().catch(error=>navigationMessage(error.message,true));
 $('activityRefresh').onclick=()=>fetchActivity().catch(error=>activityMessage(error.message,true));
 $('signOut').onclick=()=>supabase.auth.signOut();
+$('changePassword').onclick=()=>{
+  settingPassword=true;
+  showAuthenticatedState(currentSession);
+};
 document.querySelectorAll('[data-command]').forEach(button=>button.onclick=()=>{
   const command=button.dataset.command;
   const value=command==='createLink'?prompt('請輸入連結網址'):null;
@@ -744,23 +756,23 @@ async function loadDashboard(){
 }
 
 function showAuthenticatedState(session){
+  currentSession=session;
   const valid=allowedEmails.has(session?.user?.email?.toLowerCase());
+  const recovery=valid&&settingPassword;
   $('login').hidden=valid;
-  $('passwordRecovery').hidden=true;
-  $('app').hidden=!valid;
+  $('passwordRecovery').hidden=!recovery;
+  $('app').hidden=!valid||recovery;
+  $('changePassword').hidden=!valid||recovery;
   $('signOut').hidden=!valid;
-  if(valid)requestAnimationFrame(renderSidebarWidth);
-  if(valid)renderAdministrators(session.user.email||'');
-  if(valid&&!pages.length)setTimeout(loadDashboard,0);
+  if(valid&&!recovery){
+    requestAnimationFrame(renderSidebarWidth);
+    renderAdministrators(session.user.email||'');
+    if(!pages.length)setTimeout(loadDashboard,0);
+  }
 }
 
 supabase.auth.onAuthStateChange((event,session)=>{
-  if(event==='PASSWORD_RECOVERY'){
-    $('login').hidden=true;
-    $('passwordRecovery').hidden=false;
-    $('app').hidden=true;
-    $('signOut').hidden=true;
-    return;
-  }
+  if(event==='PASSWORD_RECOVERY')settingPassword=true;
+  if(event==='SIGNED_OUT')settingPassword=false;
   showAuthenticatedState(session);
 });
