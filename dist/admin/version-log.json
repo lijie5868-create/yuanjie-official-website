@@ -1,5 +1,12 @@
 [
   {
+    "commit": "249fa62668b7816e73aab0e907cdbdf072a01a39",
+    "short_commit": "249fa62",
+    "committed_at": "2026-11-04T12:40:16+08:00",
+    "summary": "fix: refresh licensed value illustrations",
+    "summary_zh": "修正圖片快取造成的舊插畫顯示，改用新版人物線稿檔名"
+  },
+  {
     "commit": "310668ad92405e4460f03b1d021e3adbc198a24b",
     "short_commit": "310668a",
     "committed_at": "2026-11-04T12:37:40+08:00",

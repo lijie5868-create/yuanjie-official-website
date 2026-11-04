@@ -83,6 +83,7 @@ SUMMARY_TRANSLATIONS = {
     "ui: redesign core values cards": "以原創建築線條插圖呈現四個核心理念，保留全部文字",
     "ui: use licensed illustrated value cards": "四個核心理念改用可商用的 Storyset 人物線稿，保留原文並標註插畫來源",
     "fix: refresh licensed value illustrations": "修正圖片快取造成的舊插畫顯示，改用新版人物線稿檔名",
+    "ui: recolor value illustrations for brand": "將四張理念插畫的綠色改為元捷品牌金色，保留全部文字",
 }
 
 

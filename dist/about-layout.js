@@ -11,10 +11,10 @@
     if (!wheel || cards?.length !== 4) return;
 
     const illustrations = [
-      'storyset-bro-professional.svg',
-      'storyset-bro-integrity.svg',
-      'storyset-bro-responsibility.svg',
-      'storyset-bro-passion.svg'
+      'storyset-bro-gold-professional.svg',
+      'storyset-bro-gold-integrity.svg',
+      'storyset-bro-gold-responsibility.svg',
+      'storyset-bro-gold-passion.svg'
     ];
     cards.forEach((card, index) => {
       card.classList.add('value-card');
