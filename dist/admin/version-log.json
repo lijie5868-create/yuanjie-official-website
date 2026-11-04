@@ -1,5 +1,12 @@
 [
   {
+    "commit": "382afe09db9f8052a0fdeeb8e1a29b1f95b7b8b5",
+    "short_commit": "382afe0",
+    "committed_at": "2026-11-04T10:49:38+08:00",
+    "summary": "ui: compact public website header",
+    "summary_zh": "縮小正式網站頁首、Logo、公司文字與導覽選單高度"
+  },
+  {
     "commit": "a15add330ffec974fe4615d12d6b28cc281ade33",
     "short_commit": "a15add3",
     "committed_at": "2026-11-04T10:45:20+08:00",
