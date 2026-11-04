@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=18">
+  <link rel="stylesheet" href="admin.css?v=19">
 </head>
 <body>
   <div class="shell">
@@ -16,7 +16,7 @@
 
     <section id="login" class="card login">
       <h1>管理員登入</h1>
-      <p>使用已授權的管理員 Email 登入網站後台。</p>
+      <p>使用已授權的管理員或員工 Email 登入網站後台。</p>
       <form id="passwordLoginForm" class="login-form">
         <label>Email
           <input id="email" type="email" value="lijie5868@gmail.com" autocomplete="username" required>
@@ -187,16 +187,30 @@
             <span id="administratorCount" class="administrator-count"></span>
           </div>
           <div id="administratorList" class="administrator-list" aria-live="polite"></div>
+          <form id="createEmployeeForm" class="admin-password-form">
+            <h3>建立唯讀員工帳號</h3>
+            <p>由管理員設定員工 Email 與臨時密碼。員工登入後只能查看，無法修改或發布。</p>
+            <label>員工 Email<input id="employeeEmail" type="email" autocomplete="off" required></label>
+            <label>臨時密碼<input id="employeePassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+            <button type="submit">建立員工帳號</button>
+            <p id="createEmployeeMessage" class="message" role="status"></p>
+          </form>
           <form id="adminPasswordForm" class="admin-password-form" hidden>
             <h3>協助管理員設定臨時密碼</h3>
             <p>此功能僅供指定管理員使用。設定後請安全地告知本人，並請對方登入後立即修改。</p>
-            <label>管理員帳號<select id="targetAdmin" required><option value="">請選擇</option><option value="lijie5868@gmail.com">lijie5868@gmail.com</option><option value="ru8ru8u8@gmail.com">ru8ru8u8@gmail.com</option><option value="lazyunclek@gmail.com">lazyunclek@gmail.com</option></select></label>
+            <label>帳號<select id="targetAdmin" required><option value="">請選擇</option></select></label>
             <label>臨時密碼<input id="temporaryPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
             <button type="submit">設定臨時密碼</button>
             <p id="adminPasswordMessage" class="message" role="status"></p>
           </form>
         </section>
       </section>
+    </main>
+    <main id="employeeApp" class="card employee-app" hidden>
+      <h1>網站後台｜唯讀檢視</h1>
+      <p>你可以查看頁面草稿與正式網站，不能編輯或發布內容。</p>
+      <div id="employeePages" class="employee-pages"></div>
+      <p id="employeeMessage" class="message" role="status"></p>
     </main>
   </div>
   <dialog id="imageDialog" class="image-dialog" aria-labelledby="imageDialogTitle">
@@ -213,6 +227,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script type="module" src="admin.js?v=18"></script>
+  <script type="module" src="admin.js?v=19"></script>
 </body>
 </html>

@@ -15,17 +15,34 @@ Deno.serve(async request => {
   if (!url || !secret) return reply(503, '伺服器尚未設定完成。');
   const admin = createClient(url, secret, { auth: { autoRefreshToken: false, persistSession: false } });
   const { data: { user }, error: authError } = await admin.auth.getUser(token);
-  if (authError || user?.email?.toLowerCase() !== 'ru8ru8u8@gmail.com' || !user.email_confirmed_at) return reply(403, '只有指定管理員可以設定臨時密碼。');
-  let body: { email?: unknown; password?: unknown };
+  if (authError || !user?.email_confirmed_at) return reply(403, '請使用管理員帳號登入。');
+  const { data: callerRole, error: roleError } = await admin.from('site_user_roles').select('role,email').eq('user_id', user.id).single();
+  if (roleError || callerRole?.role !== 'admin' || callerRole.email !== user.email?.toLowerCase() || !admins.has(callerRole.email)) return reply(403, '只有管理員可以設定臨時密碼。');
+  let body: { action?: unknown; email?: unknown; password?: unknown };
   try { body = await request.json(); } catch { return reply(400, '請檢查輸入內容。'); }
+  if (body.action === 'list_roles') {
+    const { data: roles, error: listError } = await admin.from('site_user_roles').select('email,role').order('role').order('email');
+    if (listError) return reply(503, '暫時無法讀取角色名單。');
+    return new Response(JSON.stringify({ roles }), { headers });
+  }
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = body.password;
-  if (!admins.has(email) || typeof password !== 'string' || password.length < 12 || password.length > 128) return reply(400, '請選擇管理員並輸入 12 至 128 個字元的臨時密碼。');
-  const { data, error: listError } = await admin.auth.admin.listUsers({ page: 1, perPage: 100 });
-  if (listError) return reply(503, '暫時無法查詢管理員帳號。');
-  const target = data.users.find(item => item.email?.toLowerCase() === email);
-  if (!target) return reply(404, '找不到此管理員帳號。');
-  const { error } = await admin.auth.admin.updateUserById(target.id, { password });
+  if (!email.includes('@') || email.length > 254 || typeof password !== 'string' || password.length < 12 || password.length > 128) return reply(400, '請輸入有效帳號及 12 至 128 個字元的臨時密碼。');
+  if (body.action === 'create_employee') {
+    if (admins.has(email)) return reply(400, '此帳號已保留為管理員。');
+    const { data: created, error: createError } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+    if (createError || !created.user) return reply(400, '無法建立員工帳號，可能已存在。');
+    const { error: insertError } = await admin.from('site_user_roles').insert({ user_id: created.user.id, email, role: 'employee' });
+    if (insertError) {
+      await admin.auth.admin.deleteUser(created.user.id);
+      return reply(503, '無法設定員工角色，帳號未建立。');
+    }
+    return reply(200, '員工帳號已建立，角色為唯讀。請安全地告知本人臨時密碼。');
+  }
+  if (body.action !== 'set_password') return reply(400, '不支援的操作。');
+  const { data: targetRole, error: targetError } = await admin.from('site_user_roles').select('user_id,role').eq('email', email).single();
+  if (targetError || !['admin', 'employee'].includes(targetRole.role)) return reply(403, '此帳號不在網站角色名單中。');
+  const { error } = await admin.auth.admin.updateUserById(targetRole.user_id, { password });
   if (error) return reply(400, '無法設定密碼，請確認是否符合專案密碼規則。');
   return reply(200, '臨時密碼已設定。請透過安全方式告知該管理員，並請對方登入後立即修改。');
 });

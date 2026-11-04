@@ -9,6 +9,8 @@ const supabase=createClient(cfg.supabaseUrl,cfg.publishableKey);
 const recoveryUrl=new URL(location.href);
 let settingPassword=recoveryUrl.searchParams.get('set-password')==='1'||new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 let currentSession=null;
+let roleRequest=0;
+let roleListLoaded=false;
 const $=id=>document.getElementById(id);
 let pages=[];
 let publishedPages=new Map();
@@ -513,7 +515,8 @@ function renderVersions(){
 
 function renderAdministrators(currentEmail=''){
   const normalizedCurrent=currentEmail.toLowerCase();
-  $('adminPasswordForm').hidden=normalizedCurrent!=='ru8ru8u8@gmail.com';
+  $('adminPasswordForm').hidden=false;
+  if(!roleListLoaded)loadRoleList();
   const entries=[...allowedEmails].sort().map(email=>{
     const article=document.createElement('article');
     const current=email===normalizedCurrent;
@@ -535,17 +538,42 @@ function renderAdministrators(currentEmail=''){
   $('administratorCount').textContent=`共 ${entries.length} 位`;
 }
 
+async function loadRoleList(){
+  const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{action:'list_roles'}});
+  if(error||!Array.isArray(data?.roles))return;
+  const select=$('targetAdmin');
+  select.replaceChildren(new Option('請選擇',''),...data.roles.map(item=>new Option(`${item.email}（${item.role==='admin'?'管理員':'員工'}）`,item.email)));
+  roleListLoaded=true;
+}
+
+$('createEmployeeForm').onsubmit=async event=>{
+  event.preventDefault();
+  const email=$('employeeEmail').value.trim().toLowerCase();
+  const password=$('employeePassword').value;
+  const output=$('createEmployeeMessage');
+  if(password.length<12){output.textContent='臨時密碼至少需要 12 個字元。';return}
+  const button=$('createEmployeeForm').querySelector('button[type="submit"]');
+  button.disabled=true;
+  output.textContent='建立中…';
+  try{
+    const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{action:'create_employee',email,password}});
+    output.textContent=error?data?.message||'建立失敗。':data.message;
+    if(!error){$('employeeEmail').value='';$('employeePassword').value='';roleListLoaded=false;loadRoleList()}
+  }catch{output.textContent='建立失敗。'}
+  finally{button.disabled=false}
+};
+
 $('adminPasswordForm').onsubmit=async event=>{
   event.preventDefault();
   const email=$('targetAdmin').value;
   const password=$('temporaryPassword').value;
   const output=$('adminPasswordMessage');
-  if(!allowedEmails.has(email)||password.length<12){output.textContent='請選擇管理員並輸入至少 12 個字元的臨時密碼。';return}
+  if(!email||password.length<12){output.textContent='請選擇帳號並輸入至少 12 個字元的臨時密碼。';return}
   output.textContent='設定中…';
   const button=$('adminPasswordForm').querySelector('button[type="submit"]');
   button.disabled=true;
   try{
-    const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{email,password}});
+    const {data,error}=await supabase.functions.invoke('admin-set-password',{body:{action:'set_password',email,password}});
     output.textContent=error?data?.message||'設定失敗，請稍後重試。':data.message;
     if(!error)$('temporaryPassword').value='';
   }catch{output.textContent='設定失敗，請稍後重試。'}
@@ -709,21 +737,18 @@ window.addEventListener('beforeunload',event=>{if(pageDirty||navigationDirty){ev
 $('passwordLoginForm').onsubmit=async event=>{
   event.preventDefault();
   const email=$('email').value.trim().toLowerCase();
-  if(!allowedEmails.has(email)){$('loginMessage').textContent='此信箱沒有後台權限。';return}
   $('loginMessage').textContent='登入中…';
   const {error}=await supabase.auth.signInWithPassword({email,password:$('password').value});
   $('loginMessage').textContent=error?'Email 或密碼不正確。':'';
 };
 $('magicLinkLogin').onclick=async()=>{
   const email=$('email').value.trim().toLowerCase();
-  if(!allowedEmails.has(email)){$('loginMessage').textContent='此信箱沒有後台權限。';return}
   $('loginMessage').textContent='寄送中…';
-  const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:location.href,shouldCreateUser:true}});
+  const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:location.href,shouldCreateUser:false}});
   $('loginMessage').textContent=error?error.message:'登入連結已寄出，請到信箱收信。';
 };
 $('resetPassword').onclick=async()=>{
   const email=$('email').value.trim().toLowerCase();
-  if(!allowedEmails.has(email)){$('loginMessage').textContent='此信箱沒有後台權限。';return}
   $('loginMessage').textContent='寄送中…';
   const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname+'?set-password=1'});
   $('loginMessage').textContent=error?error.message:'密碼設定連結已寄出，請到信箱收信。';
@@ -773,20 +798,44 @@ async function loadDashboard(){
   }
 }
 
-function showAuthenticatedState(session){
+async function showAuthenticatedState(session){
   currentSession=session;
-  const valid=allowedEmails.has(session?.user?.email?.toLowerCase());
+  const request=++roleRequest;
+  let role=null;
+  if(session?.user){
+    const result=await supabase.from('site_user_roles').select('role,email').eq('user_id',session.user.id).maybeSingle();
+    if(request!==roleRequest)return;
+    if(!result.error&&result.data?.email===session.user.email?.toLowerCase())role=result.data.role;
+  }
+  const valid=role==='admin'||role==='employee';
   const recovery=valid&&settingPassword;
   $('login').hidden=valid;
   $('passwordRecovery').hidden=!recovery;
-  $('app').hidden=!valid||recovery;
+  $('app').hidden=role!=='admin'||recovery;
+  $('employeeApp').hidden=role!=='employee'||recovery;
   $('changePassword').hidden=!valid||recovery;
   $('signOut').hidden=!valid;
-  if(valid&&!recovery){
+  if(role==='admin'&&!recovery){
     requestAnimationFrame(renderSidebarWidth);
     renderAdministrators(session.user.email||'');
     if(!pages.length)setTimeout(loadDashboard,0);
   }
+  if(role==='employee'&&!recovery)loadEmployeePages();
+}
+
+async function loadEmployeePages(){
+  const {data,error}=await supabase.from('cms_pages').select('slug,title,main_html').order('sort_order');
+  if(error){$('employeeMessage').textContent='暫時無法讀取頁面。';return}
+  const entries=(data||[]).map(page=>{
+    const details=document.createElement('details');
+    const summary=document.createElement('summary');
+    summary.textContent=page.title;
+    const article=document.createElement('article');
+    article.textContent=new DOMParser().parseFromString(page.main_html,'text/html').body.textContent||'';
+    details.append(summary,article);
+    return details;
+  });
+  $('employeePages').replaceChildren(...entries);
 }
 
 supabase.auth.onAuthStateChange((event,session)=>{
