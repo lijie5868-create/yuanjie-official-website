@@ -1,6 +1,57 @@
 /* Organize the published company philosophy without changing its wording. */
 (() => {
   document.body.classList.add('about-page');
+  let stopReadingProgress = () => {};
+
+  function setupReadingProgress(nav, chapters) {
+    stopReadingProgress();
+    const links = Array.from(nav.querySelectorAll('a'));
+    const percent = nav.querySelector('.about-reading-percent');
+    const progress = nav.querySelector('.about-reading-progress span');
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      if (!chapters.length || !links.length) return;
+      const marker = Math.min(window.innerHeight * 0.35, 260);
+      let activeIndex = 0;
+      chapters.forEach((chapter, index) => {
+        if (chapter.getBoundingClientRect().top <= marker) activeIndex = index;
+      });
+      const firstTop = chapters[0].getBoundingClientRect().top + window.scrollY;
+      const last = chapters[chapters.length - 1];
+      const lastBottom = last.getBoundingClientRect().bottom + window.scrollY;
+      const readingPosition = window.scrollY + marker;
+      const readingProgress = Math.max(0, Math.min(1, (readingPosition - firstTop) / Math.max(1, lastBottom - firstTop)));
+
+      links.forEach((link, index) => {
+        const active = index === activeIndex;
+        link.classList.toggle('is-active', active);
+        link.classList.toggle('is-read', index < activeIndex);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+      if (progress) progress.style.transform = `scaleX(${readingProgress})`;
+      if (percent) percent.textContent = `${Math.round(readingProgress * 100)}%`;
+    };
+    const requestUpdate = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    links.forEach((link, index) => link.addEventListener('click', (event) => {
+      event.preventDefault();
+      chapters[index].scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+      history.replaceState(null, '', link.hash);
+    }));
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    stopReadingProgress = () => {
+      window.removeEventListener('scroll', requestUpdate);
+      window.removeEventListener('resize', requestUpdate);
+      if (frame) cancelAnimationFrame(frame);
+    };
+    update();
+  }
 
   function organizeValues() {
     const section = document.querySelector('main .values-section');
@@ -56,8 +107,16 @@
     nav.setAttribute('aria-label', '公司理念章節');
     const navTitle = document.createElement('span');
     navTitle.className = 'about-chapters-title';
-    navTitle.textContent = '文章章節';
-    nav.append(navTitle);
+    navTitle.append(document.createTextNode('文章章節'));
+    const readingPercent = document.createElement('span');
+    readingPercent.className = 'about-reading-percent';
+    readingPercent.textContent = '0%';
+    navTitle.append(readingPercent);
+    const readingProgress = document.createElement('span');
+    readingProgress.className = 'about-reading-progress';
+    readingProgress.setAttribute('aria-hidden', 'true');
+    readingProgress.append(document.createElement('span'));
+    nav.append(navTitle, readingProgress);
     const content = document.createElement('div');
     content.className = 'about-reading-content';
     const intro = document.createElement('div');
@@ -86,6 +145,7 @@
     layout.append(nav, content);
     article.append(layout);
     article.classList.add('about-organized');
+    setupReadingProgress(nav, Array.from(content.querySelectorAll('.about-chapter')));
   }
 
   organize();
