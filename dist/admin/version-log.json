@@ -1,5 +1,12 @@
 [
   {
+    "commit": "f1d4f51b7f58d42f8a1c757c75b472864a5e5ba4",
+    "short_commit": "f1d4f51",
+    "committed_at": "2026-11-04T11:27:06+08:00",
+    "summary": "ui: tighten team page rhythm",
+    "summary_zh": "縮緊團隊頁人物資料與合作名單間距，改善文字閱讀節奏"
+  },
+  {
     "commit": "125e24e1810e6ac710cb103930f13c316c3e882c",
     "short_commit": "125e24e",
     "committed_at": "2026-11-04T11:22:22+08:00",

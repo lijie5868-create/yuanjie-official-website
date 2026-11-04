@@ -304,3 +304,23 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .team-page .portrait,.team-page .portrait.chou,.team-page .portrait.hsieh{width:min(100%,260px)}
  .team-page .network{gap:22px}
 }
+
+/* Urban project location filters and card tags. */
+.project-filter{display:grid;gap:12px;margin:0 0 12px;padding:18px 20px;border:1px solid #CFD4D7;background:#F8F8F5}
+.project-filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.project-filter-group>span{flex:0 0 64px;font-size:12px;letter-spacing:1px;color:#626D74}
+.project-filter button{min-height:36px;padding:7px 13px;border:1px solid #CFD4D7;border-radius:999px;background:transparent;color:#37414A;font:inherit;font-size:13px;cursor:pointer}
+.project-filter button b{margin-left:4px;font-size:11px;font-weight:400;color:#7A848A}
+.project-filter button:hover{border-color:#C5A880}
+.project-filter button.is-active{border-color:#4A6984;background:#4A6984;color:#fff}
+.project-filter button.is-active b{color:#E6EDF2}
+.project-filter-status{margin:0 0 26px;font-size:13px;color:#626D74}
+.case-card[hidden]{display:none}
+.case-card .project-location{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 14px!important}
+.case-card .project-location span{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border:1px solid #BFC9CF;border-radius:999px;color:#4A6984;font-size:12px;line-height:1.25;letter-spacing:.5px;background:#F8F8F5}
+@media(max-width:600px){
+ .project-filter{padding:15px 14px;gap:10px;overflow:hidden}
+ .project-filter-group{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+ .project-filter-group>span{position:sticky;left:0;z-index:1;flex-basis:58px;background:#F8F8F5}
+ .project-filter button{flex:0 0 auto}
+}
