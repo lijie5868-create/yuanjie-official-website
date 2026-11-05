@@ -73,7 +73,6 @@ img{max-width:100%;height:auto}
 /* Full-size views always fit the viewport, independently of thumbnail rules. */
 dialog img,.case-dialog img,.gallery-dialog img{width:auto;height:auto;max-width:100%;object-fit:contain;aspect-ratio:auto}
 .assessment-dialog img{width:min(230px,100%);height:auto;max-height:none}
-.assessment-qr-stage{position:relative;width:min(260px,100%);aspect-ratio:1;margin:0 auto}.assessment-qr-stage>img{width:100%;height:100%;object-fit:contain}.assessment-3d-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none;background:#f4f5f6}.assessment-qr-stage.is-playing>img{visibility:hidden}.assessment-qr-stage.is-playing .assessment-3d-canvas{opacity:1}@media(max-width:600px){.assessment-qr-stage{width:min(230px,100%)}}
 @media(max-width:800px){
  .wrap>*,.case-overview>*,.footer-contact-grid>*{min-width:0}
  .gallery,.meeting-gallery,.heping-gallery,.journal-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}

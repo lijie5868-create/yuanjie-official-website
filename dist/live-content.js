@@ -50,15 +50,5 @@
       script.textContent=source.textContent;
       source.replaceWith(script);
     }
-    const assessment=document.querySelector('#assessment-dialog');
-    const qr=assessment?.querySelector('img[src*="line-assessment-qr"]');
-    const trigger=document.querySelector('.assessment-float');
-    if(assessment&&qr&&trigger){
-      const frame=document.createElement('div');
-      frame.className='assessment-qr-stage';
-      qr.replaceWith(frame);
-      frame.append(qr);
-      import('./assessment-3d.js?v=4').then(module=>module.initAssessment3D({assessment,qr,trigger,frame})).catch(error=>console.warn('Assessment animation unavailable; QR code remains visible.',error));
-    }
   }
 })();
