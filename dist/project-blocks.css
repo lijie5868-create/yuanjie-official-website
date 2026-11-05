@@ -62,3 +62,57 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
  [data-block="specs"] :is(.case-overview>div,.details)>dl{max-width:none;margin-top:28px}
  [data-block="specs"] .specs>div{grid-template-columns:minmax(86px,32%) minmax(0,1fr)}
 }
+
+/* Sales estimate: a single strong focal point, without changing its editable text. */
+[data-block="specs"] .case-amount{
+ position:relative;isolation:isolate;display:block;width:100%;max-width:440px;
+ margin:12px 0 0;padding:clamp(28px,4vw,48px) clamp(20px,3vw,38px);
+ overflow:hidden;background:#25333a;color:#e6c68d;
+ font:400 clamp(76px,8.5vw,138px)/1.05 Georgia,"Noto Serif TC",serif;
+ letter-spacing:-.065em;white-space:nowrap;font-variant-numeric:lining-nums;
+ text-shadow:0 3px 24px #d2a96855;box-shadow:0 20px 40px #25333a1b;
+}
+[data-block="specs"] .case-amount::before{
+ content:"";position:absolute;z-index:-1;inset:-40%;pointer-events:none;
+ background:radial-gradient(circle at 65% 52%,#e4ba7040,transparent 46%);
+ transform:translateX(-22%);transition:transform 1s ease;
+}
+[data-block="specs"] .case-amount::after{
+ content:"";position:absolute;left:clamp(20px,3vw,38px);right:clamp(20px,3vw,38px);
+ bottom:16px;height:1px;background:linear-gradient(90deg,#e6c68d,transparent);
+}
+[data-block="specs"] .case-amount.amount-in-view{animation:amount-reveal .85s cubic-bezier(.2,.75,.2,1) both}
+[data-block="specs"] .case-amount.amount-in-view::before{transform:translateX(12%)}
+@keyframes amount-reveal{from{opacity:.45;transform:translateY(22px) scale(.97);filter:brightness(.65)}to{opacity:1;transform:none;filter:none}}
+
+/* An editorial list replaces the uniform feature cards. */
+[data-block="features"] :is(.case-highlights,.heping-highlights,ul){
+ counter-reset:case-feature;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:0 clamp(26px,5vw,80px);max-width:none;margin:32px 0 0;padding:0;list-style:none;
+}
+[data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li{
+ counter-increment:case-feature;display:grid;grid-template-columns:64px minmax(0,1fr);
+ align-items:start;gap:clamp(12px,2vw,26px);min-width:0;min-height:0;
+ margin:0;padding:clamp(22px,3vw,36px) 0;border:0;border-top:1px solid #c5a880;
+ background:transparent;color:#28343b;font-size:clamp(18px,1.6vw,24px);line-height:1.55;
+ box-shadow:none;
+}
+[data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li::before{
+ content:counter(case-feature,decimal-leading-zero);font:400 27px/1.2 Georgia,serif;
+ color:#a18355;letter-spacing:-.04em;
+}
+[data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li:first-child:not(:last-child){
+ grid-column:1/-1;grid-template-columns:64px minmax(0,1fr);
+ font-size:clamp(22px,2.5vw,34px);padding-block:clamp(28px,4vw,48px);
+}
+@media(max-width:750px){
+ [data-block="specs"] .case-amount{font-size:clamp(72px,18vw,112px);padding:28px 24px 34px}
+ [data-block="specs"] .case-amount::after{left:24px;right:24px}
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul){grid-template-columns:1fr;margin-top:22px}
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li,
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li:first-child:not(:last-child){
+  grid-column:auto;grid-template-columns:42px minmax(0,1fr);font-size:clamp(18px,5vw,24px);padding:22px 0;
+ }
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li::before{font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){[data-block="specs"] .case-amount.amount-in-view{animation:none}[data-block="specs"] .case-amount::before{transition:none}}
