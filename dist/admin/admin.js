@@ -1,3 +1,4 @@
+import {bindBlocks} from './block-editor.js';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=1";
 
@@ -203,6 +204,13 @@ async function editorDocument(page,html){
       const category=page.file_name==='urban.html'?'urban':'renewal';
       if(grid){
         for(const project of publishedPages.values()){
+          const existing=[...grid.querySelectorAll('.case-card')].find(a=>a.getAttribute('href')===project.file_name);
+          if(existing&&project.main_html.includes('data-block-version')){
+            existing.dataset.originalCard=existing.outerHTML;
+            ProjectBlocks.updateCard(existing,project.main_html);
+            existing.contentEditable='false';
+            continue;
+          }
           const card=managedProjectCard(project,category);
           if(card)grid.append(card);
         }
@@ -223,7 +231,7 @@ async function editorDocument(page,html){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 async function loadEditor(page){
@@ -251,12 +259,18 @@ async function loadEditor(page){
   $('contentSafetyStatus').textContent=staleDraft
     ?'正式網站版本比後台草稿新，已自動載入正式版本，避免舊草稿覆蓋。'
     :'預覽已套用正式頁面的版型；發布前會再次檢查版本，避免覆蓋其他人的更新。';
+  $('blockPanel').hidden=true;
   const previewDocument=await editorDocument(page,source.main_html);
   if(loadToken!==editorLoadToken)return;
   frame.onload=()=>{
     const main=frame.contentDocument.querySelector('main');
-    if(main)main.contentEditable='true';
+    if(main && ProjectBlocks.applies(page.file_name) && ProjectBlocks.prepare(main)){
+      bindBlocks(main,$('blockPanel'),()=>{pageDirty=true});
+    }else if(main)main.contentEditable='true';
     imageEditor.bindFrame();
+    frame.contentDocument.addEventListener('click',event=>{
+      if(main?.dataset.blockVersion && event.target.closest('button,a'))event.preventDefault();
+    });
     frame.contentDocument.addEventListener('input',()=>{pageDirty=true});
     $('publish').disabled=false;
   };
@@ -275,8 +289,11 @@ function mainHtml(){
     throw new Error('新版建案篩選版型未載入，已停止儲存與發布；請重新整理後台。');
   if(current?.file_name==='index.html'&&main.querySelector('.home-project-category .portal')&&!main.querySelector('.home-project-category .category-copy'))
     throw new Error('新版首頁建案版型未載入，已停止儲存與發布；請重新整理後台。');
+  if(ProjectBlocks.applies(current.file_name) && main.dataset.blockVersion!=='1')
+    throw new Error('個案結構需要人工檢查，已保留原稿。');
   const copy=main.cloneNode(true);
   copy.removeAttribute('contenteditable');
+  copy.querySelectorAll('[data-original-card]').forEach(card=>card.outerHTML=card.dataset.originalCard);
   copy.querySelectorAll('[data-managed-card]').forEach(card=>card.remove());
   if(isManagedProject(current)){
     const category=$('projectCategory').value;

@@ -17,7 +17,7 @@
         :`published_pages?select=title,meta_description,main_html&file_name=eq.${encodeURIComponent(fileName)}&limit=1`),
       read('published_navigation?select=label,subtitle,href,is_visible&order=nav_order.asc'),
       fileName==='urban.html'||fileName==='renewal.html'
-        ?read('published_pages?select=slug,file_name,title,main_html&file_name=like.project.html%3Fcase%3D*&order=sort_order.asc')
+        ?read('published_pages?select=slug,file_name,title,main_html&or=(file_name.like.project.html%3Fcase%3D*,main_html.like.*data-block-version*)&order=sort_order.asc')
         :Promise.resolve([])
     ]);
     const page=pages[0];
@@ -81,6 +81,8 @@
       const category=fileName==='urban.html'?'urban':'renewal';
       const grid=document.querySelector('.case-grid');
       for(const project of managedProjects){
+        const existingCard=[...grid?.querySelectorAll('a.case-card')||[]].find(card=>card.getAttribute('href')===project.file_name);
+        if(existingCard){window.ProjectBlocks?.updateCard(existingCard,project.main_html);continue}
         if(!project.file_name?.startsWith('project.html?case=')||!grid)continue;
         const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
         if(main?.dataset.projectCategory!==category)continue;
@@ -128,10 +130,27 @@
         portal.append(copy);
       }
     }
+    if(window.ProjectBlocks){
+      const main=document.querySelector('main');
+      if(ProjectBlocks.applies(location.pathname.split('/').pop()+location.search) || (fileName==='project.html'&&caseSlug) || ProjectBlocks.applies(fileName)){if(ProjectBlocks.prepare(main))ProjectBlocks.refresh(main);}
+    }
     for(const source of document.querySelectorAll('script[data-site-init]')){
       const script=document.createElement('script');
       script.textContent=source.textContent;
       source.replaceWith(script);
+    }
+    const modular=document.querySelector('main[data-block-version="1"]');
+    if(modular){
+      const dialog=document.querySelector('dialog:not(.assessment-dialog)');
+      for(const img of modular.querySelectorAll('img')){
+        const old=img.closest('[data-image],[data-lightbox]');
+        if(old){if(old.hasAttribute('data-image'))old.dataset.image=img.src;else old.dataset.lightbox=img.src}
+        if(!dialog||img.closest('button,a'))continue;
+        const zoom=document.createElement('button');
+        zoom.className='image-zoom';zoom.ariaLabel='放大'+img.alt;
+        img.replaceWith(zoom);zoom.append(img);
+        zoom.onclick=()=>{const target=dialog.querySelector('img');target.src=img.src;target.alt=img.alt;dialog.showModal()};
+      }
     }
     window.enhanceLinkMotion?.(document.querySelector('main'));
   }
