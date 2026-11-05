@@ -124,6 +124,7 @@ async function editorDocument(page,html){
   let bodyClass='';
   let stylesheet=`${basePath}style.css`;
   let previewScripts='';
+  let previewHeader='';
   try{
     const response=await fetch(`${basePath}${page.file_name}?admin-preview=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`無法載入頁面樣板：${response.status}`);
@@ -131,15 +132,33 @@ async function editorDocument(page,html){
     bodyId=template.body.id;
     bodyClass=template.body.className;
     stylesheet=template.querySelector('link[rel="stylesheet"]')?.getAttribute('href')||stylesheet;
+    previewHeader=template.body.querySelector(':scope > header')?.outerHTML||'';
+    if(page.file_name==='index.html'){
+      const previewMain=new DOMParser().parseFromString(html,'text/html').querySelector('main');
+      for(const portal of previewMain?.querySelectorAll('.home-project-category .portal')||[]){
+        if(portal.querySelector(':scope > .category-copy'))continue;
+        const image=portal.querySelector(':scope > img');
+        if(!image)continue;
+        const copy=document.createElement('div');copy.className='category-copy';
+        while(image.nextSibling)copy.append(image.nextSibling);
+        portal.append(copy);
+      }
+      if(previewMain)html=previewMain.outerHTML;
+    }
     previewScripts=[...template.querySelectorAll('script[src]')]
       .map(script=>script.getAttribute('src'))
       .filter(src=>src&&(src.split(/[?#]/)[0].endsWith('/about-layout.js')||src.split(/[?#]/)[0]==='about-layout.js'))
       .map(src=>`<script src="${src}" defer></script>`).join('');
+    if(page.file_name==='urban.html'){
+      const layoutScript=[...template.querySelectorAll('script[data-site-init]')]
+        .find(script=>script.textContent.includes("document.querySelector('.case-grid')"));
+      if(layoutScript)previewScripts+=`<script>${layoutScript.textContent}</script>`;
+    }
   }catch(error){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 async function loadEditor(page){
@@ -180,8 +199,21 @@ async function loadEditor(page){
 function mainHtml(){
   const main=$('visualEditor').contentDocument.querySelector('main');
   if(!main)throw new Error('頁面內容缺少 main 區塊，請重新載入後再試。');
+  if(current?.file_name==='urban.html'&&!main.querySelector('.project-filter'))
+    throw new Error('新版建案篩選版型未載入，已停止儲存與發布；請重新整理後台。');
+  if(current?.file_name==='index.html'&&main.querySelector('.home-project-category .portal')&&!main.querySelector('.home-project-category .category-copy'))
+    throw new Error('新版首頁建案版型未載入，已停止儲存與發布；請重新整理後台。');
   const copy=main.cloneNode(true);
+  copy.removeAttribute('contenteditable');
   copy.querySelectorAll('[data-admin-selected]').forEach(image=>image.removeAttribute('data-admin-selected'));
+  copy.querySelectorAll('.case-card[hidden]').forEach(card=>card.removeAttribute('hidden'));
+  copy.querySelectorAll('.project-filter button').forEach(button=>{
+    const active=button.dataset.filterType==='all';
+    button.classList.toggle('is-active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  const filterStatus=copy.querySelector('.project-filter-status');
+  if(filterStatus)filterStatus.textContent=`顯示全部 ${copy.querySelectorAll('.case-card').length} 件建案`;
   return copy.outerHTML;
 }
 
