@@ -103,28 +103,43 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
  50%{transform:rotateX(18deg) rotateY(18deg)}
 }
 
-/* Keep every project highlight at the same visual weight. */
+/* Project highlights: compact brand cards with a quiet corner reveal. */
 [data-block="features"] :is(.case-highlights,.heping-highlights,ul){
- counter-reset:case-feature;display:grid;grid-template-columns:minmax(0,1fr);
- gap:0;max-width:1040px;margin:clamp(20px,3vw,36px) 0 0;padding:0;list-style:none;
+ counter-reset:case-feature;display:flex;flex-wrap:wrap;justify-content:center;
+ gap:clamp(14px,2vw,22px);max-width:none;margin:clamp(22px,3vw,36px) 0 0;padding:0;list-style:none;
 }
 [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li{
- counter-increment:case-feature;display:grid;grid-template-columns:clamp(50px,6vw,74px) minmax(0,1fr);
- align-items:baseline;gap:clamp(14px,2.5vw,32px);min-width:0;min-height:0;
- margin:0;padding:clamp(19px,2.5vw,30px) 0;border:0;border-bottom:1px solid #c8ced0;
- background:transparent;color:#28343b;font-size:clamp(18px,1.8vw,25px);line-height:1.55;
- box-shadow:none;
+ counter-increment:case-feature;position:relative;z-index:0;isolation:isolate;display:flex;flex-direction:column;
+ flex:0 1 calc((100% - 2 * clamp(14px,2vw,22px))/3);min-width:0;min-height:190px;
+ margin:0;padding:clamp(24px,2.6vw,34px);overflow:hidden;border:1px solid #e2d8c8;border-radius:12px;
+ background:#f3f1ec;color:#28343b;font-size:clamp(17px,1.5vw,21px);line-height:1.55;
+ box-shadow:none;transition:color .3s ease,border-color .3s ease,transform .3s ease;
 }
-[data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li:first-child{border-top:1px solid #c8ced0}
 [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li::before{
- content:counter(case-feature,decimal-leading-zero);font:400 clamp(20px,2vw,26px)/1.2 Georgia,serif;
- color:#a18355;letter-spacing:-.04em;
+ content:counter(case-feature,decimal-leading-zero);display:block;margin-bottom:clamp(18px,2vw,28px);
+ font:400 25px/1.2 Georgia,serif;color:#9c7d4e;letter-spacing:-.04em;
+ transition:color .3s ease;
+}
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li::after{
+ content:"";position:absolute;z-index:-1;top:-18px;right:-18px;width:36px;height:36px;
+ border-radius:50%;background:#796443;transform:scale(1);transition:transform .38s ease-out;
+ }
+[data-block="features"][data-layout="wide"] :is(.case-highlights,.heping-highlights,ul)>li{flex-basis:100%;min-height:0}
+@media(hover:hover){
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li:hover{color:#fff;border-color:#796443;transform:translateY(-3px)}
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li:hover::before{color:#ead6af}
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li:hover::after{transform:scale(32)}
+}
+@media(max-width:900px){
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li{flex-basis:calc((100% - clamp(14px,2vw,22px))/2)}
 }
 @media(max-width:750px){
  [data-block="specs"] .case-amount{font-size:clamp(82px,19vw,116px)}
  [data-block="specs"] .amount-unit{font-size:clamp(25px,6vw,34px)}
  [data-block="features"] :is(.case-highlights,.heping-highlights,ul){margin-top:20px}
- [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li{grid-template-columns:40px minmax(0,1fr);gap:12px;font-size:clamp(17px,4.7vw,21px);padding:18px 0}
- [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li::before{font-size:20px}
 }
-@media(prefers-reduced-motion:reduce){[data-block="specs"] .amount-holo{animation:none;transform:none}}
+@media(max-width:560px){
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li{flex-basis:100%;min-height:0;padding:24px;font-size:18px}
+ [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li::before{margin-bottom:14px;font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){[data-block="specs"] .amount-holo{animation:none;transform:none}[data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li,[data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li::after{transition:none}}
