@@ -290,6 +290,9 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .team-page .architect-profile .copy{margin:12px 0;line-height:1.8}
 .team-page .architect-profile .text-link,
 .team-page .architect-profile .team-section-link{padding:6px 0}
+.team-page .architect-profile a.link-motion{padding:8px 27px 18px 0;border-bottom:0;text-decoration:none}
+.team-page .architect-profile .link-motion-clone{top:8px}
+.team-page .architect-profile .link-motion-icon{top:calc(50% - 5px)}
 .team-page .section-title{margin:8px 0 10px;line-height:1.5;letter-spacing:2px}
 .team-page .team-section .copy{margin:0;line-height:1.8}
 .team-page .network{gap:26px 36px;margin-top:28px}
