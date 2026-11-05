@@ -71,6 +71,8 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .project-fields{margin:16px 0;padding:16px;border:1px solid #deddd6;border-radius:9px;background:#faf9f6}
 .project-fields label:first-child{grid-column:1/-1}
 .new-project-actions{display:flex;justify-content:flex-end;gap:8px}
+.qa-tools{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:0 0 16px}
+.qa-tools span{color:#70716c;font-size:13px}
 .new-project-dialog .message.error{color:#a02d22}
 @media(max-width:520px){.new-project-location,.project-fields{grid-template-columns:1fr}}
 .search-field input { padding-left: 12px; background: #f8f7f4; }

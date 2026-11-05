@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=24">
+  <link rel="stylesheet" href="admin.css?v=25">
 </head>
 <body>
   <div class="shell">
@@ -105,6 +105,7 @@
               <button type="button" id="editImage" class="secondary" disabled>編輯選取圖片</button>
               <input id="imageUpload" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
             </div>
+            <div id="qaTools" class="qa-tools" hidden><button id="addQuestion" type="button">＋ 新增問答</button><span>新增後請儲存草稿，再確認發布。</span></div>
             <p id="contentSafetyStatus" class="content-safety-status" role="status"></p>
             <details id="blockPanel" hidden open></details>
             <button id="previewSize" type="button" class="secondary" onclick="const f=document.getElementById('visualEditor');f.style.maxWidth=f.style.maxWidth?'':'390px';this.textContent=f.style.maxWidth?'桌面預覽':'手機預覽'">手機預覽</button>
@@ -131,6 +132,16 @@
           </fieldset>
           <p id="newProjectMessage" class="message" role="status"></p>
           <div class="new-project-actions"><button id="cancelNewProject" type="button" class="secondary">取消</button><button id="createNewProject" type="submit">建立草稿</button></div>
+        </form>
+      </dialog>
+
+      <dialog id="newQuestionDialog" class="new-project-dialog" aria-labelledby="newQuestionTitle">
+        <form id="newQuestionForm">
+          <h2 id="newQuestionTitle">新增問答</h2>
+          <label>分類<select id="newQuestionCategory" required><option>都更基本認識</option><option>服務與流程</option><option>防災與政策</option><option>契約與權益</option><option>費用與分配</option></select></label>
+          <label>問題<input id="newQuestionText" required maxlength="200" placeholder="請輸入問題"></label>
+          <label>回答<textarea id="newAnswerText" required rows="7" placeholder="請輸入回答；可分段換行"></textarea></label>
+          <div class="new-project-actions"><button id="cancelNewQuestion" type="button" class="secondary">取消</button><button type="submit">加入預覽</button></div>
         </form>
       </dialog>
 
@@ -254,6 +265,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js?v=8"></script><script type="module" src="admin.js?v=44"></script>
+  <script src="../project-blocks.js?v=8"></script><script type="module" src="admin.js?v=45"></script>
 </body>
 </html>

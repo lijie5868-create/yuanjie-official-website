@@ -314,6 +314,7 @@ async function loadEditor(page){
   $('title').value=source.title;
   $('description').value=source.meta_description;
   $('projectFields').hidden=!isManagedProject(page);
+  $('qaTools').hidden=page.file_name!=='qa.html';
   if(isManagedProject(page)){
     const projectMain=new DOMParser().parseFromString(source.main_html,'text/html').querySelector('main');
     $('projectCategory').value=projectMain?.dataset.projectCategory||'urban';
@@ -1096,6 +1097,51 @@ $('newProjectForm').onsubmit=async event=>{
     message('個案草稿已建立。請上傳圖片、補齊資料並儲存；確認後再發布。');
   }catch(error){$('newProjectMessage').textContent=error.message;$('newProjectMessage').classList.add('error')}
   finally{submit.disabled=false}
+};
+$('addQuestion').onclick=()=>{
+  if(current?.file_name!=='qa.html')return;
+  $('newQuestionForm').reset();
+  $('newQuestionDialog').showModal();
+  $('newQuestionText').focus();
+};
+$('cancelNewQuestion').onclick=()=>$('newQuestionDialog').close();
+$('newQuestionForm').onsubmit=event=>{
+  event.preventDefault();
+  if(current?.file_name!=='qa.html')return;
+  const question=$('newQuestionText').value.trim();
+  const answer=$('newAnswerText').value.trim();
+  const category=$('newQuestionCategory').value;
+  if(!question||!answer)return;
+  const doc=$('visualEditor').contentDocument;
+  const list=doc?.querySelector('main #questions');
+  if(!list){message('問答區塊未載入，請重新開啟問與答頁面。',true);return}
+  const rows=[...list.querySelectorAll(':scope > details')];
+  const nextId=Math.max(0,...rows.map(row=>Number(row.id.match(/^q(\d+)$/)?.[1]||0)))+1;
+  const row=doc.createElement('details');
+  row.id=`q${nextId}`;
+  row.dataset.category=category;
+  const summary=doc.createElement('summary');
+  const number=doc.createElement('span');
+  number.className='eyebrow';
+  number.style.marginRight='18px';
+  number.textContent=String(rows.length+1).padStart(2,'0');
+  summary.append(number,doc.createTextNode(question));
+  const body=doc.createElement('div');
+  body.className='answer';
+  for(const paragraph of answer.split(/\n\s*\n/)){
+    const p=doc.createElement('p');
+    p.append(...paragraph.split('\n').flatMap((line,index)=>index?[doc.createElement('br'),doc.createTextNode(line)]:[doc.createTextNode(line)]));
+    body.append(p);
+  }
+  row.append(summary,body);
+  list.append(row);
+  row.open=true;
+  const count=doc.querySelector('main .qa-count');
+  if(count)count.textContent=`共 ${rows.length+1} 個問題`;
+  pageDirty=true;
+  $('newQuestionDialog').close();
+  row.scrollIntoView({block:'center',behavior:'smooth'});
+  message('問答已加入預覽。請儲存草稿，確認後再發布網站。');
 };
 $('saveNavigation').onclick=()=>saveNavigationDraft().catch(error=>navigationMessage(error.message,true));
 $('publishNavigation').onclick=()=>publishNavigation().catch(error=>navigationMessage(error.message,true));
