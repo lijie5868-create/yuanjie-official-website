@@ -243,14 +243,14 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 }
 .team-home figure{width:100%;max-width:none}
 .team-home .group-photo-stable{width:100%;max-width:none}
-.team-home>div{padding:28px 0 28px 36px;border-left:1px solid #C5A880}
+.team-home>div{padding:18px 0 28px;border-top:2px solid #C5A880}
 .team-home h2{margin:12px 0 0;font-size:clamp(28px,2.6vw,40px);line-height:1.45}
 .team-home .copy{max-width:560px;margin:22px 0 20px;font-size:16px;line-height:1.95}
 .team-home .text-link{margin-top:4px}
 .cooperation{padding-top:12px;padding-bottom:54px}
 @media(max-width:800px){
  .team-home{grid-template-columns:1fr;gap:24px;padding-top:38px;padding-bottom:22px}
- .team-home>div{padding:20px 0 0;border-left:0;border-top:1px solid #C5A880}
+ .team-home>div{padding:16px 0 0}
  .team-home h2{margin-top:10px;font-size:27px}
  .team-home .copy{margin:16px 0 14px}
  .cooperation{padding-top:8px}
