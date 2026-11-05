@@ -314,6 +314,7 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .team-page .network+.note{margin-top:28px;padding-top:18px}
 .team-page .press-description{margin:12px 0 0;line-height:1.85}
 .team-page .press-gallery{margin-top:24px}
+.team-page .press-gallery img{aspect-ratio:698/431;object-fit:cover}
 @media(max-width:800px){
  .team-page .architect-profile{gap:22px;padding:34px 0}
  .team-page .network{gap:24px 22px;margin-top:24px}
