@@ -20,13 +20,13 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
   const edge=new THREE.DirectionalLight(0xb88949,2);
   edge.position.set(4,-2,-2);scene.add(edge);
   const geometry=new THREE.BoxGeometry(1,1,1);
-  const material=new THREE.MeshStandardMaterial({color:0xc5a880,metalness:.42,roughness:.3});
+  const material=new THREE.MeshStandardMaterial({color:0x111111,metalness:0,roughness:.75});
   const dummy=new THREE.Object3D();
-  const gold=new THREE.Color(0xc5a880),ink=new THREE.Color(0x111111);
-  let mesh,logoObject,from=[],to=[],ready=false,playing=false,raf=0,start=0;
+  let mesh,logoObject,ready=false,playing=false,raf=0,start=0;
   const logoMaterial=new THREE.MeshPhysicalMaterial({color:0xc5a880,metalness:.55,roughness:.27,clearcoat:.9,clearcoatRoughness:.15,transparent:true});
-  const qrFace=new THREE.Mesh(new THREE.BoxGeometry(3.57,3.57,.055),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}));
-  qrFace.position.z=-.035;scene.add(qrFace);
+  const qrRig=new THREE.Group();scene.add(qrRig);
+  const qrFace=new THREE.Mesh(new THREE.BoxGeometry(3.57,3.57,.09),new THREE.MeshBasicMaterial({color:0xffffff}));
+  qrFace.position.z=-.055;qrRig.add(qrFace);
   let centerBadge;
   const solidLogo=img=>{
     const n=112,c=document.createElement('canvas');c.width=c.height=n;
@@ -53,76 +53,60 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
     g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
     return new THREE.Mesh(g,logoMaterial);
   };
-  const points=(img,kind)=>{
-    const side=kind==='qr'?33:72;
+  const qrPoints=img=>{
+    const side=33;
     const sample=document.createElement('canvas');sample.width=sample.height=side;
     const ctx=sample.getContext('2d',{willReadFrequently:true});
-    if(kind==='qr')ctx.drawImage(img,55,55,297,297,0,0,side,side);
-    else ctx.drawImage(img,0,0,side,side);
+    ctx.drawImage(img,55,55,297,297,0,0,side,side);
     const data=ctx.getImageData(0,0,side,side).data;
     const result=[];
     for(let y=0;y<side;y++)for(let x=0;x<side;x++){
       const i=(y*side+x)*4;
-      const badge=kind==='qr'&&x>=12&&x<=20&&y>=12&&y<=20;
-      const visible=!badge&&(kind==='qr'?data[i]<110&&data[i+1]<110&&data[i+2]<110:data[i+3]>110&&data[i]>75);
+      const badge=x>=12&&x<=20&&y>=12&&y<=20;
+      const visible=!badge&&data[i]<110&&data[i+1]<110&&data[i+2]<110;
       if(visible)result.push({x:(x+.5-side/2)*3.5/side,y:(side/2-y-.5)*3.5/side});
     }
     return result;
   };
   const logo=new Image();logo.src='assets/yuanjie-logo-transparent.png';
   Promise.all([logo.decode(),qr.decode()]).then(()=>{
-    from=points(logo,'logo');to=points(qr,'qr');
-    if(!from.length||!to.length)throw Error('Empty logo or QR geometry');
+    const to=qrPoints(qr);
+    if(!to.length)throw Error('Empty QR geometry');
     logoObject=solidLogo(logo);scene.add(logoObject);
-    const count=Math.max(from.length,to.length);
-    mesh=new THREE.InstancedMesh(geometry,material,count);
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    mesh=new THREE.InstancedMesh(geometry,material,to.length);
+    for(let i=0;i<to.length;i++){
+      dummy.position.set(to[i].x,to[i].y,.055);
+      dummy.scale.set(3.5/33*.995,3.5/33*.995,.11);
+      dummy.rotation.set(0,0,0);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate=true;
     const badgeCanvas=document.createElement('canvas');badgeCanvas.width=badgeCanvas.height=108;
     badgeCanvas.getContext('2d').drawImage(qr,163,163,81,81,0,0,108,108);
     const badgeTexture=new THREE.CanvasTexture(badgeCanvas);badgeTexture.colorSpace=THREE.SRGBColorSpace;
     centerBadge=new THREE.Mesh(new THREE.BoxGeometry(.97,.97,.065),[
       new THREE.MeshBasicMaterial({color:0xeeeeee}),new THREE.MeshBasicMaterial({color:0xeeeeee}),
       new THREE.MeshBasicMaterial({color:0xeeeeee}),new THREE.MeshBasicMaterial({color:0xeeeeee}),
-      new THREE.MeshBasicMaterial({map:badgeTexture,transparent:true,opacity:0}),new THREE.MeshBasicMaterial({color:0xffffff})
+      new THREE.MeshBasicMaterial({map:badgeTexture}),new THREE.MeshBasicMaterial({color:0xffffff})
     ]);
-    centerBadge.position.z=.07;scene.add(centerBadge);
-    scene.add(mesh);ready=true;
+    centerBadge.position.z=.075;qrRig.add(centerBadge);
+    qrRig.add(mesh);ready=true;
     if(assessment.open)begin();
   }).catch(error=>{console.warn('Assessment geometry unavailable.',error);canvas.remove();renderer.dispose()});
   const ease=t=>t*t*(3-2*t);
   const draw=now=>{
     if(!playing)return;
-    const t=Math.min((now-start)/3000,1);
-    const release=ease(Math.min(Math.max((t-.3)/.2,0),1));
-    const morph=ease(Math.min(Math.max((t-.43)/.47,0),1));
-    const spin=(1-ease(Math.min(t/.43,1)))*.75;
-    logoObject.rotation.y=(1-ease(Math.min(t/.35,1)))*-.65+Math.sin(t*5)*.07;
-    logoObject.rotation.x=(1-ease(Math.min(t/.4,1)))*.28;
-    logoObject.position.y=Math.sin(t*6)*.035;
-    logoObject.scale.setScalar(1-release*.08);
-    logoMaterial.opacity=1-release;
-    logoObject.visible=release<1;
-    mesh.visible=release>0;
-    mesh.rotation.y=spin*release;
-    mesh.rotation.x=0;
-    const qrAppear=ease(Math.min(Math.max((t-.7)/.22,0),1));
-    qrFace.material.opacity=qrAppear;
-    centerBadge.material[4].opacity=qrAppear;
-    for(let i=0;i<mesh.count;i++){
-      const a=from[i%from.length],b=to[i%to.length];
-      const path=Math.sin(Math.PI*morph),angle=i*2.39996;
-      const ripple=Math.cos(angle+t*12)*.52*path;
-      dummy.position.set(THREE.MathUtils.lerp(a.x,b.x,morph)+ripple,THREE.MathUtils.lerp(a.y,b.y,morph)+Math.sin(angle+t*12)*.52*path,Math.sin(i*.27)*.15*(1-morph)+path*(.45+Math.sin(i*.73)*.28));
-      const logoSize=3.5/72*.88;
-      const qrSize=3.5/33*.995;
-      const size=THREE.MathUtils.lerp(logoSize,qrSize,morph)*(i>=to.length?1-morph:1)*release;
-      dummy.scale.set(size,size,THREE.MathUtils.lerp(.18,.085,morph));
-      dummy.rotation.set(path*Math.sin(angle)*1.8,spin*(1-morph)+path*Math.cos(angle)*1.4,path*angle);dummy.updateMatrix();
-      mesh.setMatrixAt(i,dummy.matrix);
-      mesh.setColorAt(i,gold.clone().lerp(ink,morph));
-    }
-    mesh.instanceMatrix.needsUpdate=true;
-    if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
+    const t=Math.min((now-start)/2900,1);
+    const retract=ease(Math.min(Math.max((t-.32)/.38,0),1));
+    const turn=ease(Math.min(Math.max((t-.52)/.43,0),1));
+    qrRig.rotation.x=THREE.MathUtils.lerp(-1.02,0,turn);
+    qrRig.rotation.z=THREE.MathUtils.lerp(-.1,0,turn);
+    qrRig.position.y=THREE.MathUtils.lerp(-.72,0,turn);
+    logoObject.position.set(0,THREE.MathUtils.lerp(.55,-.72,retract)+Math.sin(t*12)*.035*(1-retract),THREE.MathUtils.lerp(.65,.08,retract));
+    logoObject.rotation.y=Math.sin(t*5)*.12*(1-retract);
+    logoObject.rotation.x=THREE.MathUtils.lerp(-.12,-.9,retract);
+    logoObject.scale.setScalar(Math.max(.001,1-retract));
+    logoMaterial.opacity=1-retract;
+    logoObject.visible=retract<1;
     renderer.render(scene,camera);
     if(t<1)raf=requestAnimationFrame(draw);
     else{playing=false;frame.classList.add('is-finished');}
