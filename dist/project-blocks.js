@@ -2,7 +2,24 @@
 window.ProjectBlocks = (() => {
   const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色', gallery:'圖片集', journal:'工程與活動紀錄', team:'參與團隊'};
   const files = new Set(['shidong','heping','project-xinguang-urban','project-wuxing',...Array.from({length:19},(_,i)=>'project-'+(i+2)).filter(name=>name!=='project-11')].map(name=>name+'.html'));
-  function applies(file){return files.has(file)||file.startsWith('project.html?case=')}
+  const aliases={
+    'shidong.html':'project-1.html',
+    'heping.html':'project-11.html',
+    'project-xinguang-urban.html':'project-21.html',
+    'project-wuxing.html':'project-22.html',
+    'project.html?case=custom-794ea02b-a94a-473f-bb94-7a6a87c2c881':'project-23.html'
+  };
+  function canonicalProjectFile(file){return aliases[file]||file}
+  function sourceProjectFile(file){return Object.keys(aliases).find(source=>aliases[source]===file)||file}
+  function canonicalizeProjectLinks(root){
+    for(const node of root.querySelectorAll('[href],[data-href]')){
+      for(const attr of ['href','data-href']){
+        const value=node.getAttribute(attr);
+        if(value && aliases[value])node.setAttribute(attr,aliases[value]);
+      }
+    }
+  }
+  function applies(file){return files.has(file)||/^project-\d+\.html$/.test(file)||file.startsWith('project.html?case=')}
   function makeCardStats(doc,area,homes,sales){
     const stats=doc.createElement('div');stats.className='case-card-stats';
     for(const [kind,label,value] of [['area','基地',area],['homes','戶數',homes],['sales','預估總銷',sales]]){
@@ -149,5 +166,5 @@ window.ProjectBlocks = (() => {
     const lead=cover?.querySelector('.lead')?.textContent;
     if(lead){const summary=card.ownerDocument.createElement('p');summary.textContent=lead;card.querySelector('.case-card-copy')?.append(summary)}
   }
-  return {types,applies,prepare,newBlock,refresh,updateCard,formatCardFacts,appendProjectCardFacts};
+  return {types,applies,prepare,newBlock,refresh,updateCard,formatCardFacts,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();

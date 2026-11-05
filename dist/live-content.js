@@ -3,6 +3,12 @@
   const config=window.YUANJIE_CONFIG;
   const fileName=location.pathname.split('/').pop()||'index.html';
   const caseSlug=fileName==='project.html'?new URLSearchParams(location.search).get('case'):null;
+  if(caseSlug){
+    const oldFile=`project.html?case=${caseSlug}`;
+    const canonical=window.ProjectBlocks?.canonicalProjectFile(oldFile);
+    if(canonical&&canonical!==oldFile){location.replace(new URL(canonical,location.href));return}
+  }
+  const sourceFile=window.ProjectBlocks?.sourceProjectFile(fileName)||fileName;
   const headers={apikey:config.publishableKey};
   const base=`${config.supabaseUrl}/rest/v1`;
   const read=async(path)=>{
@@ -14,7 +20,7 @@
     const [pages,navigation,managedProjects]=await Promise.all([
       read(caseSlug
         ?`published_pages?select=title,meta_description,main_html&slug=eq.${encodeURIComponent(caseSlug)}&limit=1`
-        :`published_pages?select=title,meta_description,main_html&file_name=eq.${encodeURIComponent(fileName)}&limit=1`),
+        :`published_pages?select=title,meta_description,main_html&file_name=eq.${encodeURIComponent(sourceFile)}&limit=1`),
       read('published_navigation?select=label,subtitle,href,is_visible&order=nav_order.asc'),
       fileName==='urban.html'||fileName==='renewal.html'
         ?read('published_pages?select=slug,file_name,title,main_html&or=(file_name.like.project.html%3Fcase%3D*,main_html.like.*data-block-version*)&order=sort_order.asc')
@@ -25,6 +31,7 @@
       document.title=page.title;
       document.querySelector('meta[name="description"]')?.setAttribute('content',page.meta_description);
       const incoming=document.createRange().createContextualFragment(page.main_html).querySelector('main');
+      if(incoming)window.ProjectBlocks?.canonicalizeProjectLinks(incoming);
       const existing=document.querySelector('main');
       if(incoming&&existing){
         if(fileName==='index.html'){
@@ -71,7 +78,7 @@
     if(nav){
       nav.replaceChildren(...navigation.filter(item=>item.is_visible).map(item=>{
         const link=document.createElement('a');
-        link.href=item.href;
+        link.href=window.ProjectBlocks?.canonicalProjectFile(item.href)||item.href;
         link.textContent=item.label;
         if(item.subtitle){const subtitle=document.createElement('span');subtitle.textContent=item.subtitle;link.append(subtitle)}
         if(item.href===fileName)link.setAttribute('aria-current','page');
@@ -82,9 +89,10 @@
       const category=fileName==='urban.html'?'urban':'renewal';
       const grid=document.querySelector('.case-grid');
       for(const project of managedProjects){
-        const existingCard=[...grid?.querySelectorAll('a.case-card')||[]].find(card=>card.getAttribute('href')===project.file_name);
+        const canonical=window.ProjectBlocks?.canonicalProjectFile(project.file_name)||project.file_name;
+        const existingCard=[...grid?.querySelectorAll('a.case-card')||[]].find(card=>card.getAttribute('href')===canonical);
         if(existingCard){window.ProjectBlocks?.updateCard(existingCard,project.main_html);continue}
-        if(!project.file_name?.startsWith('project.html?case=')||!grid)continue;
+        if(!grid)continue;
         const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
         if(main?.dataset.projectCategory!==category)continue;
         const title=main.querySelector('.page-title')?.textContent?.trim()||project.title;
@@ -93,7 +101,7 @@
         const cover=main.querySelector('.case-main img')?.getAttribute('src')||'assets/project-placeholder.svg';
         const card=document.createElement('a');
         card.className='case-card';
-        card.href=project.file_name;
+        card.href=canonical;
         card.dataset.city=city;
         card.dataset.district=district;
         const image=document.createElement('img');
@@ -124,6 +132,7 @@
   }finally{
     if(fileName==='urban.html'||fileName==='renewal.html'){
       const main=document.querySelector('main');
+      window.ProjectBlocks?.canonicalizeProjectLinks(main);
       for(const record of main?.querySelectorAll('[data-card-photo-overrides] [data-href]')||[]){
         const card=[...main.querySelectorAll('a.case-card')].find(item=>item.getAttribute('href')===record.dataset.href);
         const img=card?.querySelector('img');

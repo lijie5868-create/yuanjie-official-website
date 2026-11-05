@@ -179,7 +179,7 @@ function snapshotPage(page){
   return page?{slug:page.slug,title:page.title,meta_description:page.meta_description,main_html:page.main_html,published_at:page.published_at}:null;
 }
 
-const isManagedProject=page=>page?.file_name?.startsWith('project.html?case=');
+const isManagedProject=page=>Boolean(page?.file_name?.startsWith('project.html?case=')||/<main\b[^>]*data-project-category=/.test(page?.main_html||''));
 
 function newProjectHtml({name,category,city,district,summary,layout=[]}){
   const main=document.createElement('main');
@@ -218,7 +218,7 @@ function managedProjectCard(project,category){
   card.title='此卡片請到對應的個案頁面編輯';
   card.dataset.city=main.dataset.projectCity||'';
   card.dataset.district=main.dataset.projectDistrict||'';
-  card.href=project.file_name;
+  card.href=ProjectBlocks.canonicalProjectFile(project.file_name);
   const image=document.createElement('img');
   image.src=main.querySelector('.case-main img')?.getAttribute('src')||'assets/project-placeholder.svg';
   image.alt=`${title}圖片`;
@@ -243,7 +243,8 @@ async function editorDocument(page,html){
   let previewScripts='';
   let previewHeader='';
   try{
-    const response=await fetch(`${basePath}${page.file_name.split('?')[0]}?admin-preview=${Date.now()}`,{cache:'no-store'});
+    const templateFile=isManagedProject(page)?'project.html':ProjectBlocks.canonicalProjectFile(page.file_name).split('?')[0];
+    const response=await fetch(`${basePath}${templateFile}?admin-preview=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`無法載入頁面樣板：${response.status}`);
     const template=new DOMParser().parseFromString(await response.text(),'text/html');
     bodyId=template.body.id;
@@ -264,11 +265,12 @@ async function editorDocument(page,html){
     }
     if(page.file_name==='urban.html'||page.file_name==='renewal.html'){
       const previewMain=new DOMParser().parseFromString(html,'text/html').querySelector('main');
+      if(previewMain)ProjectBlocks.canonicalizeProjectLinks(previewMain);
       const grid=previewMain?.querySelector('.case-grid');
       const category=page.file_name==='urban.html'?'urban':'renewal';
       if(grid){
         for(const project of publishedPages.values()){
-          const existing=[...grid.querySelectorAll('.case-card')].find(a=>a.getAttribute('href')===project.file_name);
+          const existing=[...grid.querySelectorAll('.case-card')].find(a=>a.getAttribute('href')===ProjectBlocks.canonicalProjectFile(project.file_name));
           if(existing&&project.main_html.includes('data-block-version')){
             existing.dataset.originalCard=existing.outerHTML;
             ProjectBlocks.updateCard(existing,project.main_html);
@@ -318,7 +320,7 @@ async function loadEditor(page){
     $('projectCity').value=projectMain?.dataset.projectCity||'';
     $('projectDistrict').value=projectMain?.dataset.projectDistrict||'';
   }
-  $('visitPage').href=`${basePath}${page.file_name}`;
+  $('visitPage').href=`${basePath}${ProjectBlocks.canonicalProjectFile(page.file_name)}`;
   const frame=$('visualEditor');
   $('publish').disabled=true;
   $('contentSafetyStatus').classList.toggle('warning',staleDraft);
@@ -369,6 +371,7 @@ function mainHtml(){
   copy.querySelectorAll('[data-original-card]').forEach(card=>card.outerHTML=card.dataset.originalCard);
   copy.querySelectorAll('[data-managed-card]').forEach(card=>card.remove());
   applyCaseCardPhotoOverrides(copy);
+  ProjectBlocks.canonicalizeProjectLinks(copy);
   if(['urban.html','renewal.html'].includes(current?.file_name))ProjectBlocks.formatCardFacts(copy);
   if(isManagedProject(current)){
     const category=$('projectCategory').value;
@@ -411,7 +414,7 @@ function pageButton(page){
   button.dataset.slug=page.slug;
   button.innerHTML='<strong></strong><small></small>';
   button.querySelector('strong').textContent=page.title;
-  button.querySelector('small').textContent=page.file_name;
+  button.querySelector('small').textContent=ProjectBlocks.canonicalProjectFile(page.file_name);
   button.onclick=()=>loadEditor(page).catch(error=>message(error.message,true));
   return button;
 }
@@ -420,7 +423,7 @@ function renderPageList(filter=''){
   const list=$('pageList');
   const newProjectButton=$('newProject');
   const query=filter.trim().toLocaleLowerCase('zh-Hant');
-  const matches=pages.filter(page=>`${page.title} ${page.file_name}`.toLocaleLowerCase('zh-Hant').includes(query));
+  const matches=pages.filter(page=>`${page.title} ${page.file_name} ${ProjectBlocks.canonicalProjectFile(page.file_name)}`.toLocaleLowerCase('zh-Hant').includes(query));
   list.replaceChildren();
   for(const [heading,predicate] of [["主要頁面",page=>primaryPages.has(page.slug)],["個案頁面",page=>!primaryPages.has(page.slug)]]){
     const grouped=matches.filter(predicate);
@@ -1070,8 +1073,15 @@ $('newProjectForm').onsubmit=async event=>{
   $('newProjectMessage').textContent='建立草稿中…';
   try{
     const slug=`custom-${crypto.randomUUID()}`;
-    const payload={slug,file_name:`project.html?case=${slug}`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary,layout:projectLayout}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
-    const {data,error}=await supabase.from('cms_pages').insert(payload).select().single();
+    const usedNumbers=pages.map(page=>Number(ProjectBlocks.canonicalProjectFile(page.file_name).match(/^project-(\d+)\.html$/)?.[1]||0));
+    let nextNumber=Math.max(23,...usedNumbers)+1;
+    const payload={slug,file_name:`project-${nextNumber}.html`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary,layout:projectLayout}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
+    let data,error;
+    for(let attempt=0;attempt<5;attempt++){
+      payload.file_name=`project-${nextNumber++}.html`;
+      ({data,error}=await supabase.from('cms_pages').insert(payload).select().single());
+      if(!error||error.code!=='23505')break;
+    }
     if(error)throw error;
     pages.push(data);
     pages.sort((a,b)=>a.sort_order-b.sort_order);
