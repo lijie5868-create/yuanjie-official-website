@@ -209,8 +209,9 @@ function managedProjectCard(project,category){
   eyebrow.textContent=category==='urban'?'都市更新':'危老重建';
   const heading=document.createElement('h2');heading.textContent=title;
   const location=document.createElement('p');location.className='project-location';location.textContent=`${card.dataset.city}${card.dataset.district}`;
-  const summary=document.createElement('p');summary.textContent=main.querySelector('.page-head .lead')?.textContent?.trim()||'';
+  const summary=document.createElement('p');summary.className='case-card-note';summary.textContent=main.querySelector('.page-head .lead')?.textContent?.trim()||'';
   copy.append(eyebrow,heading,location,summary);
+  ProjectBlocks.appendProjectCardFacts(copy,main);
   card.append(image,copy);
   return card;
 }

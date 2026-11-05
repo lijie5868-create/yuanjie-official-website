@@ -3,6 +3,25 @@ window.ProjectBlocks = (() => {
   const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色', gallery:'圖片集', journal:'工程與活動紀錄', team:'參與團隊'};
   const files = new Set(['shidong','heping','project-xinguang-urban','project-wuxing',...Array.from({length:19},(_,i)=>'project-'+(i+2)).filter(name=>name!=='project-11')].map(name=>name+'.html'));
   function applies(file){return files.has(file)||file.startsWith('project.html?case=')}
+  function makeCardStats(doc,area,homes,sales){
+    const stats=doc.createElement('div');stats.className='case-card-stats';
+    for(const [kind,label,value] of [['area','基地',area],['homes','戶數',homes],['sales','預估總銷',sales]]){
+      const item=doc.createElement('span');item.className=`case-card-stat case-card-stat--${kind}`;
+      const icon=doc.createElement('span');icon.className='case-card-stat-icon';icon.setAttribute('aria-hidden','true');
+      const words=doc.createElement('span');words.className='case-card-stat-copy';
+      const caption=doc.createElement('small');caption.textContent=label;
+      const number=doc.createElement('strong');number.textContent=value;
+      words.append(caption,number);item.append(icon,words);stats.append(item);
+    }
+    return stats;
+  }
+  function appendProjectCardFacts(copy,main){
+    const rows=[...main.querySelectorAll('dl.specs > div')];
+    const value=label=>rows.find(row=>row.querySelector('dt')?.textContent.trim().startsWith(label))?.querySelector('dd')?.textContent.trim()||'';
+    const area=value('基地面積'),homes=value('規劃戶數');
+    const sales=value('預估總銷')||main.querySelector('.case-amount')?.textContent.trim()||'';
+    if(area&&homes&&sales)copy.append(makeCardStats(copy.ownerDocument,area,homes,sales));
+  }
   function formatCardFacts(root){
     for(const card of root.querySelectorAll('.case-card')){
       const copy=card.querySelector('.case-card-copy');
@@ -14,16 +33,7 @@ window.ProjectBlocks = (() => {
       const match=areaLine.textContent.trim().match(/^基地\s*(.+?)\s*[|｜]\s*(.+戶)$/);
       if(!match)continue;
       const sales=salesLine.textContent.trim().replace(/^預估總銷\s*/,'');
-      const stats=copy.ownerDocument.createElement('div');
-      stats.className='case-card-stats';
-      for(const [kind,label,value] of [['area','基地',match[1]],['homes','戶數',match[2]],['sales','預估總銷',sales]]){
-        const item=copy.ownerDocument.createElement('span');item.className=`case-card-stat case-card-stat--${kind}`;
-        const icon=copy.ownerDocument.createElement('span');icon.className='case-card-stat-icon';icon.setAttribute('aria-hidden','true');
-        const words=copy.ownerDocument.createElement('span');words.className='case-card-stat-copy';
-        const caption=copy.ownerDocument.createElement('small');caption.textContent=label;
-        const number=copy.ownerDocument.createElement('strong');number.textContent=value;
-        words.append(caption,number);item.append(icon,words);stats.append(item);
-      }
+      const stats=makeCardStats(copy.ownerDocument,match[1],match[2],sales);
       areaLine.replaceWith(stats);salesLine.remove();
     }
   }
@@ -139,5 +149,5 @@ window.ProjectBlocks = (() => {
     const lead=cover?.querySelector('.lead')?.textContent;
     if(lead){const summary=card.ownerDocument.createElement('p');summary.textContent=lead;card.querySelector('.case-card-copy')?.append(summary)}
   }
-  return {types,applies,prepare,newBlock,refresh,updateCard,formatCardFacts};
+  return {types,applies,prepare,newBlock,refresh,updateCard,formatCardFacts,appendProjectCardFacts};
 })();
