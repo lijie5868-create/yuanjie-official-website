@@ -4,25 +4,71 @@ export function bindBlocks(main,panel,changed){
   panel.hidden=false;
   panel.replaceChildren();
   const list=document.createElement('div'), fields=document.createElement('div');
-  const tools=document.createElement('div'), add=document.createElement('select');
+  const tools=document.createElement('div');
   const option=(select,value,label)=>select.add(new Option(label,value));
-  Object.entries(api.types).slice(2).forEach(([type,label])=>option(add,type,label));
   function button(target,label,action){
     const el=document.createElement('button');el.type='button';el.textContent=label;
     el.onclick=action;target.append(el);return el;
   }
-  tools.append(add);
-  button(tools,'加入區塊',()=>{
-    const block=api.newBlock(doc,add.value);
-    main.insertBefore(block,main.querySelector('[data-block="footer"]'));
-    select(block);changed();
+  const dragKey='application/x-yuanjie-project-block';
+  let pending=null;
+  function insert(type,before){
+    const block=api.newBlock(doc,type);
+    main.insertBefore(block,before);
+    select(block);changed();block.scrollIntoView({block:'center'});
+  }
+  for(const [type,label] of Object.entries(api.types).slice(2)){
+    const tile=button(tools,label,()=>insert(type,active&&!fixed(active)?active.nextElementSibling:main.querySelector('[data-block="footer"]')));
+    tile.draggable=true;
+    tile.ondragstart=e=>{pending={type};e.dataTransfer.setData(dragKey,type);e.dataTransfer.effectAllowed='copy'};
+    tile.ondragend=()=>{pending=null;clearDrop()};
+  }
+  const clearDrop=()=>main.querySelectorAll('[data-drop]').forEach(n=>delete n.dataset.drop);
+  function targetAt(e){
+    const block=e.target.closest('[data-block]');
+    if(!block)return main.querySelector('[data-block="footer"]');
+    if(['cover','specs'].includes(block.dataset.block))return blocks()[2]||null;
+    if(block.dataset.block==='footer')return block;
+    const rect=block.getBoundingClientRect();
+    return e.clientY<rect.top+rect.height/2?block:block.nextElementSibling;
+  }
+  main.addEventListener('dragover',e=>{
+    if(!pending)return;
+    e.preventDefault();clearDrop();
+    const target=targetAt(e);
+    if(target)target.dataset.drop='before';else main.lastElementChild.dataset.drop='after';
   });
-  const heading=document.createElement('summary');heading.textContent='個案區塊編輯器';panel.append(heading,list,tools,fields);
+  main.addEventListener('drop',e=>{
+    if(!pending)return;
+    e.preventDefault();const target=targetAt(e);clearDrop();
+    if(pending.type)insert(pending.type,target);
+    else{main.insertBefore(pending.block,target);select(pending.block);changed()}
+    pending=null;
+  });
+  main.addEventListener('click',e=>{
+    const block=e.target.closest('[data-block]');if(block&&active!==block)select(block);
+  });
+  main.addEventListener('input',()=>{api.refresh(main);changed()});
+  function decorate(block){
+    for(const node of block.querySelectorAll('h1,h2,h3,p,dt,dd,li,figcaption,small,time,strong,em,label,span,a,.eyebrow,.case-amount')){
+      if(node.closest('[data-editor-ui],[data-metric-ref]')||node.querySelector('img,button,p,h3'))continue;
+      node.setAttribute('contenteditable','plaintext-only');
+    }
+    if(fixed(block)||block.querySelector(':scope > [data-editor-ui]'))return;
+    const grip=doc.createElement('button');grip.type='button';grip.dataset.editorUi='';
+    grip.textContent='⠿ '+api.types[block.dataset.block];grip.draggable=true;
+    grip.ondragstart=e=>{pending={block};e.dataTransfer.setData(dragKey,'move');e.dataTransfer.effectAllowed='move'};
+    grip.ondragend=()=>{pending=null;clearDrop()};
+    block.prepend(grip);
+  }
+  const style=doc.createElement('style');style.textContent='[data-block]{position:relative}[data-selected-block]{outline:2px solid #a68b65;outline-offset:3px}[data-drop=before]{box-shadow:inset 0 5px #49728c}[data-drop=after]{box-shadow:inset 0 -5px #49728c}[data-editor-ui]{display:block;border:0;background:#ece6dc;color:#574531;padding:6px 12px;cursor:grab;margin-bottom:12px}[contenteditable]:focus{outline:1px solid #ad9370}';doc.head.append(style);
+  const heading=document.createElement('summary');heading.textContent='拖曳元件到預覽頁面，或點選元件加入';panel.append(heading,tools,list,fields);
   let active,dragged;
   const blocks=()=>[...main.children].filter(el=>el.dataset.block);
   const fixed=el=>['cover','specs','footer'].includes(el?.dataset.block);
   function select(el){
     active=el;list.replaceChildren();fields.replaceChildren();
+    for(const block of blocks()){block.toggleAttribute('data-selected-block',block===el);decorate(block)}
     for(const block of blocks()){
       const b=button(list,api.types[block.dataset.block]||'頁尾備註',()=>select(block));
       b.setAttribute('aria-pressed',String(active===block));b.draggable=!fixed(block);
@@ -32,23 +78,23 @@ export function bindBlocks(main,panel,changed){
       b.ondragend=()=>{dragged=null};
     }
     if(!el)return;
+    if(['gallery','journal','features','team'].includes(el.dataset.block)){
+      const layout=document.createElement('select');layout.ariaLabel='區塊排列';
+      option(layout,'auto','自動分欄');option(layout,'wide','單欄展開');
+      layout.value=el.dataset.layout||'auto';
+      layout.onchange=()=>{el.dataset.layout=layout.value;changed()};
+      fields.append(layout);
+    }
     if(!fixed(el)){
       const siblings=blocks(),index=siblings.indexOf(el);
       button(fields,'上移',()=>{main.insertBefore(el,siblings[index-1]);select(el);changed()}).disabled=index<=2;
       button(fields,'下移',()=>{siblings[index+1].after(el);select(el);changed()}).disabled=index===siblings.length-1||siblings[index+1]?.dataset.block==='footer';
-      button(fields,'複製區塊',()=>{const clone=el.cloneNode(true);for(const n of [clone,...clone.querySelectorAll('[id]')])n.removeAttribute('id');el.after(clone);select(clone);changed()});
+      button(fields,'複製區塊',()=>{const clone=el.cloneNode(true);for(const n of [clone,...clone.querySelectorAll('[id]')])n.removeAttribute('id');clone.querySelector('[data-editor-ui]')?.remove();el.after(clone);select(clone);changed()});
       button(fields,'刪除區塊',()=>{if(confirm('刪除此區塊及其內容？')){el.remove();select(blocks()[0]);changed()}});
     }
     function input(label,value,write){
       const l=document.createElement('label'),i=document.createElement('textarea');l.textContent=label;i.rows=1;i.value=value;
       i.oninput=()=>{write(i.value);api.refresh(main);changed()};l.append(i);fields.append(l);
-    }
-    const walker=doc.createTreeWalker(el,4);
-    while(walker.nextNode()){
-      const node=walker.currentNode,parent=node.parentElement;
-      if(!node.textContent.trim()||parent.closest('[data-metric-ref]'))continue;
-      const label=({H1:'案名',H2:'標題',H3:'小標題',DT:'欄名',DD:'欄位值',FIGCAPTION:'圖說',TIME:'日期',A:'連結文字'})[parent.tagName]||'文字';
-      input(label,node.textContent,v=>{node.textContent=v;if(parent.matches('time'))parent.removeAttribute('datetime')});
     }
     if(['story','journal'].includes(el.dataset.block)){
       button(fields,'加入圖片',()=>{
@@ -66,7 +112,7 @@ export function bindBlocks(main,panel,changed){
     }
     for(const link of el.querySelectorAll('a[href]'))input('連結網址',link.getAttribute('href'),v=>{if(/^(https?:|mailto:|tel:|#|[\w.-]+\.html)/i.test(v))link.setAttribute('href',v)});
     for(const img of el.querySelectorAll('img')){
-      input('圖片替代文字',img.alt,v=>img.alt=v);
+      button(fields,'圖片說明',()=>{const v=prompt('圖片替代文字',img.alt);if(v!==null){img.alt=v;changed()}});
       button(fields,'更換這張圖片',()=>{img.click();document.getElementById('imageUploadButton').click()});
     }
     for(const metric of el.querySelectorAll('[data-metric-ref]')){

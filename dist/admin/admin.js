@@ -1,4 +1,4 @@
-import {bindBlocks} from './block-editor.js';
+import {bindBlocks} from './block-editor.js?v=2';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=1";
 
@@ -231,7 +231,7 @@ async function editorDocument(page,html){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=2"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 async function loadEditor(page){
@@ -293,6 +293,12 @@ function mainHtml(){
     throw new Error('個案結構需要人工檢查，已保留原稿。');
   const copy=main.cloneNode(true);
   copy.removeAttribute('contenteditable');
+  copy.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());
+  if(copy.dataset.blockVersion){
+    for(const node of copy.querySelectorAll('[contenteditable],[data-selected-block],[data-drop]')){
+      for(const attr of ['contenteditable','data-selected-block','data-drop'])node.removeAttribute(attr);
+    }
+  }
   copy.querySelectorAll('[data-original-card]').forEach(card=>card.outerHTML=card.dataset.originalCard);
   copy.querySelectorAll('[data-managed-card]').forEach(card=>card.remove());
   if(isManagedProject(current)){
