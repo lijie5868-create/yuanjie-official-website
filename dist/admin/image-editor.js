@@ -46,6 +46,21 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
         card.append(button);
       }
     }
+    for(const figure of doc.querySelectorAll('[data-block="cover"] figure.case-main')){
+      const img=figure.querySelector('img');
+      if(!img||figure.querySelector('[data-admin-card-upload]'))continue;
+      const button=doc.createElement('button');
+      button.type='button';
+      button.dataset.adminCardUpload='';
+      button.textContent='更換照片';
+      button.setAttribute('aria-label','更換個案封面照片');
+      button.onclick=event=>{
+        event.preventDefault();event.stopPropagation();
+        setSelection(img);
+        $('imageUpload').click();
+      };
+      figure.append(button);
+    }
     doc.addEventListener('mouseup',()=>{
       const selection=frame.contentWindow.getSelection();
       if(selection?.rangeCount)savedRange=selection.getRangeAt(0).cloneRange();
