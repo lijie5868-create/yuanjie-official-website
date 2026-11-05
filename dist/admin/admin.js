@@ -290,7 +290,7 @@ async function editorDocument(page,html){
       .map(script=>script.getAttribute('src'))
       .filter(src=>src&&(src.split(/[?#]/)[0].endsWith('/about-layout.js')||src.split(/[?#]/)[0]==='about-layout.js'))
       .map(src=>`<script src="${src}" defer></script>`).join('');
-    if(page.file_name==='urban.html'){
+    if(page.file_name==='urban.html'||page.file_name==='renewal.html'){
       const layoutScript=[...template.querySelectorAll('script[data-site-init]')]
         .find(script=>script.textContent.includes("document.querySelector('.case-grid')"));
       if(layoutScript)previewScripts+=`<script>${layoutScript.textContent}</script>`;
@@ -355,7 +355,7 @@ async function loadEditor(page){
 function mainHtml(){
   const main=$('visualEditor').contentDocument.querySelector('main');
   if(!main)throw new Error('頁面內容缺少 main 區塊，請重新載入後再試。');
-  if(current?.file_name==='urban.html'&&!main.querySelector('.project-filter'))
+  if((current?.file_name==='urban.html'||current?.file_name==='renewal.html')&&!main.querySelector('.project-filter'))
     throw new Error('新版建案篩選版型未載入，已停止儲存與發布；請重新整理後台。');
   if(current?.file_name==='index.html'&&main.querySelector('.home-project-category .portal')&&!main.querySelector('.home-project-category .category-copy'))
     throw new Error('新版首頁建案版型未載入，已停止儲存與發布；請重新整理後台。');

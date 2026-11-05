@@ -354,17 +354,17 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .case-card-stat-copy strong{font-size:clamp(13px,1.2vw,16px);font-weight:600;line-height:1.35;white-space:nowrap}
 .case-card-copy:has(> .case-card-stats + small) .project-location,.case-card-copy:has(> .case-card-note) .project-location{margin-bottom:4px!important}
 .case-card-copy > .case-card-stats + small,.case-card-copy > .case-card-note{order:1;align-self:flex-end;max-width:100%;margin:0 0 10px;color:#687a84;font-size:12px;line-height:1.55;text-align:right}
-.urban-page .case-grid .case-card{align-self:start}
-.urban-page .case-grid .case-card-copy{flex:0 0 auto;padding-bottom:10px}
-.urban-page .case-card .eyebrow{line-height:1.4}
-.urban-page .case-card h2{margin:3px 0 8px}
-.urban-page .case-card .project-location{margin-bottom:6px!important}
-.urban-page .case-card-stats{margin-top:6px;padding-top:9px}
+:is(.urban-page,.renewal-page) .case-grid .case-card{align-self:start}
+:is(.urban-page,.renewal-page) .case-grid .case-card-copy{flex:0 0 auto;padding-bottom:10px}
+:is(.urban-page,.renewal-page) .case-card .eyebrow{line-height:1.4}
+:is(.urban-page,.renewal-page) .case-card h2{margin:3px 0 8px}
+:is(.urban-page,.renewal-page) .case-card .project-location{margin-bottom:6px!important}
+:is(.urban-page,.renewal-page) .case-card-stats{margin-top:6px;padding-top:9px}
 @media(max-width:360px){.case-card-stats{gap:3px}.case-card-stat{gap:4px}.case-card-stat-icon{flex-basis:13px;width:13px;height:13px}.case-card-stat-copy strong{font-size:13px}}
 @media(max-width:600px){
- .urban-page .case-grid .case-card-copy{padding:14px 0 9px}
- .urban-page .case-card h2{margin-top:2px;line-height:1.4}
- .urban-page .case-card .project-location{margin:5px 0 6px!important}
+ :is(.urban-page,.renewal-page) .case-grid .case-card-copy{padding:14px 0 9px}
+ :is(.urban-page,.renewal-page) .case-card h2{margin-top:2px;line-height:1.4}
+ :is(.urban-page,.renewal-page) .case-card .project-location{margin:5px 0 6px!important}
 }
 @media(max-width:600px){
  .project-filter{padding:15px 14px;gap:10px;overflow:hidden}
@@ -373,16 +373,16 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .project-filter button{flex:0 0 auto}
 }
 
-/* Urban index heading — compact enough to keep filters in the first view. */
-.urban-page .page-head{padding-top:24px;padding-bottom:24px}
-.urban-page .page-head .crumb{margin-bottom:20px}
-.urban-page .page-head h1{margin:8px 0 10px;line-height:1.35}
-.urban-page .page-head .lead{margin:0;line-height:1.7}
-.urban-page main>.wrap{padding-top:28px}
+/* Project index headings keep filters in the first view. */
+:is(.urban-page,.renewal-page) .page-head{padding-top:24px;padding-bottom:24px}
+:is(.urban-page,.renewal-page) .page-head .crumb{margin-bottom:20px}
+:is(.urban-page,.renewal-page) .page-head h1{margin:8px 0 10px;line-height:1.35}
+:is(.urban-page,.renewal-page) .page-head .lead{margin:0;line-height:1.7}
+:is(.urban-page,.renewal-page) main>.wrap{padding-top:28px}
 @media(max-width:600px){
- .urban-page .page-head{padding-top:20px;padding-bottom:20px}
- .urban-page .page-head .crumb{margin-bottom:14px}
- .urban-page main>.wrap{padding-top:22px}
+ :is(.urban-page,.renewal-page) .page-head{padding-top:20px;padding-bottom:20px}
+ :is(.urban-page,.renewal-page) .page-head .crumb{margin-bottom:14px}
+ :is(.urban-page,.renewal-page) main>.wrap{padding-top:22px}
 }
 
 /* Shared inner-page heading rhythm across the site. */
