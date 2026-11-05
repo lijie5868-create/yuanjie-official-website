@@ -154,6 +154,7 @@ async function editorDocument(page,html){
         .find(script=>script.textContent.includes("document.querySelector('.case-grid')"));
       if(layoutScript)previewScripts+=`<script>${layoutScript.textContent}</script>`;
     }
+    previewScripts+='<script src="link-motion.js?v=1" defer></script>';
   }catch(error){
     console.warn('Using the basic editor preview.',error);
   }
@@ -205,6 +206,12 @@ function mainHtml(){
     throw new Error('新版首頁建案版型未載入，已停止儲存與發布；請重新整理後台。');
   const copy=main.cloneNode(true);
   copy.removeAttribute('contenteditable');
+  copy.querySelectorAll('a.link-motion').forEach(link=>{
+    link.textContent=link.querySelector('.link-motion-text')?.textContent||link.textContent;
+    link.classList.remove('link-motion');
+    if(link.classList.contains('team-section-link'))link.classList.remove('text-link');
+    link.removeAttribute('aria-label');
+  });
   copy.querySelectorAll('[data-admin-selected]').forEach(image=>image.removeAttribute('data-admin-selected'));
   copy.querySelectorAll('.case-card[hidden]').forEach(card=>card.removeAttribute('hidden'));
   copy.querySelectorAll('.project-filter button').forEach(button=>{

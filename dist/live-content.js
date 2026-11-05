@@ -50,5 +50,8 @@
       script.textContent=source.textContent;
       source.replaceWith(script);
     }
+    const motion=document.createElement('script');
+    motion.src='link-motion.js?v=1';
+    document.body.append(motion);
   }
 })();
