@@ -1,6 +1,6 @@
 import {bindBlocks} from './block-editor.js?v=2';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
-import {createImageEditor} from "./image-editor.js?v=1";
+import {createImageEditor} from "./image-editor.js?v=2";
 
 const cfg=window.YUANJIE_CONFIG;
 const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunclek@gmail.com"]);
@@ -29,12 +29,45 @@ const logPageSize=20;
 let adminActivityPage=1;
 let websiteActivityPage=1;
 const expandedPageGroups=new Set(['主要頁面']);
-const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
+const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:target=>{pageDirty=true;recordCaseCardPhoto(target)},onMessage:message});
 const pageLayout=document.querySelector('.pages-layout');
 const pageResizer=$('pageResizer');
 const sidebarWidthKey='yuanjie-admin-sidebar-width';
 let preferredSidebarWidth=250;
 let resizePointer=null;
+
+function applyCaseCardPhotoOverrides(main){
+  for(const record of main.querySelectorAll('[data-card-photo-overrides] [data-href]')){
+    const card=[...main.querySelectorAll('a.case-card')].find(item=>item.getAttribute('href')===record.dataset.href);
+    const img=card?.querySelector('img');
+    if(!img||!record.dataset.src)continue;
+    img.setAttribute('src',record.dataset.src);
+    img.alt=record.dataset.alt||'';
+    if(record.dataset.width)img.width=Number(record.dataset.width);
+    if(record.dataset.height)img.height=Number(record.dataset.height);
+  }
+}
+
+function recordCaseCardPhoto(img){
+  if(!['urban.html','renewal.html'].includes(current?.file_name))return;
+  const card=img?.closest('a.case-card');
+  const main=card?.closest('main');
+  const href=card?.getAttribute('href');
+  if(!main||!href)return;
+  let records=main.querySelector('[data-card-photo-overrides]');
+  if(!records){
+    records=main.ownerDocument.createElement('div');
+    records.dataset.cardPhotoOverrides='';
+    records.hidden=true;
+    main.append(records);
+  }
+  let record=[...records.children].find(item=>item.dataset.href===href);
+  if(!record){record=main.ownerDocument.createElement('span');record.dataset.href=href;records.append(record)}
+  record.dataset.src=img.getAttribute('src');
+  record.dataset.alt=img.alt;
+  record.dataset.width=img.getAttribute('width')||'';
+  record.dataset.height=img.getAttribute('height')||'';
+}
 
 try{
   const savedWidth=Number(localStorage.getItem(sidebarWidthKey));
@@ -218,6 +251,7 @@ async function editorDocument(page,html){
           const card=managedProjectCard(project,category);
           if(card)grid.append(card);
         }
+        applyCaseCardPhotoOverrides(previewMain);
         html=previewMain.outerHTML;
       }
     }
@@ -235,7 +269,7 @@ async function editorDocument(page,html){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=7"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=7"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 async function loadEditor(page){
@@ -298,6 +332,7 @@ function mainHtml(){
   const copy=main.cloneNode(true);
   copy.removeAttribute('contenteditable');
   copy.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());
+  copy.querySelectorAll('[data-admin-card-upload]').forEach(node=>node.remove());
   if(copy.dataset.blockVersion){
     for(const node of copy.querySelectorAll('[contenteditable],[data-selected-block],[data-drop]')){
       for(const attr of ['contenteditable','data-selected-block','data-drop'])node.removeAttribute(attr);
@@ -305,6 +340,7 @@ function mainHtml(){
   }
   copy.querySelectorAll('[data-original-card]').forEach(card=>card.outerHTML=card.dataset.originalCard);
   copy.querySelectorAll('[data-managed-card]').forEach(card=>card.remove());
+  applyCaseCardPhotoOverrides(copy);
   if(isManagedProject(current)){
     const category=$('projectCategory').value;
     const city=$('projectCity').value.trim();

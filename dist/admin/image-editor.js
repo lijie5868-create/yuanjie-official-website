@@ -27,6 +27,23 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     const doc=frame.contentDocument;
     setSelection(null);
     savedRange=null;
+    if(doc.querySelector('.case-grid')){
+      for(const card of doc.querySelectorAll('a.case-card')){
+        const img=card.querySelector('img');
+        if(!img||card.querySelector('[data-admin-card-upload]'))continue;
+        const button=doc.createElement('button');
+        button.type='button';
+        button.dataset.adminCardUpload='';
+        button.textContent='更換照片';
+        button.setAttribute('aria-label',`更換${card.querySelector('h2')?.textContent.trim()||'個案'}照片`);
+        button.onclick=event=>{
+          event.preventDefault();event.stopPropagation();
+          setSelection(img);
+          $('imageUpload').click();
+        };
+        card.append(button);
+      }
+    }
     doc.addEventListener('mouseup',()=>{
       const selection=frame.contentWindow.getSelection();
       if(selection?.rangeCount)savedRange=selection.getRangeAt(0).cloneRange();
@@ -88,12 +105,18 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   }
 
   function applySize(target){
-    target.style.width=`${$('imageWidth').value}%`;
-    target.style.maxWidth='100%';
-    target.style.height='auto';
+    if(target.closest('a.case-card')){
+      target.style.removeProperty('width');
+      target.style.removeProperty('max-width');
+      target.style.removeProperty('height');
+    }else{
+      target.style.width=`${$('imageWidth').value}%`;
+      target.style.maxWidth='100%';
+      target.style.height='auto';
+    }
     target.alt=$('imageAlt').value.trim();
     target.removeAttribute('data-admin-selected');
-    onChange();
+    onChange(target);
     dialog.close();
     onMessage('圖片大小與說明已更新，請儲存草稿或發布。');
   }

@@ -42,7 +42,8 @@
           copy.querySelectorAll('.project-filter,.project-filter-status,.link-motion-clone,.link-motion-icon').forEach(node=>node.remove());
           const text=copy.textContent.replace('進行個案（都更）','進行個案').replace(/\s+/g,'').trim();
           const assets=[...copy.querySelectorAll('img,a')].map(node=>node.getAttribute('src')||node.getAttribute('href')||'').join('|');
-          return `${text}|${assets}`;
+          const photoOverrides=copy.querySelector('[data-card-photo-overrides]')?.outerHTML||'';
+          return `${text}|${assets}|${photoOverrides}`;
         };
         const normalizedMarkup=main=>{
           const copy=main.cloneNode(true);
@@ -119,6 +120,18 @@
   }catch(error){
     console.warn('Using the last deployed copy of this page.',error);
   }finally{
+    if(fileName==='urban.html'||fileName==='renewal.html'){
+      const main=document.querySelector('main');
+      for(const record of main?.querySelectorAll('[data-card-photo-overrides] [data-href]')||[]){
+        const card=[...main.querySelectorAll('a.case-card')].find(item=>item.getAttribute('href')===record.dataset.href);
+        const img=card?.querySelector('img');
+        if(!img||!record.dataset.src)continue;
+        img.setAttribute('src',record.dataset.src);
+        img.alt=record.dataset.alt||'';
+        if(record.dataset.width)img.width=Number(record.dataset.width);
+        if(record.dataset.height)img.height=Number(record.dataset.height);
+      }
+    }
     if(fileName==='index.html'){
       for(const portal of document.querySelectorAll('.home-project-category .portal')){
         if(portal.querySelector(':scope > .category-copy'))continue;
