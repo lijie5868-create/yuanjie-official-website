@@ -10,6 +10,12 @@ def fetch(table, order='sort_order.asc'):
     req=Request(f'{URL}/rest/v1/{table}?'+urlencode({'select':'*','order':order}),headers={'apikey':KEY,'Authorization':f'Bearer {KEY}'})
     with urlopen(req,timeout=30) as response: return json.load(response)
 def replace(pattern,replacement,source): return re.sub(pattern,lambda _:replacement,source,count=1,flags=re.I|re.S)
+def group_home_project_copy(source):
+    pattern=r'(<a class="portal"[^>]*><img\b[^>]*>)(.*?)(</a>)'
+    def group(match):
+        if 'class="category-copy"' in match.group(2): return match.group(0)
+        return match.group(1)+'<div class="category-copy">'+match.group(2)+'</div>'+match.group(3)
+    return re.sub(pattern,group,source,flags=re.I|re.S)
 if not URL or not KEY:
     print('Supabase variables not configured; keeping checked-in published site unchanged.'); raise SystemExit(0)
 pages=fetch('published_pages')
@@ -19,7 +25,8 @@ for page in pages:
     source=template.read_text(encoding='utf-8')
     source=replace(r'<title>.*?</title>',f"<title>{page['title']}</title>",source)
     source=replace(r'<meta\s+name="description"\s+content=".*?"\s*/?>',f'<meta name="description" content="{page["meta_description"]}">',source)
-    source=replace(r'<main\b.*?</main>',page['main_html'],source)
+    main_html=group_home_project_copy(page['main_html']) if page['file_name']=='index.html' else page['main_html']
+    source=replace(r'<main\b.*?</main>',main_html,source)
     links=[]
     for item in navigation:
         if not item['is_visible']: continue

@@ -34,6 +34,17 @@
   }catch(error){
     console.warn('Using the last deployed copy of this page.',error);
   }finally{
+    if(fileName==='index.html'){
+      for(const portal of document.querySelectorAll('.home-project-category .portal')){
+        if(portal.querySelector(':scope > .category-copy'))continue;
+        const image=portal.querySelector(':scope > img');
+        if(!image)continue;
+        const copy=document.createElement('div');
+        copy.className='category-copy';
+        while(image.nextSibling)copy.append(image.nextSibling);
+        portal.append(copy);
+      }
+    }
     for(const source of document.querySelectorAll('script[data-site-init]')){
       const script=document.createElement('script');
       script.textContent=source.textContent;
