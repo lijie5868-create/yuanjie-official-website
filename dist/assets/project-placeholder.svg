@@ -1,6 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="個案圖片待上傳">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="元捷建設，建築規劃中">
   <rect width="1200" height="900" fill="#e5e8ea"/>
-  <path d="M0 690 235 520l165 115 230-250 215 195 150-105 205 175v250H0Z" fill="#cfd6d9"/>
-  <circle cx="940" cy="235" r="80" fill="#c5a880" opacity=".55"/>
-  <text x="600" y="795" text-anchor="middle" fill="#4a6984" font-family="sans-serif" font-size="43" letter-spacing="9">個案圖片待上傳</text>
+  <text x="600" y="438" text-anchor="middle" fill="#5d7062" font-family="Georgia,serif" font-size="72" letter-spacing="20">YUAN JIE</text>
+  <text x="600" y="515" text-anchor="middle" fill="#52616b" font-family="serif" font-size="34" letter-spacing="4">建築規劃中</text>
 </svg>

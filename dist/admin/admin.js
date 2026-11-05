@@ -160,7 +160,7 @@ function newProjectHtml({name,category,city,district,summary,layout=[]}){
   main.dataset.projectCategory=category;
   main.dataset.projectCity=city;
   main.dataset.projectDistrict=district;
-  main.innerHTML='<section class="page-head"><div class="crumb"><a href="index.html">首頁</a> ／ <a class="project-return" href="urban.html"></a> ／ <span class="project-name"></span></div><div class="eyebrow"></div><h1 class="page-title"></h1><p class="project-location"></p><p class="lead"></p></section><section class="wrap case-overview"><figure class="case-main"><img alt="個案圖片待上傳" width="1200" height="900"><figcaption class="photo-note">點選圖片即可上傳本案照片</figcaption></figure><div><div class="eyebrow">PROJECT PROFILE / 個案資料</div><h2></h2><dl class="specs"><div><dt>所在地區</dt><dd></dd></div><div><dt>個案類型</dt><dd class="project-type"></dd></div><div><dt>建築規劃</dt><dd>請補充個案資料</dd></div></dl></div></section><section class="wrap case-bottom"><p class="note">個案資料依最新規劃內容更新，實際以核定圖說及相關文件為準。</p><a class="text-link project-return" href="urban.html"></a></section>';
+  main.innerHTML='<section class="page-head"><div class="crumb"><a href="index.html">首頁</a> ／ <a class="project-return" href="urban.html"></a> ／ <span class="project-name"></span></div><div class="eyebrow"></div><h1 class="page-title"></h1><p class="project-location"></p><p class="lead"></p></section><section class="wrap case-overview"><figure class="case-main"><img alt="建築規劃中" width="1200" height="900"><figcaption class="photo-note">建築規劃中</figcaption></figure><div><div class="eyebrow">PROJECT PROFILE / 個案資料</div><h2></h2><dl class="specs"><div><dt>所在地區</dt><dd></dd></div><div><dt>個案類型</dt><dd class="project-type"></dd></div><div><dt>建築規劃</dt><dd>請補充個案資料</dd></div></dl></div></section><section class="wrap case-bottom"><p class="note">個案資料依最新規劃內容更新，實際以核定圖說及相關文件為準。</p><a class="text-link project-return" href="urban.html"></a></section>';
   main.querySelector('.case-main img').setAttribute('src','assets/project-placeholder.svg');
   const type=category==='urban'?'進行個案（都更）':'在建工程（危老）';
   const destination=category==='urban'?'urban.html':'renewal.html';
@@ -837,11 +837,6 @@ async function saveDraft(){
 }
 
 async function publish(){
-  if(isManagedProject(current)){
-    const cover=$('visualEditor').contentDocument.querySelector('main .case-main img');
-    if(!cover||cover.getAttribute('src')?.includes('project-placeholder.svg'))
-      throw new Error('請先更換個案預設圖片，再發布到網站。');
-  }
   const {data:serverPublished,error:readError}=await supabase.from('published_pages')
     .select('slug,title,meta_description,main_html,published_at').eq('slug',current.slug).maybeSingle();
   if(readError)throw readError;
