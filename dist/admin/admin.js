@@ -326,12 +326,13 @@ function pageButton(page){
 
 function renderPageList(filter=''){
   const list=$('pageList');
+  const newProjectButton=$('newProject');
   const query=filter.trim().toLocaleLowerCase('zh-Hant');
   const matches=pages.filter(page=>`${page.title} ${page.file_name}`.toLocaleLowerCase('zh-Hant').includes(query));
   list.replaceChildren();
   for(const [heading,predicate] of [["主要頁面",page=>primaryPages.has(page.slug)],["個案頁面",page=>!primaryPages.has(page.slug)]]){
     const grouped=matches.filter(predicate);
-    if(!grouped.length)continue;
+    if(!grouped.length&&heading!=='個案頁面')continue;
     const group=document.createElement('details');
     group.className='page-group';
     group.open=Boolean(query)||expandedPageGroups.has(heading);
@@ -342,7 +343,9 @@ function renderPageList(filter=''){
       if(group.open)expandedPageGroups.add(heading);
       else expandedPageGroups.delete(heading);
     });
-    group.append(title,...grouped.map(pageButton));
+    group.append(title);
+    if(heading==='個案頁面')group.append(newProjectButton);
+    group.append(...grouped.map(pageButton));
     list.append(group);
   }
   if(!matches.length){
