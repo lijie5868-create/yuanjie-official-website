@@ -513,3 +513,24 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  }
  .project-filter button:hover b{color:#E6EDF2}
 }
+
+/* Clean expanding pill for the home hero exploration link. */
+.scroll-link{
+ padding:17px 40px;border-radius:50px;border:0;
+ background:#fff;color:var(--ink);
+ box-shadow:0 0 8px rgba(0,0,0,.05);
+ letter-spacing:1.5px;font-size:15px;font-weight:500;
+ transition:letter-spacing .5s ease,background-color .5s ease,color .5s ease,box-shadow .5s ease,transform .1s ease;
+}
+.scroll-link:hover{
+ letter-spacing:3px;background:#4A6984;color:#fff;
+ box-shadow:0 7px 29px rgba(74,105,132,.45);
+}
+.scroll-link:active{
+ letter-spacing:3px;background:#4A6984;color:#fff;
+ box-shadow:0 0 0 rgba(74,105,132,0);
+ transform:translateX(-50%) translateY(6px);
+}
+@media(max-width:600px){
+ .scroll-link{padding:13px 24px;font-size:13px}
+}
