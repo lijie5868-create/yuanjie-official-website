@@ -1,6 +1,6 @@
 import {bindBlocks} from './block-editor.js?v=2';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
-import {createImageEditor} from "./image-editor.js?v=2";
+import {createImageEditor} from "./image-editor.js?v=3";
 
 const cfg=window.YUANJIE_CONFIG;
 const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunclek@gmail.com"]);
@@ -39,8 +39,14 @@ let resizePointer=null;
 function applyCaseCardPhotoOverrides(main){
   for(const record of main.querySelectorAll('[data-card-photo-overrides] [data-href]')){
     const card=[...main.querySelectorAll('a.case-card')].find(item=>item.getAttribute('href')===record.dataset.href);
-    const img=card?.querySelector('img');
-    if(!img||!record.dataset.src)continue;
+    if(!card||!record.dataset.src)continue;
+    let img=card.querySelector('img');
+    if(!img){
+      const placeholder=card.querySelector('.case-placeholder');
+      if(!placeholder)continue;
+      img=main.ownerDocument.createElement('img');
+      placeholder.replaceWith(img);
+    }
     img.setAttribute('src',record.dataset.src);
     img.alt=record.dataset.alt||'';
     if(record.dataset.width)img.width=Number(record.dataset.width);

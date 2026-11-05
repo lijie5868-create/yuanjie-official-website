@@ -17,9 +17,10 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
 
   function setSelection(node){
     selected=node;
-    $('editImage').disabled=!node;
-    $('imageUploadButton').textContent=node?'更換選取圖片':'上傳圖片';
-    frame.contentDocument.querySelectorAll('img[data-admin-selected]').forEach(img=>img.removeAttribute('data-admin-selected'));
+    const isImage=node?.tagName==='IMG';
+    $('editImage').disabled=!isImage;
+    $('imageUploadButton').textContent=isImage?'更換選取圖片':'上傳圖片';
+    frame.contentDocument.querySelectorAll('[data-admin-selected]').forEach(item=>item.removeAttribute('data-admin-selected'));
     if(node)node.setAttribute('data-admin-selected','');
   }
 
@@ -29,16 +30,17 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     savedRange=null;
     if(doc.querySelector('.case-grid')){
       for(const card of doc.querySelectorAll('a.case-card')){
-        const img=card.querySelector('img');
-        if(!img||card.querySelector('[data-admin-card-upload]'))continue;
+        const target=card.querySelector('img, .case-placeholder');
+        if(!target||card.querySelector('[data-admin-card-upload]'))continue;
+        const hasImage=target.tagName==='IMG';
         const button=doc.createElement('button');
         button.type='button';
         button.dataset.adminCardUpload='';
-        button.textContent='更換照片';
-        button.setAttribute('aria-label',`更換${card.querySelector('h2')?.textContent.trim()||'個案'}照片`);
+        button.textContent=hasImage?'更換照片':'上傳照片';
+        button.setAttribute('aria-label',`${hasImage?'更換':'上傳'}${card.querySelector('h2')?.textContent.trim()||'個案'}照片`);
         button.onclick=event=>{
           event.preventDefault();event.stopPropagation();
-          setSelection(img);
+          setSelection(target);
           $('imageUpload').click();
         };
         card.append(button);
@@ -123,11 +125,14 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
 
   function insertImage(src,width,height){
     const doc=frame.contentDocument;
-    const target=selected&&doc.contains(selected)?selected:doc.createElement('img');
+    const placeholder=selected?.classList?.contains('case-placeholder')&&doc.contains(selected)?selected:null;
+    const target=selected?.tagName==='IMG'&&doc.contains(selected)?selected:doc.createElement('img');
     target.src=src;
     target.width=width;
     target.height=height;
-    if(!target.isConnected){
+    if(placeholder){
+      placeholder.replaceWith(target);
+    }else if(!target.isConnected){
       if(savedRange&&doc.contains(savedRange.commonAncestorContainer)){
         savedRange.collapse(false);
         savedRange.insertNode(target);
@@ -154,7 +159,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       onMessage('請選擇 JPG、PNG 或 WebP 圖片。',true);return;
     }
     const objectUrl=URL.createObjectURL(file);
-    await open(objectUrl,file.name,selected,false);
+    await open(objectUrl,file.name,selected?.tagName==='IMG'?selected:null,false);
     URL.revokeObjectURL(objectUrl);
   };
   $('editImage').onclick=()=>{
