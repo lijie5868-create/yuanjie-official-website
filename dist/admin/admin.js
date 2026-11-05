@@ -258,6 +258,7 @@ async function editorDocument(page,html){
           if(card)grid.append(card);
         }
         applyCaseCardPhotoOverrides(previewMain);
+        ProjectBlocks.formatCardFacts(previewMain);
         html=previewMain.outerHTML;
       }
     }
@@ -347,6 +348,7 @@ function mainHtml(){
   copy.querySelectorAll('[data-original-card]').forEach(card=>card.outerHTML=card.dataset.originalCard);
   copy.querySelectorAll('[data-managed-card]').forEach(card=>card.remove());
   applyCaseCardPhotoOverrides(copy);
+  if(['urban.html','renewal.html'].includes(current?.file_name))ProjectBlocks.formatCardFacts(copy);
   if(isManagedProject(current)){
     const category=$('projectCategory').value;
     const city=$('projectCity').value.trim();

@@ -131,6 +131,7 @@
         if(record.dataset.width)img.width=Number(record.dataset.width);
         if(record.dataset.height)img.height=Number(record.dataset.height);
       }
+      window.ProjectBlocks?.formatCardFacts(main);
     }
     if(fileName==='index.html'){
       for(const portal of document.querySelectorAll('.home-project-category .portal')){
