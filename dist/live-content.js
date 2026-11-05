@@ -2,6 +2,7 @@
 (async()=>{
   const config=window.YUANJIE_CONFIG;
   const fileName=location.pathname.split('/').pop()||'index.html';
+  const caseSlug=fileName==='project.html'?new URLSearchParams(location.search).get('case'):null;
   const headers={apikey:config.publishableKey};
   const base=`${config.supabaseUrl}/rest/v1`;
   const read=async(path)=>{
@@ -10,9 +11,14 @@
     return response.json();
   };
   try{
-    const [pages,navigation]=await Promise.all([
-      read(`published_pages?select=title,meta_description,main_html&file_name=eq.${encodeURIComponent(fileName)}&limit=1`),
-      read('published_navigation?select=label,subtitle,href,is_visible&order=nav_order.asc')
+    const [pages,navigation,managedProjects]=await Promise.all([
+      read(caseSlug
+        ?`published_pages?select=title,meta_description,main_html&slug=eq.${encodeURIComponent(caseSlug)}&limit=1`
+        :`published_pages?select=title,meta_description,main_html&file_name=eq.${encodeURIComponent(fileName)}&limit=1`),
+      read('published_navigation?select=label,subtitle,href,is_visible&order=nav_order.asc'),
+      fileName==='urban.html'||fileName==='renewal.html'
+        ?read('published_pages?select=slug,file_name,title,main_html&file_name=like.project.html%3Fcase%3D*&order=sort_order.asc')
+        :Promise.resolve([])
     ]);
     const page=pages[0];
     if(page){
@@ -56,6 +62,9 @@
           existing.replaceWith(incoming);
         }
       }
+    }else if(fileName==='project.html'){
+      document.querySelector('main .page-title').textContent='找不到已發布的個案';
+      document.querySelector('main .lead').textContent='請從個案列表重新選擇，或稍後再試。';
     }
     const nav=document.querySelector('header nav[aria-label="主要導覽"]');
     if(nav){
@@ -67,6 +76,43 @@
         if(item.href===fileName)link.setAttribute('aria-current','page');
         return link;
       }));
+    }
+    if(fileName==='urban.html'||fileName==='renewal.html'){
+      const category=fileName==='urban.html'?'urban':'renewal';
+      const grid=document.querySelector('.case-grid');
+      for(const project of managedProjects){
+        if(!project.file_name?.startsWith('project.html?case=')||!grid)continue;
+        const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
+        if(main?.dataset.projectCategory!==category)continue;
+        const title=main.querySelector('.page-title')?.textContent?.trim()||project.title;
+        const city=main.dataset.projectCity||'';
+        const district=main.dataset.projectDistrict||'';
+        const cover=main.querySelector('.case-main img')?.getAttribute('src')||'assets/project-placeholder.svg';
+        const card=document.createElement('a');
+        card.className='case-card';
+        card.href=project.file_name;
+        card.dataset.city=city;
+        card.dataset.district=district;
+        const image=document.createElement('img');
+        image.src=cover;
+        image.alt=`${title}圖片`;
+        image.loading='lazy';
+        const copy=document.createElement('div');
+        copy.className='case-card-copy';
+        const eyebrow=document.createElement('div');
+        eyebrow.className='eyebrow';
+        eyebrow.textContent=category==='urban'?'都市更新':'危老重建';
+        const heading=document.createElement('h2');
+        heading.textContent=title;
+        const location=document.createElement('p');
+        location.className='project-location';
+        location.textContent=`${city}${district}`;
+        const summary=document.createElement('p');
+        summary.textContent=main.querySelector('.page-head .lead')?.textContent?.trim()||'';
+        copy.append(eyebrow,heading,location,summary);
+        card.append(image,copy);
+        grid.append(card);
+      }
     }
   }catch(error){
     console.warn('Using the last deployed copy of this page.',error);

@@ -119,6 +119,58 @@ function snapshotPage(page){
   return page?{slug:page.slug,title:page.title,meta_description:page.meta_description,main_html:page.main_html,published_at:page.published_at}:null;
 }
 
+const isManagedProject=page=>page?.file_name?.startsWith('project.html?case=');
+
+function newProjectHtml({name,category,city,district,summary}){
+  const main=document.createElement('main');
+  main.dataset.projectCategory=category;
+  main.dataset.projectCity=city;
+  main.dataset.projectDistrict=district;
+  main.innerHTML='<section class="page-head"><div class="crumb"><a href="index.html">首頁</a> ／ <a class="project-return" href="urban.html"></a> ／ <span class="project-name"></span></div><div class="eyebrow"></div><h1 class="page-title"></h1><p class="project-location"></p><p class="lead"></p></section><section class="wrap case-overview"><figure class="case-main"><img alt="個案圖片待上傳" width="1200" height="900"><figcaption class="photo-note">點選圖片即可上傳本案照片</figcaption></figure><div><div class="eyebrow">PROJECT PROFILE / 個案資料</div><h2></h2><dl class="specs"><div><dt>所在地區</dt><dd></dd></div><div><dt>個案類型</dt><dd class="project-type"></dd></div><div><dt>建築規劃</dt><dd>請補充個案資料</dd></div></dl></div></section><section class="wrap case-bottom"><p class="note">個案資料依最新規劃內容更新，實際以核定圖說及相關文件為準。</p><a class="text-link project-return" href="urban.html"></a></section>';
+  main.querySelector('.case-main img').setAttribute('src','assets/project-placeholder.svg');
+  const type=category==='urban'?'進行個案（都更）':'在建工程（危老）';
+  const destination=category==='urban'?'urban.html':'renewal.html';
+  main.querySelectorAll('.project-return').forEach(link=>{link.href=destination;link.textContent=link.closest('.case-bottom')?`← 返回${type}`:type});
+  main.querySelector('.project-name').textContent=name;
+  main.querySelector('.page-head .eyebrow').textContent=category==='urban'?'PROJECT / URBAN RENEWAL':'PROJECT / RECONSTRUCTION';
+  main.querySelector('.page-title').textContent=name;
+  main.querySelector('.project-location').textContent=`${city}${district}`;
+  main.querySelector('.lead').textContent=summary;
+  main.querySelector('.case-overview h2').textContent=name;
+  main.querySelector('.specs dd').textContent=`${city}${district}`;
+  main.querySelector('.project-type').textContent=type;
+  return main.outerHTML;
+}
+
+function managedProjectCard(project,category){
+  if(!isManagedProject(project))return null;
+  const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
+  if(main?.dataset.projectCategory!==category)return null;
+  const title=main.querySelector('.page-title')?.textContent?.trim()||project.title;
+  const card=document.createElement('a');
+  card.className='case-card';
+  card.dataset.managedCard='';
+  card.contentEditable='false';
+  card.title='此卡片請到對應的個案頁面編輯';
+  card.dataset.city=main.dataset.projectCity||'';
+  card.dataset.district=main.dataset.projectDistrict||'';
+  card.href=project.file_name;
+  const image=document.createElement('img');
+  image.src=main.querySelector('.case-main img')?.getAttribute('src')||'assets/project-placeholder.svg';
+  image.alt=`${title}圖片`;
+  const copy=document.createElement('div');
+  copy.className='case-card-copy';
+  const eyebrow=document.createElement('div');
+  eyebrow.className='eyebrow';
+  eyebrow.textContent=category==='urban'?'都市更新':'危老重建';
+  const heading=document.createElement('h2');heading.textContent=title;
+  const location=document.createElement('p');location.className='project-location';location.textContent=`${card.dataset.city}${card.dataset.district}`;
+  const summary=document.createElement('p');summary.textContent=main.querySelector('.page-head .lead')?.textContent?.trim()||'';
+  copy.append(eyebrow,heading,location,summary);
+  card.append(image,copy);
+  return card;
+}
+
 async function editorDocument(page,html){
   let bodyId='';
   let bodyClass='';
@@ -126,7 +178,7 @@ async function editorDocument(page,html){
   let previewScripts='';
   let previewHeader='';
   try{
-    const response=await fetch(`${basePath}${page.file_name}?admin-preview=${Date.now()}`,{cache:'no-store'});
+    const response=await fetch(`${basePath}${page.file_name.split('?')[0]}?admin-preview=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`無法載入頁面樣板：${response.status}`);
     const template=new DOMParser().parseFromString(await response.text(),'text/html');
     bodyId=template.body.id;
@@ -144,6 +196,18 @@ async function editorDocument(page,html){
         portal.append(copy);
       }
       if(previewMain)html=previewMain.outerHTML;
+    }
+    if(page.file_name==='urban.html'||page.file_name==='renewal.html'){
+      const previewMain=new DOMParser().parseFromString(html,'text/html').querySelector('main');
+      const grid=previewMain?.querySelector('.case-grid');
+      const category=page.file_name==='urban.html'?'urban':'renewal';
+      if(grid){
+        for(const project of publishedPages.values()){
+          const card=managedProjectCard(project,category);
+          if(card)grid.append(card);
+        }
+        html=previewMain.outerHTML;
+      }
     }
     previewScripts=[...template.querySelectorAll('script[src]')]
       .map(script=>script.getAttribute('src'))
@@ -173,6 +237,13 @@ async function loadEditor(page){
   publishedSnapshot=snapshotPage(published);
   $('title').value=source.title;
   $('description').value=source.meta_description;
+  $('projectFields').hidden=!isManagedProject(page);
+  if(isManagedProject(page)){
+    const projectMain=new DOMParser().parseFromString(source.main_html,'text/html').querySelector('main');
+    $('projectCategory').value=projectMain?.dataset.projectCategory||'urban';
+    $('projectCity').value=projectMain?.dataset.projectCity||'';
+    $('projectDistrict').value=projectMain?.dataset.projectDistrict||'';
+  }
   $('visitPage').href=`${basePath}${page.file_name}`;
   const frame=$('visualEditor');
   $('publish').disabled=true;
@@ -206,6 +277,24 @@ function mainHtml(){
     throw new Error('新版首頁建案版型未載入，已停止儲存與發布；請重新整理後台。');
   const copy=main.cloneNode(true);
   copy.removeAttribute('contenteditable');
+  copy.querySelectorAll('[data-managed-card]').forEach(card=>card.remove());
+  if(isManagedProject(current)){
+    const category=$('projectCategory').value;
+    const city=$('projectCity').value.trim();
+    const district=$('projectDistrict').value.trim();
+    if(!city||!district)throw new Error('請填寫個案的縣市與行政區。');
+    copy.dataset.projectCategory=category;
+    copy.dataset.projectCity=city;
+    copy.dataset.projectDistrict=district;
+    const type=category==='urban'?'進行個案（都更）':'在建工程（危老）';
+    const destination=category==='urban'?'urban.html':'renewal.html';
+    copy.querySelector('.page-head .project-location').textContent=`${city}${district}`;
+    const locationRow=[...copy.querySelectorAll('.specs div')].find(row=>row.querySelector('dt')?.textContent==='所在地區');
+    if(locationRow)locationRow.querySelector('dd').textContent=`${city}${district}`;
+    const typeRow=[...copy.querySelectorAll('.specs div')].find(row=>row.querySelector('dt')?.textContent==='個案類型');
+    if(typeRow)typeRow.querySelector('dd').textContent=type;
+    copy.querySelectorAll('.project-return').forEach(link=>{link.href=destination;link.textContent=link.closest('.case-bottom')?`← 返回${type}`:type});
+  }
   copy.querySelectorAll('a.link-motion').forEach(link=>{
     link.textContent=link.querySelector('.link-motion-text')?.textContent||link.textContent;
     link.classList.remove('link-motion');
@@ -268,7 +357,7 @@ function renderPageList(filter=''){
 async function fetchPages(){
   const [draftResult,publishedResult]=await Promise.all([
     supabase.from('cms_pages').select('*').order('sort_order'),
-    supabase.from('published_pages').select('slug,title,meta_description,main_html,published_at')
+    supabase.from('published_pages').select('slug,file_name,title,meta_description,main_html,published_at')
   ]);
   if(draftResult.error)throw draftResult.error;
   if(publishedResult.error)throw publishedResult.error;
@@ -668,6 +757,7 @@ async function fetchActivity(){
 }
 
 async function saveDraft(){
+  if(!$('title').value.trim())throw new Error('請填寫頁面標題。');
   const payload={title:$('title').value.trim(),meta_description:$('description').value.trim(),main_html:mainHtml(),updated_at:new Date().toISOString()};
   const {data,error}=await supabase.from('cms_pages').update(payload).eq('id',current.id).eq('updated_at',current.updated_at).select().maybeSingle();
   if(error)throw error;
@@ -681,6 +771,11 @@ async function saveDraft(){
 }
 
 async function publish(){
+  if(isManagedProject(current)){
+    const cover=$('visualEditor').contentDocument.querySelector('main .case-main img');
+    if(!cover||cover.getAttribute('src')?.includes('project-placeholder.svg'))
+      throw new Error('請先更換個案預設圖片，再發布到網站。');
+  }
   const {data:serverPublished,error:readError}=await supabase.from('published_pages')
     .select('slug,title,meta_description,main_html,published_at').eq('slug',current.slug).maybeSingle();
   if(readError)throw readError;
@@ -822,6 +917,40 @@ $('passwordRecoveryForm').onsubmit=async event=>{
 };
 $('save').onclick=()=>saveDraft().catch(error=>message(error.message,true));
 $('publish').onclick=()=>publish().catch(error=>message(error.message,true));
+document.querySelectorAll('#title,#description,#projectCategory,#projectCity,#projectDistrict').forEach(input=>input.addEventListener('input',()=>{pageDirty=true}));
+$('newProject').onclick=()=>{$('newProjectMessage').textContent='';$('newProjectMessage').classList.remove('error');$('newProjectDialog').showModal();$('newProjectName').focus()};
+$('cancelNewProject').onclick=()=>$('newProjectDialog').close();
+$('newProjectForm').onsubmit=async event=>{
+  event.preventDefault();
+  const name=$('newProjectName').value.trim();
+  const category=$('newProjectCategory').value;
+  const city=$('newProjectCity').value.trim();
+  const district=$('newProjectDistrict').value.trim();
+  const summary=$('newProjectSummary').value.trim();
+  if(!name||!city||!district||!summary){$('newProjectMessage').textContent='請填寫全部欄位。';return}
+  if(pageDirty&&!confirm('目前頁面有尚未儲存的修改。要放棄修改並建立新個案嗎？'))return;
+  const submit=$('createNewProject');
+  submit.disabled=true;
+  $('newProjectMessage').textContent='建立草稿中…';
+  try{
+    const slug=`custom-${crypto.randomUUID()}`;
+    const payload={slug,file_name:`project.html?case=${slug}`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
+    const {data,error}=await supabase.from('cms_pages').insert(payload).select().single();
+    if(error)throw error;
+    pages.push(data);
+    pages.sort((a,b)=>a.sort_order-b.sort_order);
+    $('pageSearch').value='';
+    expandedPageGroups.add('個案頁面');
+    renderPageList();
+    $('newProjectDialog').close();
+    $('newProjectForm').reset();
+    activityLoaded=false;
+    pageDirty=false;
+    await loadEditor(data);
+    message('個案草稿已建立。請上傳圖片、補齊資料並儲存；確認後再發布。');
+  }catch(error){$('newProjectMessage').textContent=error.message;$('newProjectMessage').classList.add('error')}
+  finally{submit.disabled=false}
+};
 $('saveNavigation').onclick=()=>saveNavigationDraft().catch(error=>navigationMessage(error.message,true));
 $('publishNavigation').onclick=()=>publishNavigation().catch(error=>navigationMessage(error.message,true));
 $('activityRefresh').onclick=()=>fetchActivity().catch(error=>activityMessage(error.message,true));

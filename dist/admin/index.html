@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=19">
+  <link rel="stylesheet" href="admin.css?v=20">
 </head>
 <body>
   <div class="shell">
@@ -70,6 +70,7 @@
             <div class="section-heading">
               <div><span class="eyebrow">內容管理</span><h2>網站頁面</h2></div>
             </div>
+            <button id="newProject" type="button" class="new-project-button">＋ 新增個案</button>
             <label class="search-field">
               <span class="sr-only">搜尋頁面</span>
               <input id="pageSearch" type="search" placeholder="搜尋頁面">
@@ -92,6 +93,11 @@
               <label>頁面標題<input id="title"></label>
               <label>搜尋摘要<textarea id="description" rows="2"></textarea></label>
             </div>
+            <div id="projectFields" class="project-fields" hidden>
+              <label>個案類型<select id="projectCategory"><option value="urban">進行個案（都更）</option><option value="renewal">在建工程（危老）</option></select></label>
+              <label>縣市<input id="projectCity"></label>
+              <label>行政區<input id="projectDistrict"></label>
+            </div>
             <div class="edit-tools" aria-label="文字編輯工具">
               <button type="button" data-command="bold">粗體</button>
               <button type="button" data-command="createLink">加入連結</button>
@@ -106,6 +112,19 @@
           </section>
         </div>
       </section>
+
+      <dialog id="newProjectDialog" class="new-project-dialog" aria-labelledby="newProjectTitle">
+        <form id="newProjectForm">
+          <h2 id="newProjectTitle">新增個案</h2>
+          <p>先建立草稿，再上傳圖片、補齊內容，確認後發布。發布後會自動出現在所選類型的個案列表。</p>
+          <label>個案名稱<input id="newProjectName" required maxlength="80" placeholder="例如：○○路都更案"></label>
+          <label>個案類型<select id="newProjectCategory"><option value="urban">進行個案（都更）</option><option value="renewal">在建工程（危老）</option></select></label>
+          <div class="new-project-location"><label>縣市<input id="newProjectCity" required value="臺北市"></label><label>行政區<input id="newProjectDistrict" required placeholder="例如：大安區"></label></div>
+          <label>個案簡介<textarea id="newProjectSummary" required rows="3" maxlength="300" placeholder="簡短說明此案特色"></textarea></label>
+          <p id="newProjectMessage" class="message" role="status"></p>
+          <div class="new-project-actions"><button id="cancelNewProject" type="button" class="secondary">取消</button><button id="createNewProject" type="submit">建立草稿</button></div>
+        </form>
+      </dialog>
 
       <section id="navigationView" class="admin-view" hidden>
         <div class="card navigation-card">
@@ -227,6 +246,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script type="module" src="admin.js?v=23"></script>
+  <script type="module" src="admin.js?v=24"></script>
 </body>
 </html>
