@@ -356,12 +356,14 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .case-card-copy > .case-card-stats + small,.case-card-copy > .case-card-note{order:1;align-self:flex-end;max-width:100%;margin:0 0 10px;color:#687a84;font-size:12px;line-height:1.55;text-align:right}
 .urban-page .case-grid .case-card{align-self:start}
 .urban-page .case-grid .case-card-copy{flex:0 0 auto;padding-bottom:10px}
+.urban-page .case-card .eyebrow{line-height:1.4}
+.urban-page .case-card h2{margin:3px 0 8px}
 .urban-page .case-card .project-location{margin-bottom:6px!important}
 .urban-page .case-card-stats{margin-top:6px;padding-top:9px}
 @media(max-width:360px){.case-card-stats{gap:3px}.case-card-stat{gap:4px}.case-card-stat-icon{flex-basis:13px;width:13px;height:13px}.case-card-stat-copy strong{font-size:13px}}
 @media(max-width:600px){
  .urban-page .case-grid .case-card-copy{padding:14px 0 9px}
- .urban-page .case-card h2{margin:5px 0 8px;line-height:1.4}
+ .urban-page .case-card h2{margin-top:2px;line-height:1.4}
  .urban-page .case-card .project-location{margin:5px 0 6px!important}
 }
 @media(max-width:600px){
