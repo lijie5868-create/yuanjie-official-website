@@ -235,9 +235,9 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 /* Homepage team introduction — balanced photo and copy without a dead lower half. */
 .team-home{
  display:grid;
- grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
+ grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);
  align-items:center;
- gap:clamp(36px,5vw,72px);
+ gap:52px;
  padding-top:52px;
  padding-bottom:28px;
 }
