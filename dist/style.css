@@ -519,10 +519,11 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .project-filter button.is-active{border-color:#4A6984;background:#4A6984;color:#fff}
 .project-filter button:active{transform:translateY(-1px)}
 @media(max-width:600px){
- .project-filter{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;overflow:visible}
- .project-filter-group{flex-wrap:wrap;overflow:visible;gap:8px;padding-bottom:0}
+ .project-filter{display:flex;flex-wrap:wrap;align-items:flex-start;column-gap:12px;overflow:visible}
+ .project-filter-group{flex:0 0 auto;flex-wrap:wrap;overflow:visible;gap:8px;padding-bottom:0}
+ .project-filter-group:not(.project-filter-districts){width:100px}
  .project-filter-group>span{position:static;flex:0 0 100%;background:transparent}
- .project-filter-districts{grid-column:1/-1}
+ .project-filter-districts{flex:0 0 100%}
  .project-filter button{min-height:40px;padding:9px 13px}
 }
 @media(hover:hover){
