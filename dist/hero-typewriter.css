@@ -1,3 +1,5 @@
 .home-hero .hero-copy h1.typewriter-active::after{content:'｜';display:inline-block;margin-left:.04em;animation:hero-caret .75s steps(1,end) infinite}
+.home-hero .hero-copy p.typewriter-subtitle-waiting{opacity:0;transform:translateY(12px)}
+.home-hero .hero-copy p.typewriter-subtitle-ready{transition:opacity .8s ease,transform .8s ease}
 @keyframes hero-caret{50%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.home-hero .hero-copy h1.typewriter-active::after{animation:none;opacity:0}}
+@media(prefers-reduced-motion:reduce){.home-hero .hero-copy h1.typewriter-active::after{animation:none;opacity:0}.home-hero .hero-copy p.typewriter-subtitle-ready{transition:none}}
