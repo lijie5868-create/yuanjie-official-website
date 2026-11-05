@@ -5,6 +5,7 @@ import {createImageEditor} from "./image-editor.js?v=4";
 const cfg=window.YUANJIE_CONFIG;
 const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunclek@gmail.com"]);
 const primaryPages=new Set(["home","about","team","urban","renewal","qa"]);
+const companyDetailFiles=new Set(['chengyu.html','jiutai.html']);
 const basePath=location.pathname.replace(/admin\/?$/,'');
 const supabase=createClient(cfg.supabaseUrl,cfg.publishableKey);
 const recoveryUrl=new URL(location.href);
@@ -426,7 +427,8 @@ function renderPageList(filter=''){
   const query=filter.trim().toLocaleLowerCase('zh-Hant');
   const matches=pages.filter(page=>`${page.title} ${page.file_name} ${ProjectBlocks.canonicalProjectFile(page.file_name)}`.toLocaleLowerCase('zh-Hant').includes(query));
   list.replaceChildren();
-  for(const [heading,predicate] of [["主要頁面",page=>primaryPages.has(page.slug)],["個案頁面",page=>!primaryPages.has(page.slug)]]){
+  const isCompanyDetail=page=>companyDetailFiles.has(ProjectBlocks.canonicalProjectFile(page.file_name));
+  for(const [heading,predicate] of [["主要頁面",page=>primaryPages.has(page.slug)],["公司詳情頁",isCompanyDetail],["個案頁面",page=>!primaryPages.has(page.slug)&&!isCompanyDetail(page)]]){
     const grouped=matches.filter(predicate);
     if(!grouped.length&&heading!=='個案頁面')continue;
     const group=document.createElement('details');
