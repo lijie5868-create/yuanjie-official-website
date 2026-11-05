@@ -38,7 +38,20 @@
           const assets=[...copy.querySelectorAll('img,a')].map(node=>node.getAttribute('src')||node.getAttribute('href')||'').join('|');
           return `${text}|${assets}`;
         };
-        if(meaningfulText(incoming)!==meaningfulText(existing)){
+        const normalizedMarkup=main=>{
+          const copy=main.cloneNode(true);
+          copy.querySelectorAll('a.link-motion').forEach(link=>{
+            link.textContent=link.querySelector('.link-motion-text')?.textContent||link.textContent;
+            link.classList.remove('link-motion');
+            if(link.classList.contains('team-section-link'))link.classList.remove('text-link');
+            link.removeAttribute('aria-label');
+          });
+          return copy.outerHTML;
+        };
+        const unchanged=fileName==='index.html'||fileName==='urban.html'
+          ?meaningfulText(incoming)===meaningfulText(existing)
+          :normalizedMarkup(incoming)===normalizedMarkup(existing);
+        if(!unchanged){
           window.enhanceLinkMotion?.(incoming);
           existing.replaceWith(incoming);
         }
