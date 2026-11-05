@@ -56,6 +56,7 @@
   function organizeValues() {
     const section = document.querySelector('main .values-section');
     if (!section || section.classList.contains('values-organized')) return;
+    section.classList.add('values-loading');
     const wheel = section.querySelector('.value-wheel');
     const definitions = section.querySelector('.value-definitions');
     const cards = definitions && Array.from(definitions.children);
@@ -89,6 +90,7 @@
     credit.append(creditLink);
     definitions.after(credit);
     section.classList.add('values-organized');
+    section.classList.remove('values-loading');
   }
 
   function organize() {
