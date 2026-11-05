@@ -3,28 +3,46 @@ window.ProjectBlocks = (() => {
   const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色', gallery:'圖片集', journal:'工程與活動紀錄', team:'參與團隊'};
   const files = new Set(['shidong','heping','project-xinguang-urban','project-wuxing',...Array.from({length:19},(_,i)=>'project-'+(i+2)).filter(name=>name!=='project-11')].map(name=>name+'.html'));
   function applies(file){return files.has(file)||file.startsWith('project.html?case=')}
+  function layoutProfiles(main){
+    for(const profile of main.querySelectorAll('[data-block="specs"] .case-overview > div')){
+      if(profile.querySelector(':scope > .case-profile-summary'))continue;
+      const details=profile.querySelector(':scope > dl.specs');
+      if(!details)continue;
+      const summary=main.ownerDocument.createElement('div');
+      summary.className='case-profile-summary';
+      for(const child of [...profile.children])if(child!==details)summary.append(child);
+      profile.insertBefore(summary,details);
+      const amount=summary.querySelector(':scope > .case-amount');
+      const label=amount?.previousElementSibling;
+      if(label?.tagName==='P')amount.after(label);
+    }
+  }
   function enhanceAmounts(main){
     // Public presentation only: keep the editor's source text untouched.
     if(!main.isConnected||main.ownerDocument.defaultView!==window)return;
     for(const amount of main.querySelectorAll('[data-block="specs"] .case-amount')){
       if(amount.querySelector('.amount-holo'))continue;
       const value=amount.textContent.trim();
-      if(!value)continue;
+      const parts=value.match(/^([\d,]+(?:\.\d+)?)(.*)$/s);
+      if(!parts)continue;
       const holo=main.ownerDocument.createElement('span');
       holo.className='amount-holo';
       for(const layer of ['back','mid','front']){
         const span=main.ownerDocument.createElement('span');
         span.className='amount-holo__layer amount-holo__layer--'+layer;
-        span.textContent=value;
+        span.textContent=parts[1];
         if(layer!=='front')span.setAttribute('aria-hidden','true');
         holo.append(span);
       }
-      amount.replaceChildren(holo);
+      const unit=main.ownerDocument.createElement('span');
+      unit.className='amount-unit';
+      unit.textContent=parts[2];
+      amount.replaceChildren(holo,unit);
     }
   }
   function prepare(main){
     if(!main)return false;
-    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1')enhanceAmounts(main);return main.dataset.blockVersion==='1'}
+    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){layoutProfiles(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -57,6 +75,7 @@ window.ProjectBlocks = (() => {
     }
     main.replaceChildren(...blocks);
     main.dataset.blockVersion='1';
+    layoutProfiles(main);
     enhanceAmounts(main);
     return true;
   }
