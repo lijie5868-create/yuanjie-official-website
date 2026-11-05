@@ -16,6 +16,18 @@ def group_home_project_copy(source):
         if 'class="category-copy"' in match.group(2): return match.group(0)
         return match.group(1)+'<div class="category-copy">'+match.group(2)+'</div>'+match.group(3)
     return re.sub(pattern,group,source,flags=re.I|re.S)
+def format_case_card_facts(source):
+    pattern=r'<p>基地\s*([^<｜|]+?)\s*[｜|]\s*([^<]+?戶)</p>\s*<p>預估總銷\s*([^<]+)</p>'
+    def stat(kind,label,value):
+        return (f'<span class="case-card-stat case-card-stat--{kind}">'
+                f'<span class="case-card-stat-icon" aria-hidden="true"></span>'
+                f'<span class="case-card-stat-copy"><small>{label}</small>'
+                f'<strong>{html.escape(value.strip())}</strong></span></span>')
+    def format_match(match):
+        area,homes,sales=match.groups()
+        return ('<div class="case-card-stats">'+stat('area','基地',area)
+                +stat('homes','戶數',homes)+stat('sales','預估總銷',sales)+'</div>')
+    return re.sub(pattern,format_match,source)
 if not URL or not KEY:
     print('Supabase variables not configured; keeping checked-in published site unchanged.'); raise SystemExit(0)
 pages=fetch('published_pages')
@@ -26,6 +38,7 @@ for page in pages:
     source=replace(r'<title>.*?</title>',f"<title>{page['title']}</title>",source)
     source=replace(r'<meta\s+name="description"\s+content=".*?"\s*/?>',f'<meta name="description" content="{page["meta_description"]}">',source)
     main_html=group_home_project_copy(page['main_html']) if page['file_name']=='index.html' else page['main_html']
+    if page['file_name'] in ('urban.html','renewal.html'): main_html=format_case_card_facts(main_html)
     source=replace(r'<main\b.*?</main>',main_html,source)
     links=[]
     for item in navigation:
