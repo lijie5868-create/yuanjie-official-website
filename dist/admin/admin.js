@@ -32,9 +32,12 @@ const expandedPageGroups=new Set(['主要頁面']);
 const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:target=>{pageDirty=true;recordCaseCardPhoto(target)},onMessage:message});
 const pageLayout=document.querySelector('.pages-layout');
 const pageResizer=$('pageResizer');
+const sidebarToggle=$('sidebarToggle');
 const sidebarWidthKey='yuanjie-admin-sidebar-width';
+const sidebarCollapsedKey='yuanjie-admin-sidebar-collapsed';
 let preferredSidebarWidth=250;
 let resizePointer=null;
+let sidebarCollapsed=false;
 
 function applyCaseCardPhotoOverrides(main){
   for(const record of main.querySelectorAll('[data-card-photo-overrides] [data-href]')){
@@ -78,7 +81,23 @@ function recordCaseCardPhoto(img){
 try{
   const savedWidth=Number(localStorage.getItem(sidebarWidthKey));
   if(Number.isFinite(savedWidth)&&savedWidth>0)preferredSidebarWidth=savedWidth;
+  sidebarCollapsed=localStorage.getItem(sidebarCollapsedKey)==='1';
 }catch{}
+
+function renderSidebarVisibility(){
+  pageLayout.classList.toggle('sidebar-collapsed',sidebarCollapsed);
+  $('pageSidebar').hidden=sidebarCollapsed;
+  pageResizer.tabIndex=sidebarCollapsed?-1:0;
+  sidebarToggle.setAttribute('aria-expanded',String(!sidebarCollapsed));
+  const label=sidebarCollapsed?'展開頁面清單':'收起頁面清單';
+  sidebarToggle.setAttribute('aria-label',label);
+  sidebarToggle.title=label;
+}
+sidebarToggle.addEventListener('click',()=>{
+  sidebarCollapsed=!sidebarCollapsed;
+  renderSidebarVisibility();
+  try{localStorage.setItem(sidebarCollapsedKey,sidebarCollapsed?'1':'0')}catch{}
+});
 
 function sidebarWidthLimits(){
   const available=pageLayout.getBoundingClientRect().width;
@@ -137,6 +156,7 @@ pageResizer.addEventListener('keydown',event=>{
 });
 window.addEventListener('resize',renderSidebarWidth);
 renderSidebarWidth();
+renderSidebarVisibility();
 
 function showMessage(target,text,error=false){
   $(target).textContent=text;
