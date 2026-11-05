@@ -56,24 +56,9 @@
     if(assessment&&qr&&trigger){
       const frame=document.createElement('div');
       frame.className='assessment-qr-stage';
-      const emblem=document.createElement('span');
-      emblem.className='assessment-3d-logo';
-      emblem.setAttribute('aria-hidden','true');
       qr.replaceWith(frame);
-      frame.append(emblem,qr);
-      let timer;
-      trigger.addEventListener('click',()=>{
-        clearTimeout(timer);
-        frame.classList.remove('is-intro');
-        if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-        void frame.offsetWidth;
-        frame.classList.add('is-intro');
-        timer=setTimeout(()=>frame.classList.remove('is-intro'),2300);
-      });
-      assessment.addEventListener('close',()=>{
-        clearTimeout(timer);
-        frame.classList.remove('is-intro');
-      });
+      frame.append(qr);
+      import('./assessment-3d.js?v=1').then(module=>module.initAssessment3D({assessment,qr,trigger,frame})).catch(error=>console.warn('Assessment animation unavailable; QR code remains visible.',error));
     }
   }
 })();
