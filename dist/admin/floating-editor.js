@@ -37,12 +37,21 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     if(!main)return;
     let savedRange=null,lastTarget=null;
     const style=doc.createElement('style');
-    style.textContent='.inline-edit-ui{position:fixed;z-index:1000;font:14px/1.4 system-ui,sans-serif}.inline-edit-ui[hidden],.inline-edit-menu[hidden],.inline-media-form[hidden]{display:none!important}.inline-edit-toggle{width:34px;height:34px;border:1px solid #b5966a;border-radius:50%;background:#fff;color:#5d4931;box-shadow:0 3px 12px #0003;font:600 19px/1 system-ui;cursor:pointer}.inline-edit-toggle[aria-expanded=true]{background:#4a6984;color:#fff}.inline-edit-menu{position:absolute;top:40px;left:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(290px,calc(100vw - 24px));padding:10px;border:1px solid #c9c5bc;border-radius:10px;background:#fff;box-shadow:0 12px 30px #0003}.inline-edit-ui.open-up .inline-edit-menu{top:auto;bottom:40px}.inline-edit-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:8px 6px;font:13px/1.3 system-ui;cursor:pointer}.inline-edit-menu button:hover,.inline-edit-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}.inline-edit-menu button:disabled{opacity:.45;cursor:not-allowed}.inline-media-form{grid-column:1/-1;display:grid;gap:7px;padding-top:6px;border-top:1px solid #dedbd4}.inline-media-form label{font-size:12px;color:#53616a}.inline-media-form input{box-sizing:border-box;width:100%;padding:8px;border:1px solid #c9c8c0;border-radius:5px;font:13px system-ui}.inline-media-form .inline-media-actions{display:flex;gap:6px}.inline-media-form .inline-media-actions button{flex:1}.inline-media-status{grid-column:1/-1;color:#526574;font-size:12px;min-height:1em}.inline-media-status.error{color:#ad392f}';
+    style.textContent='.inline-edit-ui{position:fixed;z-index:1000;font:14px/1.4 system-ui,sans-serif}.inline-edit-ui[hidden],.inline-edit-menu[hidden],.inline-media-form[hidden]{display:none!important}.inline-edit-toggle{display:flex;align-items:center;gap:5px;height:32px;padding:0 9px;border:1px solid #b5966a;border-radius:7px;background:#fff;color:#5d4931;box-shadow:0 3px 12px #0002;font:600 12px/1 system-ui;cursor:pointer}.inline-edit-toggle svg{width:16px;height:16px;flex:none}.inline-edit-toggle[aria-expanded=true]{background:#4a6984;color:#fff}.inline-edit-menu{position:absolute;top:38px;left:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;width:min(420px,calc(100vw - 24px));box-sizing:border-box;padding:8px;border:1px solid #c9c5bc;border-radius:10px;background:#fff;box-shadow:0 12px 30px #0003}.inline-edit-ui.open-up .inline-edit-menu{top:auto;bottom:38px}.inline-edit-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:7px 2px;font:11px/1.25 system-ui;cursor:pointer}.inline-edit-menu>.inline-edit-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:53px;white-space:nowrap}.inline-edit-action svg{width:18px;height:18px;flex:none}.inline-edit-menu button:hover,.inline-edit-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}.inline-edit-menu button:disabled{opacity:.45;cursor:not-allowed}.inline-media-form{grid-column:1/-1;display:grid;gap:7px;padding-top:6px;border-top:1px solid #dedbd4}.inline-media-form label{font-size:12px;color:#53616a}.inline-media-form input{box-sizing:border-box;width:100%;padding:8px;border:1px solid #c9c8c0;border-radius:5px;font:13px system-ui}.inline-media-form .inline-media-actions{display:flex;gap:6px}.inline-media-form .inline-media-actions button{flex:1}.inline-media-status{grid-column:1/-1;color:#526574;font-size:12px;min-height:1em}.inline-media-status.error{color:#ad392f}';
     doc.head.append(style);
     const root=doc.createElement('div');root.className='inline-edit-ui';root.hidden=true;root.dataset.editorUi='';
-    const toggle=doc.createElement('button');toggle.type='button';toggle.className='inline-edit-toggle';toggle.textContent='✦';toggle.title='編輯工具';toggle.setAttribute('aria-label','開啟編輯工具');toggle.setAttribute('aria-expanded','false');
+    const icon=paths=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+    const icons={
+      edit:icon('<path d="M4 20h4l11-11-4-4L4 16v4Z"/><path d="m13 7 4 4"/>'),
+      bold:icon('<path d="M7 4h6a4 4 0 0 1 0 8H7V4Zm0 8h7a4 4 0 0 1 0 8H7v-8Z"/>'),
+      link:icon('<path d="M10 13a5 5 0 0 0 7 .4l3-3a5 5 0 0 0-7-7l-1.5 1.5M14 11a5 5 0 0 0-7-.4l-3 3a5 5 0 0 0 7 7l1.5-1.5"/>'),
+      image:icon('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/>'),
+      crop:icon('<path d="M7 3v13a2 2 0 0 0 2 2h12M3 7h13a2 2 0 0 1 2 2v12"/>'),
+      video:icon('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9Z"/>')
+    };
+    const toggle=doc.createElement('button');toggle.type='button';toggle.className='inline-edit-toggle';toggle.innerHTML=`${icons.edit}<span>編輯</span>`;toggle.title='編輯工具';toggle.setAttribute('aria-label','開啟編輯工具');toggle.setAttribute('aria-expanded','false');
     const menu=doc.createElement('div');menu.className='inline-edit-menu';menu.hidden=true;
-    const action=(label,run)=>{const b=doc.createElement('button');b.type='button';b.textContent=label;b.onclick=run;menu.append(b);return b};
+    const action=(label,shortLabel,iconName,run)=>{const b=doc.createElement('button');b.type='button';b.className='inline-edit-action';b.innerHTML=`${icons[iconName]}<span>${shortLabel}</span>`;b.setAttribute('aria-label',label);b.title=label;b.onclick=run;menu.append(b);return b};
     const status=doc.createElement('div');status.className='inline-media-status';status.setAttribute('role','status');
     const media=doc.createElement('div');media.className='inline-media-form';media.hidden=true;
     const label=doc.createElement('label');label.textContent='YouTube 網址';
@@ -80,16 +89,16 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       const figcaption=doc.createElement('figcaption');figcaption.textContent=caption;figure.append(figcaption);
       return figure;
     }
-    action('粗體',()=>{restore();if(doc.execCommand('bold',false,null))onChange();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
-    action('加入連結',()=>{
+    action('粗體','粗體','bold',()=>{restore();if(doc.execCommand('bold',false,null))onChange();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
+    action('加入連結','連結','link',()=>{
       const value=prompt('請輸入連結網址（https://、mailto: 或 tel:）');
       if(!value)return;
       if(!/^(https:\/\/|mailto:|tel:)/i.test(value)){report('請輸入有效的連結網址。',true);return}
       restore();if(doc.execCommand('createLink',false,value))onChange();menu.hidden=true;toggle.setAttribute('aria-expanded','false');
     });
-    action('上傳圖片',()=>{restore();document.getElementById('imageUploadButton').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
-    const editButton=action('編輯選取圖片',()=>{document.getElementById('editImage').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
-    action('插入媒體',()=>{media.hidden=!media.hidden;if(!media.hidden)urlInput.focus()});
+    action('上傳圖片','上傳圖片','image',()=>{restore();document.getElementById('imageUploadButton').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
+    const editButton=action('編輯選取圖片','編輯圖片','crop',()=>{document.getElementById('editImage').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
+    action('插入媒體','媒體','video',()=>{media.hidden=!media.hidden;if(!media.hidden)urlInput.focus()});
     menu.append(media);root.append(toggle,menu);doc.body.append(root);
     root.addEventListener('pointerdown',event=>{if(event.target!==urlInput&&event.target!==fileInput)event.preventDefault()});
     toggle.onclick=()=>{
