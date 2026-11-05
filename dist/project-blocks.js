@@ -113,6 +113,7 @@ window.ProjectBlocks = (() => {
     const cover=make('cover'), profile=make('specs');
     for(const el of work.querySelectorAll(':scope > .breadcrumbs,:scope > .page-head,:scope > .hero'))cover.append(el);
     const overview=work.querySelector(':scope > .case-overview');
+    let profileAfter=null;
     if(overview){
       const media=overview.querySelector(':scope > figure,:scope > .case-placeholder');
       if(media)cover.append(media);
@@ -120,11 +121,15 @@ window.ProjectBlocks = (() => {
     }else{
       const details=specs.closest('.details');
       if(!details)return false;
+      profileAfter=[...work.children].find(child=>child.contains(details));
       profile.append(details);
     }
-    const blocks=[cover,profile];
+    const blocks=overview?[cover,profile]:[cover];
     for(const el of [...work.children]){
-      if(!el.textContent.trim()&&!el.querySelector('img,a'))continue;
+      if(!el.textContent.trim()&&!el.querySelector('img,a')){
+        if(el===profileAfter)blocks.push(profile);
+        continue;
+      }
       let type='story';
       if(el.matches('.case-bottom'))type='footer';
       else if(el.matches('.metrics'))type='metrics';
@@ -133,6 +138,7 @@ window.ProjectBlocks = (() => {
       else if(el.querySelector('img'))type='gallery';
       else if(el.querySelector('.features,.heping-highlights,.case-highlights'))type='features';
       const block=make(type);block.append(el);blocks.push(block);
+      if(el===profileAfter)blocks.push(profile);
     }
     main.replaceChildren(...blocks);
     main.dataset.blockVersion='1';

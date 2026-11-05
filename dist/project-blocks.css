@@ -50,7 +50,7 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 
 /* Keep project facts close to their heading, with a readable measure. */
 [data-block="specs"] :is(.case-overview>div,.details){grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);column-gap:clamp(32px,5vw,76px);align-items:start}
-[data-block="specs"] :is(.case-overview>div,.details)>dl{grid-row:1/span 20;max-width:720px}
+[data-block="specs"] :is(.case-overview>div,.details)>dl{grid-row:1;max-width:720px}
 [data-block="specs"] :is(.case-overview>div,.details)>:not(dl){max-width:440px}
 [data-block="specs"] :is(.case-overview>div,.details) h2{margin:14px 0 26px;line-height:1.35}
 [data-block="specs"] .case-amount{margin:8px 0 0;line-height:1.1}
