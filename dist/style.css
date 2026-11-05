@@ -615,3 +615,8 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .home-project-category .category-button,
  .home-project-category .category-button::before{transition:none}
 }
+
+/* Center the sales figure and its captions within the Wu Xing project summary. */
+.project-wuxing-page .case-overview .case-amount{display:flex;justify-content:center}
+.project-wuxing-page [data-block="specs"] .case-profile-summary>.case-amount~p,
+.project-wuxing-page .case-overview .case-status{width:100%;text-align:center}
