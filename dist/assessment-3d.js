@@ -18,24 +18,26 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
   key.position.set(-3,4,6);scene.add(key);
   const edge=new THREE.DirectionalLight(0xb88949,2);
   edge.position.set(4,-2,-2);scene.add(edge);
-  const geometry=new THREE.BoxGeometry(.083,.083,.11);
+  const geometry=new THREE.BoxGeometry(1,1,1);
   const material=new THREE.MeshStandardMaterial({color:0xc5a880,metalness:.42,roughness:.3});
   const dummy=new THREE.Object3D();
   const gold=new THREE.Color(0xc5a880),ink=new THREE.Color(0x111111);
   let mesh,from=[],to=[],ready=false,playing=false,raf=0,start=0;
+  const qrFace=new THREE.Mesh(new THREE.BoxGeometry(3.57,3.57,.055),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}));
+  qrFace.position.z=-.035;scene.add(qrFace);
+  let centerBadge;
   const points=(img,kind)=>{
-    const side=kind==='qr'?65:48;
+    const side=kind==='qr'?33:72;
     const sample=document.createElement('canvas');sample.width=sample.height=side;
     const ctx=sample.getContext('2d',{willReadFrequently:true});
-    if(kind==='qr'){
-      ctx.fillStyle='#fff';ctx.fillRect(0,0,side,side);
-      ctx.drawImage(img,0,0,side,side);
-    }else ctx.drawImage(img,0,0,side,side);
+    if(kind==='qr')ctx.drawImage(img,55,55,297,297,0,0,side,side);
+    else ctx.drawImage(img,0,0,side,side);
     const data=ctx.getImageData(0,0,side,side).data;
     const result=[];
     for(let y=0;y<side;y++)for(let x=0;x<side;x++){
       const i=(y*side+x)*4;
-      const visible=kind==='qr'?data[i]<110&&data[i+1]<110&&data[i+2]<110:data[i+3]>110&&data[i]>75;
+      const badge=kind==='qr'&&x>=12&&x<=20&&y>=12&&y<=20;
+      const visible=!badge&&(kind==='qr'?data[i]<110&&data[i+1]<110&&data[i+2]<110:data[i+3]>110&&data[i]>75);
       if(visible)result.push({x:(x+.5-side/2)*3.5/side,y:(side/2-y-.5)*3.5/side});
     }
     return result;
@@ -47,6 +49,15 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
     const count=Math.max(from.length,to.length);
     mesh=new THREE.InstancedMesh(geometry,material,count);
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    const badgeCanvas=document.createElement('canvas');badgeCanvas.width=badgeCanvas.height=108;
+    badgeCanvas.getContext('2d').drawImage(qr,163,163,81,81,0,0,108,108);
+    const badgeTexture=new THREE.CanvasTexture(badgeCanvas);badgeTexture.colorSpace=THREE.SRGBColorSpace;
+    centerBadge=new THREE.Mesh(new THREE.BoxGeometry(.97,.97,.065),[
+      new THREE.MeshBasicMaterial({color:0xeeeeee}),new THREE.MeshBasicMaterial({color:0xeeeeee}),
+      new THREE.MeshBasicMaterial({color:0xeeeeee}),new THREE.MeshBasicMaterial({color:0xeeeeee}),
+      new THREE.MeshBasicMaterial({map:badgeTexture,transparent:true,opacity:0}),new THREE.MeshBasicMaterial({color:0xffffff})
+    ]);
+    centerBadge.position.z=.07;scene.add(centerBadge);
     scene.add(mesh);ready=true;
     if(assessment.open)begin();
   }).catch(error=>{console.warn('Assessment geometry unavailable.',error);canvas.remove();renderer.dispose()});
@@ -58,12 +69,17 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
     const spin=(1-ease(Math.min(t/.55,1)))*.75;
     mesh.rotation.y=spin;
     mesh.rotation.x=(1-ease(Math.min(t/.6,1)))*-.2;
+    const qrAppear=ease(Math.min(Math.max((t-.65)/.35,0),1));
+    qrFace.material.opacity=qrAppear;
+    centerBadge.material[4].opacity=qrAppear;
     for(let i=0;i<mesh.count;i++){
       const a=from[i%from.length],b=to[i%to.length];
       const ripple=Math.sin(i*1.731)*.34*Math.sin(Math.PI*morph);
       dummy.position.set(THREE.MathUtils.lerp(a.x,b.x,morph)+ripple,THREE.MathUtils.lerp(a.y,b.y,morph)+Math.cos(i*.91)*.25*Math.sin(Math.PI*morph),Math.sin(i*.27)*.22*(1-morph)+Math.sin(Math.PI*morph)*.55);
-      const size=(1-morph)*1.65+morph*.9;
-      dummy.scale.set(size,size,(1-morph)*2.5+morph*.7);
+      const logoSize=3.5/72*.88;
+      const qrSize=3.5/33*.995;
+      const size=THREE.MathUtils.lerp(logoSize,qrSize,morph)*(i>=to.length?1-morph:1);
+      dummy.scale.set(size,size,THREE.MathUtils.lerp(.18,.085,morph));
       dummy.rotation.set(0,spin*(1-morph),0);dummy.updateMatrix();
       mesh.setMatrixAt(i,dummy.matrix);
       mesh.setColorAt(i,gold.clone().lerp(ink,morph));
@@ -72,16 +88,16 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
     if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
     renderer.render(scene,camera);
     if(t<1)raf=requestAnimationFrame(draw);
-    else{playing=false;frame.classList.remove('is-playing');}
+    else{playing=false;frame.classList.add('is-finished');}
   };
   const begin=()=>{
     if(!ready)return;
     cancelAnimationFrame(raf);
-    playing=true;frame.classList.add('is-playing');
+    playing=true;frame.classList.remove('is-finished');frame.classList.add('is-playing');
     start=performance.now();raf=requestAnimationFrame(draw);
   };
   trigger.addEventListener('click',begin);
   assessment.addEventListener('close',()=>{
-    playing=false;cancelAnimationFrame(raf);frame.classList.remove('is-playing');
+    playing=false;cancelAnimationFrame(raf);frame.classList.remove('is-playing','is-finished');
   });
 }
