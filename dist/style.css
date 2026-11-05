@@ -534,3 +534,32 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 @media(max-width:600px){
  .scroll-link{padding:13px 24px;font-size:13px}
 }
+
+/* The two featured project links on the homepage. */
+.home-project-category .category-button{
+ position:relative;isolation:isolate;overflow:hidden;
+ display:inline-flex;width:auto;max-width:100%;min-height:0;
+ padding:1em 2.7em;border:0;border-radius:.6em;
+ background:#1f2937;color:#fff;font-size:17px;font-weight:500;
+ line-height:1.2;text-align:center;cursor:pointer;
+ transition:transform .1s ease;
+}
+.home-project-category .category-button::before{
+ content:"";position:absolute;left:50%;top:50%;z-index:-1;
+ width:0;height:0;border-radius:50%;background:rgba(16,185,129,.6);
+ transform:translate(-50%,-50%);
+ transition:width .5s cubic-bezier(0,0,.2,1),height .5s cubic-bezier(0,0,.2,1);
+}
+.home-project-category .category-button::after{
+ content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ border-radius:inherit;
+ background:linear-gradient(transparent,transparent,rgba(0,0,0,.3));
+}
+.home-project-category .category-button:hover{background:#1f2937;color:#fff}
+.home-project-category .category-button:hover::before{width:14em;height:14em}
+.home-project-category .category-button:active{transform:scale(.97)}
+.home-project-category .category-button:focus-visible{outline:2px solid #4A6984;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+ .home-project-category .category-button,
+ .home-project-category .category-button::before{transition:none}
+}
