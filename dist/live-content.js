@@ -56,7 +56,7 @@
           const copy=main.cloneNode(true);
           copy.querySelectorAll('a.text-link,a.team-section-link').forEach(link=>{
             link.textContent=(link.querySelector('.link-motion-text')?.textContent||link.textContent).trim();
-            link.classList.remove('link-motion');
+            link.classList.remove('link-motion','link-motion-back');
             if(link.classList.contains('team-section-link'))link.classList.remove('text-link');
             link.removeAttribute('aria-label');
           });

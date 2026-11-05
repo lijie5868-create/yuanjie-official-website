@@ -1,11 +1,20 @@
 /* Uiverse-inspired sliding text for the site's existing underlined links. */
 window.enhanceLinkMotion = (root = document) => {
   for (const link of root.querySelectorAll('a.text-link, a.team-section-link')) {
-    if (link.querySelector('.link-motion-text')) continue;
+    const existingText = link.querySelector('.link-motion-text');
+    if (existingText) {
+      if (existingText.textContent.trim().startsWith('←')) {
+        link.classList.add('link-motion-back');
+        link.querySelector('.link-motion-icon')?.remove();
+      }
+      continue;
+    }
     const label = link.textContent.trim();
+    const isBackLink = label.startsWith('←');
     link.textContent = '';
     if (link.classList.contains('team-section-link')) link.classList.add('text-link');
     link.classList.add('link-motion');
+    if (isBackLink) link.classList.add('link-motion-back');
     const text = document.createElement('span');
     text.className = 'link-motion-text';
     text.textContent = label;
@@ -25,7 +34,8 @@ window.enhanceLinkMotion = (root = document) => {
     path.setAttribute('stroke-linecap', 'round');
     path.setAttribute('stroke-linejoin', 'round');
     icon.append(path);
-    link.append(text, clone, icon);
+    link.append(text, clone);
+    if (!isBackLink) link.append(icon);
     link.setAttribute('aria-label', label);
   }
 };

@@ -294,7 +294,7 @@ async function editorDocument(page,html){
         .find(script=>script.textContent.includes("document.querySelector('.case-grid')"));
       if(layoutScript)previewScripts+=`<script>${layoutScript.textContent}</script>`;
     }
-    previewScripts+='<script src="link-motion.js?v=2" defer></script>';
+    previewScripts+='<script src="link-motion.js?v=3" defer></script>';
   }catch(error){
     console.warn('Using the basic editor preview.',error);
   }
@@ -393,7 +393,7 @@ function mainHtml(){
   }
   copy.querySelectorAll('a.link-motion').forEach(link=>{
     link.textContent=link.querySelector('.link-motion-text')?.textContent||link.textContent;
-    link.classList.remove('link-motion');
+    link.classList.remove('link-motion','link-motion-back');
     if(link.classList.contains('team-section-link'))link.classList.remove('text-link');
     link.removeAttribute('aria-label');
   });
