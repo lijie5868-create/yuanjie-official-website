@@ -50,5 +50,30 @@
       script.textContent=source.textContent;
       source.replaceWith(script);
     }
+    const assessment=document.querySelector('#assessment-dialog');
+    const qr=assessment?.querySelector('img[src*="line-assessment-qr"]');
+    const trigger=document.querySelector('.assessment-float');
+    if(assessment&&qr&&trigger){
+      const frame=document.createElement('div');
+      frame.className='assessment-qr-stage';
+      const emblem=document.createElement('span');
+      emblem.className='assessment-3d-logo';
+      emblem.setAttribute('aria-hidden','true');
+      qr.replaceWith(frame);
+      frame.append(emblem,qr);
+      let timer;
+      trigger.addEventListener('click',()=>{
+        clearTimeout(timer);
+        frame.classList.remove('is-intro');
+        if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+        void frame.offsetWidth;
+        frame.classList.add('is-intro');
+        timer=setTimeout(()=>frame.classList.remove('is-intro'),2300);
+      });
+      assessment.addEventListener('close',()=>{
+        clearTimeout(timer);
+        frame.classList.remove('is-intro');
+      });
+    }
   }
 })();
