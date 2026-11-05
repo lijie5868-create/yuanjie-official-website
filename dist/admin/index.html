@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=22">
+  <link rel="stylesheet" href="admin.css?v=23">
 </head>
 <body>
   <div class="shell">
@@ -122,6 +122,12 @@
           <label>個案類型<select id="newProjectCategory"><option value="urban">進行個案（都更）</option><option value="renewal">在建工程（危老）</option></select></label>
           <div class="new-project-location"><label>縣市<input id="newProjectCity" required value="臺北市"></label><label>行政區<input id="newProjectDistrict" required placeholder="例如：大安區"></label></div>
           <label>個案簡介<textarea id="newProjectSummary" required rows="3" maxlength="300" placeholder="簡短說明此案特色"></textarea></label>
+          <fieldset id="newProjectLayout">
+            <legend>組合個案詳情頁</legend>
+            <p>封面與基本資料已備妥。將需要的元件拖入下方，或點選加入。</p>
+            <div id="newProjectPalette" aria-label="可用元件"></div>
+            <ol id="newProjectOrder" aria-label="詳情頁順序"></ol>
+          </fieldset>
           <p id="newProjectMessage" class="message" role="status"></p>
           <div class="new-project-actions"><button id="cancelNewProject" type="button" class="secondary">取消</button><button id="createNewProject" type="submit">建立草稿</button></div>
         </form>
@@ -247,6 +253,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js"></script><script type="module" src="admin.js?v=27"></script>
+  <script src="../project-blocks.js"></script><script type="module" src="admin.js?v=28"></script>
 </body>
 </html>

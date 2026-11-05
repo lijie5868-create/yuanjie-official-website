@@ -269,3 +269,12 @@ iframe { display: block; width: 100%; height: 64vh; border: 1px solid #c9c8c0; b
 #blockPanel button[aria-pressed=true]{background:#4a6984;color:white}
 #blockPanel label{display:grid;gap:3px;width:100%;font-size:13px}
 #blockPanel>div:last-child{max-height:360px;overflow:auto}
+
+#newProjectLayout{min-width:0;margin:0;padding:14px;border:1px solid #d6cec4;border-radius:8px}
+#newProjectPalette{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+#newProjectPalette button{padding:7px 10px;color:#344d60;background:#e8eef2;cursor:grab}
+#newProjectOrder{display:grid;gap:5px;margin:0;padding:0;list-style:none}
+#newProjectOrder li{display:flex;gap:4px;align-items:center;padding:5px 8px;background:#f6f4ef;border:1px solid transparent;border-radius:4px}
+#newProjectOrder li span{flex:1}
+#newProjectOrder button{padding:5px 8px;background:#fff;color:#493c30}
+#newProjectOrder li[data-over]{border-top-color:#47728e}

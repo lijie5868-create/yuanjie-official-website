@@ -122,7 +122,7 @@ function snapshotPage(page){
 
 const isManagedProject=page=>page?.file_name?.startsWith('project.html?case=');
 
-function newProjectHtml({name,category,city,district,summary}){
+function newProjectHtml({name,category,city,district,summary,layout=[]}){
   const main=document.createElement('main');
   main.dataset.projectCategory=category;
   main.dataset.projectCity=city;
@@ -140,6 +140,10 @@ function newProjectHtml({name,category,city,district,summary}){
   main.querySelector('.case-overview h2').textContent=name;
   main.querySelector('.specs dd').textContent=`${city}${district}`;
   main.querySelector('.project-type').textContent=type;
+  ProjectBlocks.prepare(main);
+  for(const type of layout){
+    main.insertBefore(ProjectBlocks.newBlock(document,type),main.querySelector('[data-block="footer"]'));
+  }
   return main.outerHTML;
 }
 
@@ -944,7 +948,53 @@ $('passwordRecoveryForm').onsubmit=async event=>{
 $('save').onclick=()=>saveDraft().catch(error=>message(error.message,true));
 $('publish').onclick=()=>publish().catch(error=>message(error.message,true));
 document.querySelectorAll('#title,#description,#projectCategory,#projectCity,#projectDistrict').forEach(input=>input.addEventListener('input',()=>{pageDirty=true}));
-$('newProject').onclick=()=>{$('newProjectMessage').textContent='';$('newProjectMessage').classList.remove('error');$('newProjectDialog').showModal();$('newProjectName').focus()};
+const projectLayout=[];
+let layoutDrag=null;
+function placeComponent(index,source){
+  if(!source)return;
+  if(source.type)projectLayout.splice(index,0,source.type);
+  else{
+    const [type]=projectLayout.splice(source.index,1);
+    projectLayout.splice(index-(source.index<index?1:0),0,type);
+  }
+  renderProjectOrder();
+}
+function renderProjectOrder(){
+  const list=$('newProjectOrder');list.replaceChildren();
+  const row=text=>{const li=document.createElement('li'),label=document.createElement('span');label.textContent=text;li.append(label);list.append(li);return li};
+  row('01　個案封面');row('02　基本資料表');
+  projectLayout.forEach((type,index)=>{
+    const li=row(String(index+3).padStart(2,'0')+'　'+ProjectBlocks.types[type]);
+    li.draggable=true;li.dataset.index=index;
+    li.ondragstart=e=>{layoutDrag={index};e.dataTransfer.setData('text/plain',type)};
+    for(const [label,action,disabled] of [
+      ['上移',()=>placeComponent(index-1,{index}),index===0],
+      ['下移',()=>placeComponent(index+2,{index}),index===projectLayout.length-1],
+      ['移除',()=>{projectLayout.splice(index,1);renderProjectOrder()},false]
+    ]){
+      const button=document.createElement('button');button.type='button';button.textContent=label;button.disabled=disabled;button.onclick=action;li.append(button);
+    }
+  });
+  row('將元件放在這裡').dataset.index=projectLayout.length;
+}
+for(const [type,name] of Object.entries(ProjectBlocks.types).slice(2)){
+  const tile=document.createElement('button');tile.type='button';tile.textContent=name;tile.draggable=true;
+  tile.onclick=()=>placeComponent(projectLayout.length,{type});
+  tile.ondragstart=e=>{layoutDrag={type};e.dataTransfer.setData('text/plain',type)};
+  $('newProjectPalette').append(tile);
+}
+const order=$('newProjectOrder');
+order.ondragover=e=>{
+  if(!layoutDrag)return;
+  e.preventDefault();order.querySelector('[data-over]')?.removeAttribute('data-over');
+  e.target.closest('li[data-index]')?.setAttribute('data-over','');
+};
+order.ondrop=e=>{
+  if(!layoutDrag)return;
+  e.preventDefault();placeComponent(Number(e.target.closest('li')?.dataset.index??projectLayout.length),layoutDrag);layoutDrag=null;
+};
+$('newProjectLayout').ondragend=()=>{layoutDrag=null;order.querySelector('[data-over]')?.removeAttribute('data-over')};
+$('newProject').onclick=()=>{renderProjectOrder();$('newProjectMessage').textContent='';$('newProjectMessage').classList.remove('error');$('newProjectDialog').showModal();$('newProjectName').focus()};
 $('cancelNewProject').onclick=()=>$('newProjectDialog').close();
 $('newProjectForm').onsubmit=async event=>{
   event.preventDefault();
@@ -960,7 +1010,7 @@ $('newProjectForm').onsubmit=async event=>{
   $('newProjectMessage').textContent='建立草稿中…';
   try{
     const slug=`custom-${crypto.randomUUID()}`;
-    const payload={slug,file_name:`project.html?case=${slug}`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
+    const payload={slug,file_name:`project.html?case=${slug}`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary,layout:projectLayout}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
     const {data,error}=await supabase.from('cms_pages').insert(payload).select().single();
     if(error)throw error;
     pages.push(data);
@@ -969,7 +1019,7 @@ $('newProjectForm').onsubmit=async event=>{
     expandedPageGroups.add('個案頁面');
     renderPageList();
     $('newProjectDialog').close();
-    $('newProjectForm').reset();
+    $('newProjectForm').reset();projectLayout.length=0;
     activityLoaded=false;
     pageDirty=false;
     await loadEditor(data);
