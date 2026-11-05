@@ -1,0 +1,5 @@
+.site-media{width:min(100%,860px);margin:clamp(22px,3vw,42px) auto;color:#4e5d66}
+.site-media iframe,.site-media video{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:8px;background:#25343e}
+.site-media iframe{height:auto;min-height:300px}
+.site-media figcaption{margin-top:10px;font-size:13px;line-height:1.5}
+@media(max-width:600px){.site-media iframe{min-height:0;height:auto;aspect-ratio:16/9}}

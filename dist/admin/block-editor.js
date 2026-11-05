@@ -21,7 +21,7 @@ export function bindBlocks(main,panel,changed){
     select(block);changed();block.scrollIntoView({block:'center'});
   }
   for(const [type,label] of Object.entries(api.types).slice(2)){
-    const tile=button(tools,label,()=>insert(type,active&&!fixed(active)?nextBlock(active):main.querySelector('[data-block="footer"]')));
+    const tile=button(tools,label,()=>insert(type,active&&active.dataset.block!=='footer'?nextBlock(active):main.querySelector('[data-block="footer"]')));
     tile.draggable=true;
     tile.ondragstart=e=>{pending={type};e.dataTransfer.setData(dragKey,type);e.dataTransfer.effectAllowed='copy'};
     tile.ondragend=()=>{pending=null;clearDrop()};
@@ -32,7 +32,7 @@ export function bindBlocks(main,panel,changed){
     if(slot)return nextBlock(slot.previousElementSibling);
     const block=e.target.closest('[data-block]');
     if(!block)return main.querySelector('[data-block="footer"]');
-    if(['cover','specs'].includes(block.dataset.block))return blocks()[2]||null;
+    if(block.dataset.block==='cover')return nextBlock(block);
     if(block.dataset.block==='footer')return block;
     const rect=block.getBoundingClientRect();
     return e.clientY<rect.top+rect.height/2?block:nextBlock(block);
@@ -54,10 +54,14 @@ export function bindBlocks(main,panel,changed){
     const block=e.target.closest('[data-block]');if(block&&active!==block)select(block);
   });
   main.addEventListener('input',()=>{api.refresh(main);changed()});
+  main.addEventListener('paste',e=>{
+    if(!e.target.closest('[contenteditable]'))return;
+    e.preventDefault();doc.execCommand('insertText',false,e.clipboardData.getData('text/plain'));
+  });
   function decorate(block){
     for(const node of block.querySelectorAll('h1,h2,h3,p,dt,dd,li,figcaption,small,time,strong,em,label,span,a,.eyebrow,.case-amount')){
       if(node.closest('[data-editor-ui],[data-metric-ref]')||node.querySelector('img,button,p,h3'))continue;
-      node.setAttribute('contenteditable','plaintext-only');
+      node.setAttribute('contenteditable','true');
     }
     if(fixed(block)||block.querySelector(':scope > [data-editor-ui]'))return;
     const grip=doc.createElement('button');grip.type='button';grip.dataset.editorUi='';
@@ -72,7 +76,7 @@ export function bindBlocks(main,panel,changed){
   function renderInsertControls(){
     main.querySelectorAll(':scope > .block-insert-slot').forEach(slot=>slot.remove());
     for(const block of blocks()){
-      if(['cover','footer'].includes(block.dataset.block))continue;
+      if(block.dataset.block==='footer')continue;
       const slot=doc.createElement('div');slot.className='block-insert-slot';slot.dataset.editorUi='';
       const toggle=doc.createElement('button');toggle.type='button';toggle.className='block-insert-toggle';toggle.textContent='+';
       toggle.setAttribute('aria-label',`在「${api.types[block.dataset.block]||'此區塊'}」後新增區塊`);
@@ -115,7 +119,7 @@ export function bindBlocks(main,panel,changed){
     }
     if(!fixed(el)){
       const siblings=blocks(),index=siblings.indexOf(el);
-      button(fields,'上移',()=>{main.insertBefore(el,siblings[index-1]);select(el);changed()}).disabled=index<=2;
+      button(fields,'上移',()=>{main.insertBefore(el,siblings[index-1]);select(el);changed()}).disabled=index<=1;
       button(fields,'下移',()=>{siblings[index+1].after(el);select(el);changed()}).disabled=index===siblings.length-1||siblings[index+1]?.dataset.block==='footer';
       button(fields,'複製區塊',()=>{const clone=el.cloneNode(true);for(const n of [clone,...clone.querySelectorAll('[id]')])n.removeAttribute('id');clone.querySelector('[data-editor-ui]')?.remove();el.after(clone);select(clone);changed()});
       button(fields,'刪除區塊',()=>{if(confirm('刪除此區塊及其內容？')){el.remove();select(blocks()[0]);changed()}});
@@ -162,5 +166,6 @@ export function bindBlocks(main,panel,changed){
       button(fields,'移除項目',()=>{if(rows.children.length>1&&confirm('移除所選項目？')){row().remove();api.refresh(main);select(el);changed()}}).disabled=rows.children.length===1;
     }
   }
+  main.addEventListener('yuanjie:media-inserted',event=>select(event.detail.block));
   select(blocks()[0]);
 }

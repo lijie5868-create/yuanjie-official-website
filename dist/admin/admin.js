@@ -1,4 +1,5 @@
-import {bindBlocks} from './block-editor.js?v=3';
+import {bindBlocks} from './block-editor.js?v=4';
+import {createFloatingEditor} from './floating-editor.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=4";
 
@@ -31,6 +32,7 @@ let adminActivityPage=1;
 let websiteActivityPage=1;
 const expandedPageGroups=new Set(['主要頁面']);
 const imageEditor=createImageEditor({frame:$('visualEditor'),supabase,onChange:target=>{pageDirty=true;recordCaseCardPhoto(target)},onMessage:message});
+const floatingEditor=createFloatingEditor({frame:$('visualEditor'),supabase,onChange:()=>{pageDirty=true},onMessage:message});
 const pageLayout=document.querySelector('.pages-layout');
 const pageResizer=$('pageResizer');
 const sidebarToggle=$('sidebarToggle');
@@ -300,7 +302,7 @@ async function editorDocument(page,html){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=11"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=11"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 async function loadEditor(page){
@@ -338,6 +340,7 @@ async function loadEditor(page){
       bindBlocks(main,$('blockPanel'),()=>{pageDirty=true});
     }else if(main)main.contentEditable='true';
     imageEditor.bindFrame();
+    floatingEditor.bindFrame();
     frame.contentDocument.addEventListener('click',event=>{
       if(main?.dataset.blockVersion && event.target.closest('button,a'))event.preventDefault();
     });
