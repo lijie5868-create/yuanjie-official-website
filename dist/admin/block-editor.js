@@ -12,25 +12,30 @@ export function bindBlocks(main,panel,changed){
   }
   const dragKey='application/x-yuanjie-project-block';
   let pending=null;
+  const blocks=()=>[...main.children].filter(el=>el.dataset.block);
+  const nextBlock=block=>blocks()[blocks().indexOf(block)+1]||null;
+  const fixed=el=>['cover','specs','footer'].includes(el?.dataset.block);
   function insert(type,before){
     const block=api.newBlock(doc,type);
     main.insertBefore(block,before);
     select(block);changed();block.scrollIntoView({block:'center'});
   }
   for(const [type,label] of Object.entries(api.types).slice(2)){
-    const tile=button(tools,label,()=>insert(type,active&&!fixed(active)?active.nextElementSibling:main.querySelector('[data-block="footer"]')));
+    const tile=button(tools,label,()=>insert(type,active&&!fixed(active)?nextBlock(active):main.querySelector('[data-block="footer"]')));
     tile.draggable=true;
     tile.ondragstart=e=>{pending={type};e.dataTransfer.setData(dragKey,type);e.dataTransfer.effectAllowed='copy'};
     tile.ondragend=()=>{pending=null;clearDrop()};
   }
   const clearDrop=()=>main.querySelectorAll('[data-drop]').forEach(n=>delete n.dataset.drop);
   function targetAt(e){
+    const slot=e.target.closest('.block-insert-slot');
+    if(slot)return nextBlock(slot.previousElementSibling);
     const block=e.target.closest('[data-block]');
     if(!block)return main.querySelector('[data-block="footer"]');
     if(['cover','specs'].includes(block.dataset.block))return blocks()[2]||null;
     if(block.dataset.block==='footer')return block;
     const rect=block.getBoundingClientRect();
-    return e.clientY<rect.top+rect.height/2?block:block.nextElementSibling;
+    return e.clientY<rect.top+rect.height/2?block:nextBlock(block);
   }
   main.addEventListener('dragover',e=>{
     if(!pending)return;
@@ -61,14 +66,37 @@ export function bindBlocks(main,panel,changed){
     grip.ondragend=()=>{pending=null;clearDrop()};
     block.prepend(grip);
   }
-  const style=doc.createElement('style');style.textContent='[data-block]{position:relative}[data-selected-block]{outline:2px solid #a68b65;outline-offset:3px}[data-drop=before]{box-shadow:inset 0 5px #49728c}[data-drop=after]{box-shadow:inset 0 -5px #49728c}[data-editor-ui]{display:block;border:0;background:#ece6dc;color:#574531;padding:6px 12px;cursor:grab;margin-bottom:12px}[contenteditable]:focus{outline:1px solid #ad9370}';doc.head.append(style);
+  const style=doc.createElement('style');style.textContent='[data-block]{position:relative}[data-selected-block]{outline:2px solid #a68b65;outline-offset:3px}[data-drop=before]{box-shadow:inset 0 5px #49728c}[data-drop=after]{box-shadow:inset 0 -5px #49728c}[data-editor-ui]:not(.block-insert-slot){display:block;border:0;background:#ece6dc;color:#574531;padding:6px 12px;cursor:grab;margin-bottom:12px}[contenteditable]:focus{outline:1px solid #ad9370}.block-insert-slot{position:relative;display:flex;justify-content:center;align-items:center;height:48px;margin:-24px 0;z-index:3;pointer-events:none}.block-insert-slot:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed #b9b5ab;opacity:.7}.block-insert-toggle{position:relative;width:34px;height:34px;border:1px solid #a88a61;border-radius:50%;background:#fff;color:#6f5634;font:600 24px/1 sans-serif;cursor:pointer;box-shadow:0 3px 12px #0002;pointer-events:auto}.block-insert-toggle:hover,.block-insert-toggle[aria-expanded=true]{background:#4a6984;color:#fff;border-color:#4a6984}.block-insert-menu{position:absolute;left:50%;top:calc(50% + 22px);transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(340px,calc(100vw - 38px));padding:12px;border:1px solid #c9c5bc;border-radius:12px;background:#fff;box-shadow:0 12px 32px #0003;pointer-events:auto}.block-insert-menu[hidden]{display:none}.block-insert-menu strong{grid-column:1/-1;font:600 14px/1.4 sans-serif;color:#344d60;margin-bottom:3px}.block-insert-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:9px 7px;font:14px/1.3 sans-serif;cursor:pointer}.block-insert-menu button:hover,.block-insert-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}@media(max-width:600px){.block-insert-slot{height:42px;margin:-21px 0}.block-insert-menu{grid-template-columns:1fr 1fr}}';doc.head.append(style);
   const heading=document.createElement('summary');heading.textContent='拖曳元件到預覽頁面，或點選元件加入';panel.append(heading,tools,list,fields);
   let active,dragged;
-  const blocks=()=>[...main.children].filter(el=>el.dataset.block);
-  const fixed=el=>['cover','specs','footer'].includes(el?.dataset.block);
+  function renderInsertControls(){
+    main.querySelectorAll(':scope > .block-insert-slot').forEach(slot=>slot.remove());
+    for(const block of blocks()){
+      if(['cover','footer'].includes(block.dataset.block))continue;
+      const slot=doc.createElement('div');slot.className='block-insert-slot';slot.dataset.editorUi='';
+      const toggle=doc.createElement('button');toggle.type='button';toggle.className='block-insert-toggle';toggle.textContent='+';
+      toggle.setAttribute('aria-label',`在「${api.types[block.dataset.block]||'此區塊'}」後新增區塊`);
+      toggle.setAttribute('aria-expanded','false');
+      const menu=doc.createElement('div');menu.className='block-insert-menu';menu.hidden=true;
+      const title=doc.createElement('strong');title.textContent='在此處新增區塊';menu.append(title);
+      for(const [type,label] of Object.entries(api.types).slice(2))button(menu,label,()=>insert(type,nextBlock(block)));
+      toggle.onclick=()=>{
+        const open=menu.hidden;
+        main.querySelectorAll('.block-insert-menu').forEach(other=>{other.hidden=true;other.previousElementSibling?.setAttribute('aria-expanded','false')});
+        menu.hidden=!open;toggle.setAttribute('aria-expanded',String(open));
+      };
+      slot.append(toggle,menu);block.after(slot);
+    }
+  }
+  doc.addEventListener('click',e=>{
+    if(e.target.closest('.block-insert-slot'))return;
+    main.querySelectorAll('.block-insert-menu').forEach(menu=>{menu.hidden=true;menu.previousElementSibling?.setAttribute('aria-expanded','false')});
+  });
+  doc.addEventListener('keydown',e=>{if(e.key==='Escape')main.querySelectorAll('.block-insert-menu').forEach(menu=>{menu.hidden=true;menu.previousElementSibling?.setAttribute('aria-expanded','false')})});
   function select(el){
     active=el;list.replaceChildren();fields.replaceChildren();
     for(const block of blocks()){block.toggleAttribute('data-selected-block',block===el);decorate(block)}
+    renderInsertControls();
     for(const block of blocks()){
       const b=button(list,api.types[block.dataset.block]||'頁尾備註',()=>select(block));
       b.setAttribute('aria-pressed',String(active===block));b.draggable=!fixed(block);

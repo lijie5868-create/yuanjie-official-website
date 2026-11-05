@@ -1,4 +1,4 @@
-import {bindBlocks} from './block-editor.js?v=2';
+import {bindBlocks} from './block-editor.js?v=3';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=4";
 
