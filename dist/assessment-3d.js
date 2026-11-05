@@ -10,6 +10,7 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   renderer.setSize(260,260,false);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(35,1,.1,30);
   camera.position.set(0,0,8);
@@ -22,10 +23,36 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
   const material=new THREE.MeshStandardMaterial({color:0xc5a880,metalness:.42,roughness:.3});
   const dummy=new THREE.Object3D();
   const gold=new THREE.Color(0xc5a880),ink=new THREE.Color(0x111111);
-  let mesh,from=[],to=[],ready=false,playing=false,raf=0,start=0;
+  let mesh,logoObject,from=[],to=[],ready=false,playing=false,raf=0,start=0;
+  const logoMaterial=new THREE.MeshPhysicalMaterial({color:0xc5a880,metalness:.55,roughness:.27,clearcoat:.9,clearcoatRoughness:.15,transparent:true});
   const qrFace=new THREE.Mesh(new THREE.BoxGeometry(3.57,3.57,.055),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}));
   qrFace.position.z=-.035;scene.add(qrFace);
   let centerBadge;
+  const solidLogo=img=>{
+    const n=112,c=document.createElement('canvas');c.width=c.height=n;
+    const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0,n,n);
+    const pixels=cx.getImageData(0,0,n,n).data;
+    const filled=(x,y)=>x>=0&&y>=0&&x<n&&y<n&&pixels[(y*n+x)*4+3]>130&&pixels[(y*n+x)*4]>75;
+    const vertices=[],normals=[];
+    const quad=(a,b,d,e,normal)=>{
+      for(const p of [a,b,d,a,d,e]){vertices.push(...p);normals.push(...normal)}
+    };
+    const s=3.7/n,front=.19,back=-.16;
+    for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+      if(!filled(x,y))continue;
+      const l=(x-n/2)*s,r=l+s,t=(n/2-y)*s,b=t-s;
+      quad([l,b,front],[r,b,front],[r,t,front],[l,t,front],[0,0,1]);
+      quad([r,b,back],[l,b,back],[l,t,back],[r,t,back],[0,0,-1]);
+      if(!filled(x-1,y))quad([l,b,back],[l,b,front],[l,t,front],[l,t,back],[-1,0,0]);
+      if(!filled(x+1,y))quad([r,b,front],[r,b,back],[r,t,back],[r,t,front],[1,0,0]);
+      if(!filled(x,y-1))quad([l,t,front],[r,t,front],[r,t,back],[l,t,back],[0,1,0]);
+      if(!filled(x,y+1))quad([l,b,back],[r,b,back],[r,b,front],[l,b,front],[0,-1,0]);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+    g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+    return new THREE.Mesh(g,logoMaterial);
+  };
   const points=(img,kind)=>{
     const side=kind==='qr'?33:72;
     const sample=document.createElement('canvas');sample.width=sample.height=side;
@@ -46,6 +73,7 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
   Promise.all([logo.decode(),qr.decode()]).then(()=>{
     from=points(logo,'logo');to=points(qr,'qr');
     if(!from.length||!to.length)throw Error('Empty logo or QR geometry');
+    logoObject=solidLogo(logo);scene.add(logoObject);
     const count=Math.max(from.length,to.length);
     mesh=new THREE.InstancedMesh(geometry,material,count);
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -65,22 +93,31 @@ export function initAssessment3D({assessment,qr,trigger,frame}){
   const draw=now=>{
     if(!playing)return;
     const t=Math.min((now-start)/3000,1);
-    const morph=ease(Math.min(Math.max((t-.43)/.46,0),1));
-    const spin=(1-ease(Math.min(t/.55,1)))*.75;
-    mesh.rotation.y=spin;
-    mesh.rotation.x=(1-ease(Math.min(t/.6,1)))*-.2;
-    const qrAppear=ease(Math.min(Math.max((t-.65)/.35,0),1));
+    const release=ease(Math.min(Math.max((t-.3)/.2,0),1));
+    const morph=ease(Math.min(Math.max((t-.43)/.47,0),1));
+    const spin=(1-ease(Math.min(t/.43,1)))*.75;
+    logoObject.rotation.y=(1-ease(Math.min(t/.35,1)))*-.65+Math.sin(t*5)*.07;
+    logoObject.rotation.x=(1-ease(Math.min(t/.4,1)))*.28;
+    logoObject.position.y=Math.sin(t*6)*.035;
+    logoObject.scale.setScalar(1-release*.08);
+    logoMaterial.opacity=1-release;
+    logoObject.visible=release<1;
+    mesh.visible=release>0;
+    mesh.rotation.y=spin*release;
+    mesh.rotation.x=0;
+    const qrAppear=ease(Math.min(Math.max((t-.7)/.22,0),1));
     qrFace.material.opacity=qrAppear;
     centerBadge.material[4].opacity=qrAppear;
     for(let i=0;i<mesh.count;i++){
       const a=from[i%from.length],b=to[i%to.length];
-      const ripple=Math.sin(i*1.731)*.34*Math.sin(Math.PI*morph);
-      dummy.position.set(THREE.MathUtils.lerp(a.x,b.x,morph)+ripple,THREE.MathUtils.lerp(a.y,b.y,morph)+Math.cos(i*.91)*.25*Math.sin(Math.PI*morph),Math.sin(i*.27)*.22*(1-morph)+Math.sin(Math.PI*morph)*.55);
+      const path=Math.sin(Math.PI*morph),angle=i*2.39996;
+      const ripple=Math.cos(angle+t*12)*.52*path;
+      dummy.position.set(THREE.MathUtils.lerp(a.x,b.x,morph)+ripple,THREE.MathUtils.lerp(a.y,b.y,morph)+Math.sin(angle+t*12)*.52*path,Math.sin(i*.27)*.15*(1-morph)+path*(.45+Math.sin(i*.73)*.28));
       const logoSize=3.5/72*.88;
       const qrSize=3.5/33*.995;
-      const size=THREE.MathUtils.lerp(logoSize,qrSize,morph)*(i>=to.length?1-morph:1);
+      const size=THREE.MathUtils.lerp(logoSize,qrSize,morph)*(i>=to.length?1-morph:1)*release;
       dummy.scale.set(size,size,THREE.MathUtils.lerp(.18,.085,morph));
-      dummy.rotation.set(0,spin*(1-morph),0);dummy.updateMatrix();
+      dummy.rotation.set(path*Math.sin(angle)*1.8,spin*(1-morph)+path*Math.cos(angle)*1.4,path*angle);dummy.updateMatrix();
       mesh.setMatrixAt(i,dummy.matrix);
       mesh.setColorAt(i,gold.clone().lerp(ink,morph));
     }

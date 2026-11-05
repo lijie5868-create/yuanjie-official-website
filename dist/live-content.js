@@ -58,7 +58,7 @@
       frame.className='assessment-qr-stage';
       qr.replaceWith(frame);
       frame.append(qr);
-      import('./assessment-3d.js?v=2').then(module=>module.initAssessment3D({assessment,qr,trigger,frame})).catch(error=>console.warn('Assessment animation unavailable; QR code remains visible.',error));
+      import('./assessment-3d.js?v=3').then(module=>module.initAssessment3D({assessment,qr,trigger,frame})).catch(error=>console.warn('Assessment animation unavailable; QR code remains visible.',error));
     }
   }
 })();
