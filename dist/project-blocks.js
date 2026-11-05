@@ -66,13 +66,25 @@ window.ProjectBlocks = (() => {
   }
   function layoutProfiles(main){
     for(const profile of main.querySelectorAll('[data-block="specs"] .case-overview > div')){
-      if(profile.querySelector(':scope > .case-profile-summary'))continue;
       const details=profile.querySelector(':scope > dl.specs');
       if(!details)continue;
-      const summary=main.ownerDocument.createElement('div');
-      summary.className='case-profile-summary';
-      for(const child of [...profile.children])if(child!==details)summary.append(child);
-      profile.insertBefore(summary,details);
+      let summary=profile.querySelector(':scope > .case-profile-summary');
+      if(!summary){
+        summary=main.ownerDocument.createElement('div');
+        summary.className='case-profile-summary';
+        for(const child of [...profile.children])if(child!==details)summary.append(child);
+        profile.insertBefore(summary,details);
+      }
+      if(!summary.querySelector(':scope > .case-amount')){
+        const salesRow=[...details.children].find(row=>row.querySelector('dt')?.textContent.trim().startsWith('預估總銷'));
+        const sales=salesRow?.querySelector('dd')?.textContent.trim();
+        if(sales){
+          const amount=main.ownerDocument.createElement('div');amount.className='case-amount';amount.textContent=sales;
+          const caption=main.ownerDocument.createElement('p');caption.textContent='預估總銷售額';
+          summary.append(amount,caption);
+          salesRow.remove();
+        }
+      }
       const amount=summary.querySelector(':scope > .case-amount');
       const label=amount?.previousElementSibling;
       if(label?.tagName==='P')amount.after(label);
