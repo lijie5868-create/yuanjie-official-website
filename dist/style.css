@@ -468,3 +468,11 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
  .about-page .value-card img{height:175px;margin:0 0 10px}
  .about-page .value-card dt{font-size:22px}
 }
+
+/* Rounded, tactile Q&A search field based on the supplied Uiverse pattern. */
+.search{
+ display:block;width:100%;margin-top:8px;background:#E5E8EA;border:0;
+ padding:1rem;font:1rem inherit;color:var(--ink);border-radius:1rem;
+ box-shadow:0 .4rem #CFD4D7;cursor:text;
+}
+.search:focus{outline:2px solid #4A6984;outline-offset:3px}
