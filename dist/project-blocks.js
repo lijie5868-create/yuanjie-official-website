@@ -42,7 +42,17 @@ window.ProjectBlocks = (() => {
   function formatCardFacts(root){
     for(const card of root.querySelectorAll('.case-card')){
       const copy=card.querySelector('.case-card-copy');
-      if(!copy||copy.querySelector('.case-card-stats'))continue;
+      if(!copy)continue;
+      const location=copy.querySelector(':scope > .project-location');
+      const note=copy.querySelector(':scope > .case-card-stats + small, :scope > .case-card-note');
+      if(location&&note){
+        const inline=copy.ownerDocument.createElement('small');
+        inline.className='case-card-inline-note';
+        inline.textContent=note.textContent.trim();
+        location.append(inline);
+        note.remove();
+      }
+      if(copy.querySelector('.case-card-stats'))continue;
       const paragraphs=[...copy.querySelectorAll(':scope > p:not(.project-location)')];
       const areaLine=paragraphs.find(node=>/^基地\s*.+[|｜]\s*.+戶/.test(node.textContent.trim()));
       const salesLine=paragraphs.find(node=>/^預估總銷\s*.+/.test(node.textContent.trim()));
