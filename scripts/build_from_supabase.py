@@ -39,7 +39,16 @@ def format_case_card_facts(source):
         area,homes,sales=match.groups()
         return ('<div class="case-card-stats">'+stat('area','基地',area)
                 +stat('homes','戶數',homes)+stat('sales','預估總銷',sales)+'</div>')
-    return re.sub(pattern,format_match,source)
+    source=re.sub(pattern,format_match,source)
+    def place_note(match):
+        card=match.group(0)
+        if 'case-card-inline-note' in card: return card
+        note=re.search(r'<div class="case-card-stats">.*?</div>(<small>([^<]+)</small>)',card,re.S)
+        location=re.search(r'</p>(?=<div class="case-card-stats">)',card)
+        if not note or not location: return card
+        card=card.replace(note.group(1),'',1)
+        return card[:location.start()]+f'<small class="case-card-inline-note">{note.group(2)}</small>'+card[location.start():]
+    return re.sub(r'<a class="case-card".*?</a>',place_note,source,flags=re.S)
 if not URL or not KEY:
     print('Supabase variables not configured; keeping checked-in published site unchanged.'); raise SystemExit(0)
 pages=fetch('published_pages')

@@ -352,7 +352,8 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .case-card-stat-copy{display:grid;gap:2px;min-width:0}
 .case-card-stat-copy small{margin:0;color:#7d8586;font-size:11px;line-height:1.25;letter-spacing:.04em;white-space:nowrap}
 .case-card-stat-copy strong{font-size:clamp(13px,1.2vw,16px);font-weight:600;line-height:1.35;white-space:nowrap}
-.case-card .project-location .case-card-inline-note{align-self:center;display:inline-block;min-height:0;margin:0 0 0 auto;padding:0;border:0;border-radius:0;background:none;color:#687a84;font-size:12px;font-weight:400;line-height:1.4;letter-spacing:0;text-align:right;white-space:normal}
+.case-card .project-location:has(.case-card-inline-note){display:grid;grid-template-columns:max-content max-content minmax(0,1fr);align-items:center}
+.case-card .project-location .case-card-inline-note{display:block;width:100%;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:0;background:none;color:#687a84;font-size:12px;font-weight:400;line-height:1.4;letter-spacing:0;text-align:right;white-space:normal}
 :is(.urban-page,.renewal-page) .case-grid .case-card{align-self:start}
 :is(.urban-page,.renewal-page) .case-grid .case-card-copy{flex:0 0 auto;padding-bottom:10px}
 :is(.urban-page,.renewal-page) .case-card .eyebrow{line-height:1.4}
