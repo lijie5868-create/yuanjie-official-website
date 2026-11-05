@@ -601,12 +601,63 @@ function groupedActivityRecords(records){
   const groups=new Map();
   records.forEach(record=>{
     const key=`${record.transaction_id}:${record.action}`;
-    if(!groups.has(key))groups.set(key,{...record,targets:[],fields:new Set()});
+    if(!groups.has(key))groups.set(key,{...record,targets:[],fields:new Set(),recordIds:[]});
     const group=groups.get(key);
+    group.recordIds.push(record.id);
     if(record.entity_label&&!group.targets.includes(record.entity_label))group.targets.push(record.entity_label);
     (record.changed_fields||[]).forEach(field=>group.fields.add(field));
   });
   return [...groups.values()];
+}
+
+function compactLogText(value,limit=80){
+  const text=String(value??'').replace(/\s+/g,' ').trim();
+  return text.length>limit?`${text.slice(0,limit)}…`:text||'（空白）';
+}
+
+function changedText(before,after){
+  let start=0;
+  while(start<before.length&&start<after.length&&before[start]===after[start])start++;
+  let endBefore=before.length,endAfter=after.length;
+  while(endBefore>start&&endAfter>start&&before[endBefore-1]===after[endAfter-1]){endBefore--;endAfter--}
+  return `「${compactLogText(before.slice(start,endBefore))}」→「${compactLogText(after.slice(start,endAfter))}」`;
+}
+
+function describeActivityRecord(record){
+  const before=record.before_data||{},after=record.after_data||{};
+  const details=[];
+  for(const field of record.changed_fields||[]){
+    if(field==='main_html'){
+      const oldDoc=new DOMParser().parseFromString(before.main_html||'','text/html');
+      const newDoc=new DOMParser().parseFromString(after.main_html||'','text/html');
+      const oldText=oldDoc.body.textContent.replace(/\s+/g,' ').trim();
+      const newText=newDoc.body.textContent.replace(/\s+/g,' ').trim();
+      if(oldText!==newText)details.push(`頁面文字：${changedText(oldText,newText)}`);
+      const oldImages=[...oldDoc.images].map(image=>image.getAttribute('src'));
+      const newImages=[...newDoc.images].map(image=>image.getAttribute('src'));
+      if(JSON.stringify(oldImages)!==JSON.stringify(newImages))details.push(`圖片：${oldImages.length} 張 → ${newImages.length} 張（含更換）`);
+      if(oldText===newText&&JSON.stringify(oldImages)===JSON.stringify(newImages))details.push('頁面版面或格式已調整，文字與圖片未變');
+    }else if(['title','meta_description','label','subtitle','href','file_name','nav_order','is_visible'].includes(field)){
+      details.push(`${activityFieldLabels[field]||field}：${changedText(String(before[field]??''),String(after[field]??''))}`);
+    }
+  }
+  return details;
+}
+
+async function loadActivityDetails(groups){
+  const ids=groups.flatMap(group=>group.recordIds);
+  if(!ids.length)return;
+  const {data,error}=await supabase.from('admin_activity_log').select('id,changed_fields,before_data,after_data').in('id',ids);
+  if(error)return;
+  const byId=new Map((data||[]).map(record=>[record.id,record]));
+  for(const group of groups){
+    const target=document.querySelector(`[data-activity-detail="${group.id}"]`);
+    if(!target)return;
+    const details=group.recordIds.flatMap(id=>describeActivityRecord(byId.get(id)||{changed_fields:[]}));
+    target.replaceChildren(...(details.length?details:['這次操作未變更可見文字或圖片。']).map(detail=>{
+      const line=document.createElement('span');line.textContent=detail;return line;
+    }));
+  }
 }
 
 function renderPagination(containerId,currentPage,totalItems,onSelect){
@@ -675,10 +726,14 @@ function renderActivity(){
     const fields=document.createElement('p');
     const fieldNames=[...group.fields].map(field=>activityFieldLabels[field]||field);
     fields.textContent=fieldNames.length?`變更：${fieldNames.join('、')}`:'完成重新發布';
+    const detail=document.createElement('p');
+    detail.className='activity-detail';
+    detail.dataset.activityDetail=group.id;
+    detail.textContent='正在整理具體變更…';
     const actor=document.createElement('p');
     actor.className='activity-actor';
     actor.textContent=`管理員：${group.actor_email}`;
-    article.append(heading,target,fields,actor);
+    article.append(heading,target,fields,detail,actor);
     return article;
   });
   if(!entries.length){
@@ -688,6 +743,7 @@ function renderActivity(){
     entries.push(empty);
   }
   $('activityList').replaceChildren(...entries);
+  loadActivityDetails(visible).catch(()=>{});
   $('adminActivityCount').textContent=logRangeLabel(adminActivityPage,groups.length);
   renderPagination('adminActivityPagination',adminActivityPage,groups.length,page=>{
     adminActivityPage=page;
@@ -716,7 +772,14 @@ function renderVersions(){
     const summaryEn=document.createElement('p');
     summaryEn.lang='en';
     summaryEn.textContent=version.summary;
-    copy.append(summaryZh,summaryEn);
+    copy.append(summaryZh);
+    if(version.summary!==summaryZh.textContent)copy.append(summaryEn);
+    if(version.details?.length){
+      const details=document.createElement('ul');
+      details.className='version-details';
+      version.details.forEach(line=>{const item=document.createElement('li');item.textContent=line;details.append(item)});
+      copy.append(details);
+    }
     const commit=document.createElement('code');
     commit.textContent=version.short_commit;
     article.append(time,copy,commit);

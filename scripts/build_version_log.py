@@ -29,6 +29,7 @@ COMMIT_TRANSLATIONS = {
 }
 
 SUMMARY_TRANSLATIONS = {
+    "Add Q&A entry creation in admin editor": "後台問與答新增問題、分類與回答的建立入口",
     "Configure GitHub Pages deployment": "建立 GitHub Pages 自動部署流程",
     "Add Supabase-powered website CMS": "建立 Supabase 網站後台，加入草稿與發布功能",
     "Hide CMS editor until authenticated": "加強後台登入保護，未驗證前不顯示編輯器",
@@ -124,7 +125,7 @@ def main():
             "log",
             "main",
             "--date=iso-strict",
-            "--pretty=format:%H%x1f%h%x1f%cI%x1f%s%x1e",
+            "--pretty=format:%H%x1f%h%x1f%cI%x1f%s%x1f%b%x1e",
         ],
         cwd=ROOT,
         text=True,
@@ -133,7 +134,7 @@ def main():
     for record in raw.strip("\x1e\n").split("\x1e"):
         if not record.strip():
             continue
-        commit, short_commit, committed_at, summary = record.strip().split("\x1f", 3)
+        commit, short_commit, committed_at, summary, body = record.strip("\n").split("\x1f", 4)
         versions.append(
             {
                 "commit": commit,
@@ -141,6 +142,7 @@ def main():
                 "committed_at": committed_at,
                 "summary": summary,
                 "summary_zh": translate_summary(short_commit, summary),
+                "details": [line.lstrip("- ").strip() for line in body.splitlines() if line.strip()],
             }
         )
     OUTPUT.write_text(

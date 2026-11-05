@@ -15,6 +15,7 @@
 每次開始處理本專案的請求（包含檢查、回答現況與修改）時，自動檢查公開網站與同層私人備份兩庫的 `git status --short --branch`，並對兩庫執行 `git fetch origin`。若位於乾淨的 `main` 且僅落後於 `origin/main`，自動執行 `git pull --ff-only`，不必等待使用者另行要求同步。若有未提交修改、分支分歧或無法快轉，保留現場並向使用者說明；不要強制覆蓋。
 
 1. 閱讀本庫 `README.md` 和私人庫的完整維運文件。
+   每次接到新的修改任務，都要在動手前重新閱讀私人庫 `AGENTS.md`、`docs/DEVELOPMENT.md`、`docs/ADMIN-GUIDE.md`、`docs/BACKUP-RESTORE.md`、`docs/NEW-COMPUTER-HANDOFF.md` 與 `CHANGELOG.md` 的相關現況；不能只憑前次聊天記憶或只查程式片段。
 2. 每次在任何電腦開始修改前，先執行 `git status --short --branch` 與 `git fetch origin`，比較本機分支和 `origin/main`；保留使用者尚未提交的修改。
 3. 若工作目錄乾淨且本機 `main` 落後於 `origin/main`，先執行 `git pull --ff-only` 再修改。若有未提交修改、分支分歧或無法快轉，先查明並安全處理，不得強制覆蓋或重置使用者資料。
 4. 需要修改 Supabase 前，先核對 production project ref，避免操作其他專案。
@@ -27,6 +28,7 @@
 - 網站靜態輸出位於 `dist/`；不要只修改來源而漏掉正式部署檔案。
 - 圖片放在 `dist/assets/`，並保持 HTML/CSS 的相對路徑可用。
 - 發布前執行 `git diff --check`，並按私人庫的維運文件更新備份。
+- 每次修改完成時，在私人庫 `CHANGELOG.md` 記下具體變更、受影響頁面或功能、驗證結果與未驗證限制。網站程式提交訊息及內文也要讓後台「工程日誌 → 網站更新」讀得出實際改動，避免只寫「修正功能」「調整版面」。後台「管理員操作」須顯示內容變更摘要，不能只列「頁面內容」等欄位名稱；完整前後快照仍保留在資料庫。
 - 檢查首頁、主要內頁、手機版與 `/admin/`。
 - Supabase schema 變更必須有 `supabase/migrations/` migration；Edge Function 若未來建立，原始碼必須放進 `supabase/functions/<slug>/`。
 

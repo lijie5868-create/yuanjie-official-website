@@ -1,576 +1,1206 @@
 [
   {
+    "commit": "fc1d7c4632a0664b4b0af8cb43fdec7c67415317",
+    "short_commit": "fc1d7c4",
+    "committed_at": "2026-11-05T17:17:28+08:00",
+    "summary": "Add Q&A entry creation in admin editor",
+    "summary_zh": "後台問與答新增問題、分類與回答的建立入口",
+    "details": []
+  },
+  {
+    "commit": "b7d9cc62cffa4ba7b0e823ee00587ce8c640070d",
+    "short_commit": "b7d9cc6",
+    "committed_at": "2026-11-05T17:09:30+08:00",
+    "summary": "docs: enforce canonical project URL checks",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "80dbc089adb059fadfd65a51ebfab16c93cd4348",
+    "short_commit": "80dbc08",
+    "committed_at": "2026-11-05T17:03:45+08:00",
+    "summary": "feat: standardize project detail URLs with legacy aliases",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "43fb177ee237a70a655322cfb8567c0c297064dd",
+    "short_commit": "43fb177",
+    "committed_at": "2026-11-05T16:44:23+08:00",
+    "summary": "feat: add collapsible admin page sidebar",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "9bc08016a6d64cd1f99d434635552739e6f44fd2",
+    "short_commit": "9bc0801",
+    "committed_at": "2026-11-05T16:34:22+08:00",
+    "summary": "fix: align card facts and show managed project metrics",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "2875864dd1ef4f731d7395955238fa86efb7c0d8",
+    "short_commit": "2875864",
+    "committed_at": "2026-11-05T16:09:12+08:00",
+    "summary": "style: align project note above card facts",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "07d67abeb8f21d4b03122a21c01a41169e3003a5",
+    "short_commit": "07d67ab",
+    "committed_at": "2026-11-05T16:04:54+08:00",
+    "summary": "fix: place cover photo replacement button on image",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "d0cc73f23d8fd64eeb54ad5e4622db0a8af1733b",
+    "short_commit": "d0cc73f",
+    "committed_at": "2026-11-05T15:56:10+08:00",
+    "summary": "fix: render project card facts during static deployment",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "58d31103e58396fb9d77d093bbaf8ac7ca9e5520",
+    "short_commit": "58d3110",
+    "committed_at": "2026-11-05T15:54:05+08:00",
+    "summary": "style: show project card facts in one icon row",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "dad53120fe630eaf8699d266d685f90eede2e9dd",
+    "short_commit": "dad5312",
+    "committed_at": "2026-11-05T15:47:05+08:00",
+    "summary": "style: refine project feature card proportions and typography",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "4aff8cbefc37a244ba892dabbd509fca80df7fce",
+    "short_commit": "4aff8cb",
+    "committed_at": "2026-11-05T15:41:11+08:00",
+    "summary": "fix: allow uploading photos to placeholder project cards",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "71b2e5592a6dc33e23fdddc86e2de8d082053f95",
+    "short_commit": "71b2e55",
+    "committed_at": "2026-11-05T15:33:38+08:00",
+    "summary": "Use brand cards for case highlights",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "b7d4230f2e0b50c5e7b582951f4276e59f797f80",
+    "short_commit": "b7d4230",
+    "committed_at": "2026-11-05T15:17:28+08:00",
+    "summary": "Refine case highlight layout",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "db9036aa343898080b305709f4e3d6faaf974aab",
+    "short_commit": "db9036a",
+    "committed_at": "2026-11-05T15:09:43+08:00",
+    "summary": "Allow managed cases without project photos",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "80e633660e96c311fbd719db1e029bb7ad050381",
+    "short_commit": "80e6336",
+    "committed_at": "2026-11-05T14:49:11+08:00",
+    "summary": "Enable photo replacement from case listing editor",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "3e55d883afc6949e35a08bc80298453b8569a32f",
+    "short_commit": "3e55d88",
+    "committed_at": "2026-11-05T14:36:06+08:00",
+    "summary": "Simplify holographic estimate layout",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "ab91c533cf9432d3cdf07bfacf98f1ae7a6abf60",
+    "short_commit": "ab91c53",
+    "committed_at": "2026-11-05T14:28:56+08:00",
+    "summary": "Replace case count-up with gold holographic amount",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "89780fe496c54f7d04355d4a5be68d29489c7ab0",
+    "short_commit": "89780fe",
+    "committed_at": "2026-11-05T14:23:37+08:00",
+    "summary": "Animate case sales estimates on view",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "3fedcfd21aed4d58928f5514833ba15194a7ec88",
+    "short_commit": "3fedcfd",
+    "committed_at": "2026-11-05T14:16:34+08:00",
+    "summary": "Emphasize case estimates and redesign feature lists",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "ef7300ece699f586e2f6f1c16caa4799f5173c98",
+    "short_commit": "ef7300e",
+    "committed_at": "2026-11-05T14:04:55+08:00",
+    "summary": "Refine case detail facts layout",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "ee10742b360c38e255b8314499c25bf500284de1",
+    "short_commit": "ee10742",
+    "committed_at": "2026-11-05T14:00:02+08:00",
+    "summary": "Compose ordered case components inside the new project dialog",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "ea78ba7a50add8fb30980491fd677dcc639415cd",
+    "short_commit": "ea78ba7",
+    "committed_at": "2026-11-05T13:56:24+08:00",
+    "summary": "Redesign case detail chapters and add direct canvas placement",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "334357e39330a381460381c1691e5f11df3887de",
+    "short_commit": "334357e",
+    "committed_at": "2026-11-05T13:48:14+08:00",
+    "summary": "Add shared project components and visual block editor",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "63d085cfc0b8b4725ba45db977e8bf9f763b511e",
+    "short_commit": "63d085c",
+    "committed_at": "2026-11-05T13:36:18+08:00",
+    "summary": "style: place new project action inside project folder",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "3f6ffaa1382494d7d2805fbf877761b79740c2e2",
+    "short_commit": "3f6ffaa",
+    "committed_at": "2026-11-05T13:31:18+08:00",
+    "summary": "feat: let admins create and publish project pages",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "c3dbf7d1bee115151f79eedd9a63f3fe1ca22d3d",
+    "short_commit": "c3dbf7d",
+    "committed_at": "2026-11-05T13:18:58+08:00",
+    "summary": "style: tighten mobile filter groups",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "74eaa6bb756f6908437495e21001fafd9316f125",
+    "short_commit": "74eaa6b",
+    "committed_at": "2026-11-05T13:14:28+08:00",
+    "summary": "style: fix mobile urban project filters",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "c030d1ddd75d51de938c1a417d5d3932d5e883a3",
+    "short_commit": "c030d1d",
+    "committed_at": "2026-11-05T13:08:32+08:00",
+    "summary": "feat: add mobile LINE contact link to assessment dialog",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "3b81d285f05d8df17c1e63c3eae985e25e15efe7",
+    "short_commit": "3b81d28",
+    "committed_at": "2026-11-05T13:00:33+08:00",
+    "summary": "style: align team press photo thumbnails",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "e5316cc781b3cec88f4a9d342f8a238274a4c427",
+    "short_commit": "e5316cc",
+    "committed_at": "2026-11-05T12:57:57+08:00",
+    "summary": "style: match team photo width to project feature",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "7112b1bd04f60ba58d738e78588aac52361ead48",
+    "short_commit": "7112b1b",
+    "committed_at": "2026-11-05T12:55:44+08:00",
+    "summary": "style: match team section accent to project section",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "7dbd4556ab8a3c94cd9caa8b0c36870c06877d89",
+    "short_commit": "7dbd455",
+    "committed_at": "2026-11-05T12:51:55+08:00",
+    "summary": "style: restore original desktop navigation",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "40e1f5b089985192a2bb32fb194dea333875be0d",
+    "short_commit": "40e1f5b",
+    "committed_at": "2026-11-05T12:48:45+08:00",
+    "summary": "style: replace nav frame with expanding pill CTA",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "6e37ce695007832314fbcdee3e3878a0d90edb11",
+    "short_commit": "6e37ce6",
+    "committed_at": "2026-11-05T12:45:25+08:00",
+    "summary": "style: animate frame around desktop navigation links",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "ef211c227a827a07e3fc2417bb190976d4fbe3e0",
+    "short_commit": "ef211c2",
+    "committed_at": "2026-11-05T12:37:41+08:00",
+    "summary": "fix: compare equivalent link text before live replacement",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "0e067607bc3249b55e08297f3789dab01a818fc1",
+    "short_commit": "0e06760",
+    "committed_at": "2026-11-05T12:37:29+08:00",
+    "summary": "fix: retain immediate updates for content-only page changes",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "88585d9b26f844a7e511224db8e9c27f69c63771",
+    "short_commit": "88585d9",
+    "committed_at": "2026-11-05T12:37:08+08:00",
+    "summary": "fix: align link text layers and avoid redundant page replacement",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "939bfe616136f615a2de02a52754b6f407c8cf0b",
+    "short_commit": "939bfe6",
+    "committed_at": "2026-11-05T12:31:53+08:00",
+    "summary": "style: bring team link underline closer to text",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "266a1836636fd22f7f349d6328fad6e7b2e5bc46",
+    "short_commit": "266a183",
+    "committed_at": "2026-11-05T12:29:27+08:00",
+    "summary": "fix: align animated links in team profiles",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "b4d96773bd727c661219c5cebfa72d8b840365f9",
+    "short_commit": "b4d9677",
+    "committed_at": "2026-11-05T12:27:00+08:00",
+    "summary": "style: use brand gold on animated link hover",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "8957d9c6c73413b41a01960c64c55760572b6b6f",
+    "short_commit": "8957d9c",
+    "committed_at": "2026-11-05T12:24:28+08:00",
+    "summary": "style: animate underlined text links",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "1b53b327a45b49e7e7961a4050c5638de8f83634",
+    "short_commit": "1b53b32",
+    "committed_at": "2026-11-05T12:16:41+08:00",
+    "summary": "fix: preserve frontend layouts in admin editor preview",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "dce9276a12200f86bfbe6410e418076b44d9217c",
+    "short_commit": "dce9276",
+    "committed_at": "2026-11-05T12:12:19+08:00",
+    "summary": "docs: require admin editor checks for frontend changes",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "5a4300b858ae999f764d80025e4f6089bee9be31",
+    "short_commit": "5a4300b",
+    "committed_at": "2026-11-05T11:58:38+08:00",
+    "summary": "revert: restore plain assessment QR code",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "c1cdc71a49234efcc9040c26c6a37dc549ee7222",
+    "short_commit": "c1cdc71",
+    "committed_at": "2026-11-05T11:56:02+08:00",
+    "summary": "fix: keep QR base visible as logo retracts and base turns",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "82802f2dca7f85d7bd682d0f2a8208d9a0ecb3c8",
+    "short_commit": "82802f2",
+    "committed_at": "2026-11-05T11:50:14+08:00",
+    "summary": "feat: form smooth 3D logo before QR transformation",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "3cf3881b914cae154fc842d885f973fdf5526e68",
+    "short_commit": "3cf3881",
+    "committed_at": "2026-11-05T11:44:18+08:00",
+    "summary": "refine: keep assessment QR as 3D geometry",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "5e8a601c9e4eae415e9f116e47a70443a5bc70ed",
+    "short_commit": "5e8a601",
+    "committed_at": "2026-11-05T11:39:54+08:00",
+    "summary": "feat: morph 3D brand mark into assessment QR code",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "5bd88e8a76244b6ce6557e79614f1cbb3005b9f7",
+    "short_commit": "5bd88e8",
+    "committed_at": "2026-11-05T11:35:35+08:00",
+    "summary": "fix: refresh cached assessment animation assets",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "646adfee9d4c904b619f033cbdd8e50a039c3293",
+    "short_commit": "646adfe",
+    "committed_at": "2026-11-05T11:33:32+08:00",
+    "summary": "feat: animate brand logo before assessment QR code",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "dc396ff7885a316f3adfff93cb321bf6e360e2f4",
+    "short_commit": "dc396ff",
+    "committed_at": "2026-11-05T11:28:21+08:00",
+    "summary": "docs: automatically sync both repositories before project work",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "ec1ef0fecdec5d1f926ec964629de69b91bda338",
+    "short_commit": "ec1ef0f",
+    "committed_at": "2026-11-05T10:44:25+08:00",
+    "summary": "style: center homepage project copy and buttons beside photos",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "968094848a703f1d1395f59b06b2fb3d400df7ca",
+    "short_commit": "9680948",
+    "committed_at": "2026-11-05T10:36:00+08:00",
+    "summary": "style: group homepage project copy above fixed buttons",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "3a5e8341f26bb814d299b6103ed6e25eaddc73da",
+    "short_commit": "3a5e834",
+    "committed_at": "2026-11-05T10:18:08+08:00",
+    "summary": "style: align project buttons with brand palette and column width",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "c83a1f3ff354cdf6a9c363d68a7a13f24f957836",
+    "short_commit": "c83a1f3",
+    "committed_at": "2026-11-05T10:12:42+08:00",
+    "summary": "style: update homepage project link buttons",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "974f64b6de5c7fd3da64ba2e99c781f2e3d72c9d",
+    "short_commit": "974f64b",
+    "committed_at": "2026-11-05T10:08:49+08:00",
+    "summary": "Revert \"style: compact and alternate home project gateways\"",
+    "summary_zh": "更新網站程式與文件",
+    "details": [
+      "This reverts commit 6d865b242dacce8ff929525fa327ca1d64182b57."
+    ]
+  },
+  {
+    "commit": "5a2ba0f96ddc638130ea06a93481254b58dc5a81",
+    "short_commit": "5a2ba0f",
+    "committed_at": "2026-11-05T10:08:49+08:00",
+    "summary": "Revert \"fix: preserve home project photos and refresh assessment button\"",
+    "summary_zh": "更新網站程式與文件",
+    "details": [
+      "This reverts commit b23d0c12d3580942b7075ca9f2a57201c723d93d."
+    ]
+  },
+  {
+    "commit": "b23d0c12d3580942b7075ca9f2a57201c723d93d",
+    "short_commit": "b23d0c1",
+    "committed_at": "2026-11-05T10:07:09+08:00",
+    "summary": "fix: preserve home project photos and refresh assessment button",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "6d865b242dacce8ff929525fa327ca1d64182b57",
+    "short_commit": "6d865b2",
+    "committed_at": "2026-11-05T10:01:31+08:00",
+    "summary": "style: compact and alternate home project gateways",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "b527e0c8122616954a6ac73043e9e060befe55fa",
+    "short_commit": "b527e0c",
+    "committed_at": "2026-11-05T09:56:49+08:00",
+    "summary": "style: refresh home exploration button",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "909bba23c55d7040e8296a5d047deef26b8aaaf8",
+    "short_commit": "909bba2",
+    "committed_at": "2026-11-05T09:47:25+08:00",
+    "summary": "style: match urban project filters to compact pills",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "8850cffe9720438e0fd4bf6ea5c775d46a36dcb9",
+    "short_commit": "8850cff",
+    "committed_at": "2026-11-05T09:44:56+08:00",
+    "summary": "style: compact Q&A filters and use blue active state",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "2a371a365d1aa6b6336a473cf671cb19b262bebd",
+    "short_commit": "2a371a3",
+    "committed_at": "2026-11-05T09:43:16+08:00",
+    "summary": "style: slim Q&A filter buttons",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "256e99258018b9e1d93872dc43091bd48d5fc3c7",
+    "short_commit": "256e992",
+    "committed_at": "2026-11-05T09:39:48+08:00",
+    "summary": "fix: refresh Q&A button style cache",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "79306f66c43f5c7b7777ee2baaefe4dd22fcb9fc",
+    "short_commit": "79306f6",
+    "committed_at": "2026-11-05T09:37:35+08:00",
+    "summary": "style: refresh Q&A filter buttons",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "27ca5dd0331dcec1c79b0f85f02f4d053f3a3e4c",
+    "short_commit": "27ca5dd",
+    "committed_at": "2026-11-05T09:33:06+08:00",
+    "summary": "style: refresh Q&A search field",
+    "summary_zh": "更新網站程式與文件",
+    "details": []
+  },
+  {
+    "commit": "ae9b80578b0847aa463090eb1794a7cf37463d5b",
+    "short_commit": "ae9b805",
+    "committed_at": "2026-11-05T08:30:38+08:00",
+    "summary": "fix: avoid old value artwork flash on load",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "75655d315a7e84041900eb1a31a45a14424a4c70",
+    "short_commit": "75655d3",
+    "committed_at": "2026-11-04T15:55:26+08:00",
+    "summary": "修正工程日誌中文標題",
+    "summary_zh": "修正工程日誌中文標題",
+    "details": []
+  },
+  {
     "commit": "e264c59d30ae4b244eb704b3ff6b761ec11d92c2",
     "short_commit": "e264c59",
     "committed_at": "2026-11-04T15:49:54+08:00",
     "summary": "fix: grant role table access to password function",
-    "summary_zh": "修正密碼管理函式讀取角色名單的權限"
+    "summary_zh": "修正密碼管理函式讀取角色名單的權限",
+    "details": []
   },
   {
     "commit": "c5eec2eb27878665b34eea7d775fa18f732b9fa7",
     "short_commit": "c5eec2e",
     "committed_at": "2026-11-04T15:43:29+08:00",
     "summary": "fix: show role list errors and simplify admin check",
-    "summary_zh": "修正管理員帳號名單載入與錯誤提示"
+    "summary_zh": "修正管理員帳號名單載入與錯誤提示",
+    "details": []
   },
   {
     "commit": "3668c2721cdf72aad5dd93c5aeaf14e12b4a6dee",
     "short_commit": "3668c27",
     "committed_at": "2026-11-04T15:36:33+08:00",
     "summary": "feat: add admin and read-only employee roles",
-    "summary_zh": "建立管理員與唯讀員工角色權限"
+    "summary_zh": "建立管理員與唯讀員工角色權限",
+    "details": []
   },
   {
     "commit": "e5a67e3d9daf057fb73459417d8cd91378769f6b",
     "short_commit": "e5a67e3",
     "committed_at": "2026-11-04T15:20:55+08:00",
     "summary": "feat: allow designated admin to set temporary passwords",
-    "summary_zh": "指定管理員可協助設定臨時密碼"
+    "summary_zh": "指定管理員可協助設定臨時密碼",
+    "details": []
   },
   {
     "commit": "ff198a41e6e1c8112622fd359b0509be7097a516",
     "short_commit": "ff198a4",
     "committed_at": "2026-11-04T15:01:06+08:00",
     "summary": "fix: keep password recovery screen active",
-    "summary_zh": "修正密碼重設連結開啟後的畫面切換"
+    "summary_zh": "修正密碼重設連結開啟後的畫面切換",
+    "details": []
   },
   {
     "commit": "36f1dc2f960113baaa6aaafac624038260b61bb5",
     "short_commit": "36f1dc2",
     "committed_at": "2026-11-04T14:12:18+08:00",
     "summary": "feat: add password login for administrators",
-    "summary_zh": "後台新增管理員帳號密碼登入"
+    "summary_zh": "後台新增管理員帳號密碼登入",
+    "details": []
   },
   {
     "commit": "6fa2d3c05248d8773ca5db8ce3814ba5cca5ac33",
     "short_commit": "6fa2d3c",
     "committed_at": "2026-11-04T13:49:08+08:00",
     "summary": "fix: keep scroll position when filtering projects",
-    "summary_zh": "篩選建案後保留目前頁面位置"
+    "summary_zh": "篩選建案後保留目前頁面位置",
+    "details": []
   },
   {
     "commit": "57ba4078a074210cc659690b46f60fbc2c4c053e",
     "short_commit": "57ba407",
     "committed_at": "2026-11-04T13:44:33+08:00",
     "summary": "feat: add professional network icons",
-    "summary_zh": "合作團隊分類加入品牌風格圖示"
+    "summary_zh": "合作團隊分類加入品牌風格圖示",
+    "details": []
   },
   {
     "commit": "8cb6cd05a12810a3a228210409e0ccc176c69e44",
     "short_commit": "8cb6cd0",
     "committed_at": "2026-11-04T13:38:13+08:00",
     "summary": "fix: keep team experience rows balanced",
-    "summary_zh": "調整菁英團隊經歷欄位的排列平衡"
+    "summary_zh": "調整菁英團隊經歷欄位的排列平衡",
+    "details": []
   },
   {
     "commit": "a98ce067c94a4c2c84ff90c6baf5f75029b597f1",
     "short_commit": "a98ce06",
     "committed_at": "2026-11-04T13:19:05+08:00",
     "summary": "fix: extend philosophy chapter navigation into left margin",
-    "summary_zh": "將公司理念章節導覽延伸至左側留白區"
+    "summary_zh": "將公司理念章節導覽延伸至左側留白區",
+    "details": []
   },
   {
     "commit": "6b10c02fc51c146171dd05b6e3743c50f84a21c5",
     "short_commit": "6b10c02",
     "committed_at": "2026-11-04T13:15:39+08:00",
     "summary": "fix: give company philosophy article more reading width",
-    "summary_zh": "加寬公司理念文章的閱讀區域"
+    "summary_zh": "加寬公司理念文章的閱讀區域",
+    "details": []
   },
   {
     "commit": "579b036deb03cb687b960179e959a442d58ddf0e",
     "short_commit": "579b036",
     "committed_at": "2026-11-04T13:11:57+08:00",
     "summary": "feat: show reading progress in company philosophy chapters",
-    "summary_zh": "公司理念章節加入閱讀進度提示"
+    "summary_zh": "公司理念章節加入閱讀進度提示",
+    "details": []
   },
   {
     "commit": "700be1bbece93346cdd2532ee99f527a31e840fb",
     "short_commit": "700be1b",
     "committed_at": "2026-11-04T13:06:10+08:00",
     "summary": "fix: prevent stale CMS content from overwriting live pages",
-    "summary_zh": "避免過期的後台內容覆蓋正式網站頁面"
+    "summary_zh": "避免過期的後台內容覆蓋正式網站頁面",
+    "details": []
   },
   {
     "commit": "04ab4e7fdb6ab089b85b94a8c5e90deee6862f9d",
     "short_commit": "04ab4e7",
     "committed_at": "2026-11-04T12:56:14+08:00",
     "summary": "fix: keep scroll position during log paging",
-    "summary_zh": "工程日誌換頁時保留目前閱讀位置，不再自動捲回面板頂端"
+    "summary_zh": "工程日誌換頁時保留目前閱讀位置，不再自動捲回面板頂端",
+    "details": []
   },
   {
     "commit": "e3a3630eb883c2c7050cf33617050b0d39a3edb7",
     "short_commit": "e3a3630",
     "committed_at": "2026-11-04T12:52:49+08:00",
     "summary": "fix: deploy complete engineering history",
-    "summary_zh": "修正正式部署只取得最近 50 筆版本的限制，恢復完整網站更新歷史"
+    "summary_zh": "修正正式部署只取得最近 50 筆版本的限制，恢復完整網站更新歷史",
+    "details": []
   },
   {
     "commit": "0c7992b83f2c1860439290790596af8164451944",
     "short_commit": "0c7992b",
     "committed_at": "2026-11-04T12:50:45+08:00",
     "summary": "feat: paginate engineering logs",
-    "summary_zh": "工程日誌加入頁碼與總筆數，可查看完整的管理員操作及網站更新歷史"
+    "summary_zh": "工程日誌加入頁碼與總筆數，可查看完整的管理員操作及網站更新歷史",
+    "details": []
   },
   {
     "commit": "472c3acafdb94ef4218bd013d1255bb4af70cde8",
     "short_commit": "472c3ac",
     "committed_at": "2026-11-04T12:42:43+08:00",
     "summary": "ui: recolor value illustrations for brand",
-    "summary_zh": "將四張理念插畫的綠色改為元捷品牌金色，保留全部文字"
+    "summary_zh": "將四張理念插畫的綠色改為元捷品牌金色，保留全部文字",
+    "details": []
   },
   {
     "commit": "249fa62668b7816e73aab0e907cdbdf072a01a39",
     "short_commit": "249fa62",
     "committed_at": "2026-11-04T12:40:16+08:00",
     "summary": "fix: refresh licensed value illustrations",
-    "summary_zh": "修正圖片快取造成的舊插畫顯示，改用新版人物線稿檔名"
+    "summary_zh": "修正圖片快取造成的舊插畫顯示，改用新版人物線稿檔名",
+    "details": []
   },
   {
     "commit": "310668ad92405e4460f03b1d021e3adbc198a24b",
     "short_commit": "310668a",
     "committed_at": "2026-11-04T12:37:40+08:00",
     "summary": "ui: use licensed illustrated value cards",
-    "summary_zh": "四個核心理念改用可商用的 Storyset 人物線稿，保留原文並標註插畫來源"
+    "summary_zh": "四個核心理念改用可商用的 Storyset 人物線稿，保留原文並標註插畫來源",
+    "details": []
   },
   {
     "commit": "f756ea555c9056d83c1a2d810c8a0a8a45582027",
     "short_commit": "f756ea5",
     "committed_at": "2026-11-04T12:30:47+08:00",
     "summary": "ui: redesign core values cards",
-    "summary_zh": "以原創建築線條插圖呈現四個核心理念，保留全部文字"
+    "summary_zh": "以原創建築線條插圖呈現四個核心理念，保留全部文字",
+    "details": []
   },
   {
     "commit": "1338e8a2a3c41d97e523138797e5a08c00c4d1f1",
     "short_commit": "1338e8a",
     "committed_at": "2026-11-04T12:19:01+08:00",
     "summary": "ui: organize philosophy longform",
-    "summary_zh": "整理公司理念長文版面並加入章節索引，保留完整原文"
+    "summary_zh": "整理公司理念長文版面並加入章節索引，保留完整原文",
+    "details": []
   },
   {
     "commit": "2223e49ecd7d74c30151cfe4e37abf962356c9d8",
     "short_commit": "2223e49",
     "committed_at": "2026-11-04T11:56:50+08:00",
     "summary": "ui: add subtle image hover zoom",
-    "summary_zh": "為可點擊建案與照片加入輕微滑入縮放效果"
+    "summary_zh": "為可點擊建案與照片加入輕微滑入縮放效果",
+    "details": []
   },
   {
     "commit": "7859f440a294a22572d38316bf41001051e2c1e9",
     "short_commit": "7859f44",
     "committed_at": "2026-11-04T11:51:15+08:00",
     "summary": "ui: compact inner page headings",
-    "summary_zh": "統一縮短全站內頁標題區與首段內容間距"
+    "summary_zh": "統一縮短全站內頁標題區與首段內容間距",
+    "details": []
   },
   {
     "commit": "e51fdbc82dde07068a9aa50374c93be38e84437c",
     "short_commit": "e51fdbc",
     "committed_at": "2026-11-04T11:48:27+08:00",
     "summary": "ui: compact urban project heading",
-    "summary_zh": "縮短進行個案頁首與篩選器間距，減少首屏空白"
+    "summary_zh": "縮短進行個案頁首與篩選器間距，減少首屏空白",
+    "details": []
   },
   {
     "commit": "a5a35f78d21b854717cb46ff5431fa0c4aa5b243",
     "short_commit": "a5a35f7",
     "committed_at": "2026-11-04T11:44:06+08:00",
     "summary": "feat: add project location filters",
-    "summary_zh": "新增建案縣市與行政區標籤，可快速篩選進行個案"
+    "summary_zh": "新增建案縣市與行政區標籤，可快速篩選進行個案",
+    "details": []
   },
   {
     "commit": "f1d4f51b7f58d42f8a1c757c75b472864a5e5ba4",
     "short_commit": "f1d4f51",
     "committed_at": "2026-11-04T11:27:06+08:00",
     "summary": "ui: tighten team page rhythm",
-    "summary_zh": "縮緊團隊頁人物資料與合作名單間距，改善文字閱讀節奏"
+    "summary_zh": "縮緊團隊頁人物資料與合作名單間距，改善文字閱讀節奏",
+    "details": []
   },
   {
     "commit": "125e24e1810e6ac710cb103930f13c316c3e882c",
     "short_commit": "125e24e",
     "committed_at": "2026-11-04T11:22:22+08:00",
     "summary": "ui: align project index cards",
-    "summary_zh": "統一建案列表圖片比例，調整為清楚的三欄作品集版面"
+    "summary_zh": "統一建案列表圖片比例，調整為清楚的三欄作品集版面",
+    "details": []
   },
   {
     "commit": "20be4ab5cc8efe6013b6b9301b84f5b901cea145",
     "short_commit": "20be4ab",
     "committed_at": "2026-11-04T11:13:10+08:00",
     "summary": "ui: refine homepage team section",
-    "summary_zh": "重整首頁團隊介紹，平衡照片、文字與下方合作內容"
+    "summary_zh": "重整首頁團隊介紹，平衡照片、文字與下方合作內容",
+    "details": []
   },
   {
     "commit": "5663ae0fe1a9eb87db1caeca763bff096d662b1b",
     "short_commit": "5663ae0",
     "committed_at": "2026-11-04T11:08:40+08:00",
     "summary": "ui: redesign homepage featured projects",
-    "summary_zh": "重整首頁精選建案，整合圖片、案名、摘要與入口"
+    "summary_zh": "重整首頁精選建案，整合圖片、案名、摘要與入口",
+    "details": []
   },
   {
     "commit": "382afe09db9f8052a0fdeeb8e1a29b1f95b7b8b5",
     "short_commit": "382afe0",
     "committed_at": "2026-11-04T10:49:38+08:00",
     "summary": "ui: compact public website header",
-    "summary_zh": "縮小正式網站頁首、Logo、公司文字與導覽選單高度"
+    "summary_zh": "縮小正式網站頁首、Logo、公司文字與導覽選單高度",
+    "details": []
   },
   {
     "commit": "a15add330ffec974fe4615d12d6b28cc281ade33",
     "short_commit": "a15add3",
     "committed_at": "2026-11-04T10:45:20+08:00",
     "summary": "ui: reduce admin brand bar height",
-    "summary_zh": "縮小後台品牌列文字、按鈕與上下留白"
+    "summary_zh": "縮小後台品牌列文字、按鈕與上下留白",
+    "details": []
   },
   {
     "commit": "77f608014442802ed75c0c3d32cf1ebf67a9b761",
     "short_commit": "77f6080",
     "committed_at": "2026-11-04T10:42:02+08:00",
     "summary": "ui: compact admin navigation header",
-    "summary_zh": "縮短後台頂部區域，讓操作面板更快出現在畫面中"
+    "summary_zh": "縮短後台頂部區域，讓操作面板更快出現在畫面中",
+    "details": []
   },
   {
     "commit": "9e3765903d32ff8424ab158f72b1357d596705e6",
     "short_commit": "9e37659",
     "committed_at": "2026-11-04T10:36:43+08:00",
     "summary": "feat: add administrator directory",
-    "summary_zh": "後台新增管理員名單頁面，顯示目前授權帳號"
+    "summary_zh": "後台新增管理員名單頁面，顯示目前授權帳號",
+    "details": []
   },
   {
     "commit": "ab05ca69394e8235ba5933bb7de344b77a7b2a01",
     "short_commit": "ab05ca6",
     "committed_at": "2026-11-04T10:21:01+08:00",
     "summary": "fix: keep website history on deployed main branch",
-    "summary_zh": "網站更新只保留正式主線版本，排除未部署的備份分支"
+    "summary_zh": "網站更新只保留正式主線版本，排除未部署的備份分支",
+    "details": []
   },
   {
     "commit": "254b31334b512dab917ec30770a9c74e828b97ae",
     "short_commit": "254b313",
     "committed_at": "2026-11-04T10:19:28+08:00",
     "summary": "ui: split engineering log and add bilingual history",
-    "summary_zh": "拆分工程日誌，加入月份篩選與中英雙語建置歷程"
+    "summary_zh": "拆分工程日誌，加入月份篩選與中英雙語建置歷程",
+    "details": []
   },
   {
     "commit": "f55fa30df6390fc73cdca94cf5d3a15010d02467",
     "short_commit": "f55fa30",
     "committed_at": "2026-11-04T10:02:37+08:00",
     "summary": "feat: add admin engineering log",
-    "summary_zh": "建立工程日誌，記錄網站版本與管理員操作"
+    "summary_zh": "建立工程日誌，記錄網站版本與管理員操作",
+    "details": []
   },
   {
     "commit": "bf00c2cff473d364726eb14278276dceb1fa07a7",
     "short_commit": "bf00c2c",
     "committed_at": "2026-11-04T09:10:26+08:00",
     "summary": "ui: add drag sorting for navigation",
-    "summary_zh": "導覽選單加入滑鼠拖曳排序"
+    "summary_zh": "導覽選單加入滑鼠拖曳排序",
+    "details": []
   },
   {
     "commit": "d829f56f6c07325c3154f7924143a8a134ef23f1",
     "short_commit": "d829f56",
     "committed_at": "2026-11-04T09:02:59+08:00",
     "summary": "ui: add resizable admin page sidebar",
-    "summary_zh": "加入可拖曳調整寬度的後台左右分隔桿"
+    "summary_zh": "加入可拖曳調整寬度的後台左右分隔桿",
+    "details": []
   },
   {
     "commit": "037fea679ed7d15dea5de7d951d7a07a1dcce53c",
     "short_commit": "037fea6",
     "committed_at": "2026-11-04T08:48:16+08:00",
     "summary": "ui: make admin page groups collapsible",
-    "summary_zh": "後台頁面清單加入收合功能，減少畫面混亂"
+    "summary_zh": "後台頁面清單加入收合功能，減少畫面混亂",
+    "details": []
   },
   {
     "commit": "9a420c74d80dd4a8b39667dedab6e29443b71e56",
     "short_commit": "9a420c7",
     "committed_at": "2026-11-03T15:02:19+08:00",
     "summary": "chore: stop tracking local asset manifest publicly",
-    "summary_zh": "停止公開內部素材清單，降低資料暴露"
+    "summary_zh": "停止公開內部素材清單，降低資料暴露",
+    "details": []
   },
   {
     "commit": "4d82e3c478b918b019a27edb22cbcf0276794e62",
     "short_commit": "4d82e3c",
     "committed_at": "2026-11-03T15:02:05+08:00",
     "summary": "chore: move internal docs and backups to private repository",
-    "summary_zh": "將內部文件與備份移至私人資料庫保護"
+    "summary_zh": "將內部文件與備份移至私人資料庫保護",
+    "details": []
   },
   {
     "commit": "fd597a9ce5ce07c39403c79601cd9786cd200ee5",
     "short_commit": "fd597a9",
     "committed_at": "2026-11-03T14:51:55+08:00",
     "summary": "docs: require remote sync check before edits",
-    "summary_zh": "加入修改前先確認遠端同步的安全流程"
+    "summary_zh": "加入修改前先確認遠端同步的安全流程",
+    "details": []
   },
   {
     "commit": "90147d096c901d123e755a742efe1030157a71ab",
     "short_commit": "90147d0",
     "committed_at": "2026-11-03T14:48:07+08:00",
     "summary": "docs: add new computer and GPT account handoff guide",
-    "summary_zh": "建立更換電腦與帳號時的網站交接手冊"
+    "summary_zh": "建立更換電腦與帳號時的網站交接手冊",
+    "details": []
   },
   {
     "commit": "213f1780567fd748b784c842e4950b517ac56c48",
     "short_commit": "213f178",
     "committed_at": "2026-11-03T13:48:56+08:00",
     "summary": "chore: refresh published content backup",
-    "summary_zh": "更新正式網站內容備份"
+    "summary_zh": "更新正式網站內容備份",
+    "details": []
   },
   {
     "commit": "4484c136bd70b7368ccdf8540ddf4b57d99685ad",
     "short_commit": "4484c13",
     "committed_at": "2026-11-03T13:44:21+08:00",
     "summary": "fix: align Xinguang project image layout",
-    "summary_zh": "調整新光建案圖片的排列與對齊"
+    "summary_zh": "調整新光建案圖片的排列與對齊",
+    "details": []
   },
   {
     "commit": "058e62890bf286877d6abef4084630abe15f3d21",
     "short_commit": "058e628",
     "committed_at": "2026-11-03T13:39:06+08:00",
     "summary": "fix: refresh shared stylesheet cache across all pages",
-    "summary_zh": "更新全站共用樣式版本，排除舊快取"
+    "summary_zh": "更新全站共用樣式版本，排除舊快取",
+    "details": []
   },
   {
     "commit": "78e305690a91a72897222fe4bda7e1dd447908b6",
     "short_commit": "78e3056",
     "committed_at": "2026-11-03T13:37:27+08:00",
     "summary": "fix: unify page styles and scope project header behavior",
-    "summary_zh": "統一全站頁面樣式與建案標題行為"
+    "summary_zh": "統一全站頁面樣式與建案標題行為",
+    "details": []
   },
   {
     "commit": "7b360db3a31c727c6f058f3d4deb67040bd4483d",
     "short_commit": "7b360db",
     "committed_at": "2026-11-03T13:32:58+08:00",
     "summary": "fix: prevent project headers from covering content",
-    "summary_zh": "修正建案頁標題遮住內容的顯示問題"
+    "summary_zh": "修正建案頁標題遮住內容的顯示問題",
+    "details": []
   },
   {
     "commit": "bcd4629c6bbafdaa57ffa33b82998b760a91fa21",
     "short_commit": "bcd4629",
     "committed_at": "2026-11-03T11:08:53+08:00",
     "summary": "feat: add lazyunclek admin access",
-    "summary_zh": "新增後台管理員帳號權限"
+    "summary_zh": "新增後台管理員帳號權限",
+    "details": []
   },
   {
     "commit": "7d8a2686ce94f015e02f17bbf5b6d202e98ab738",
     "short_commit": "7d8a268",
     "committed_at": "2026-11-03T10:55:17+08:00",
     "summary": "chore: normalize backup image permissions",
-    "summary_zh": "統一備份圖片的檔案權限"
+    "summary_zh": "統一備份圖片的檔案權限",
+    "details": []
   },
   {
     "commit": "70df7c97020169bf404a305a7812a44b576342c1",
     "short_commit": "70df7c9",
     "committed_at": "2026-11-03T10:55:12+08:00",
     "summary": "backup: include all local project images",
-    "summary_zh": "將所有本機建案圖片納入備份"
+    "summary_zh": "將所有本機建案圖片納入備份",
+    "details": []
   },
   {
     "commit": "212d4a2248d5d676b03d40ec3639dc19b6fe613e",
     "short_commit": "212d4a2",
     "committed_at": "2026-11-03T10:54:40+08:00",
     "summary": "docs: point restore guide to complete backup branch",
-    "summary_zh": "更新還原手冊，指向完整備份版本"
+    "summary_zh": "更新還原手冊，指向完整備份版本",
+    "details": []
   },
   {
     "commit": "e0cea1f0bea40926c0e7c17e79f3ff420be20ccb",
     "short_commit": "e0cea1f",
     "committed_at": "2026-11-03T10:52:23+08:00",
     "summary": "docs: document smaller backup archive chunks",
-    "summary_zh": "記錄小型備份分卷的使用方式"
+    "summary_zh": "記錄小型備份分卷的使用方式",
+    "details": []
   },
   {
     "commit": "2526c5bc410c96a6e6410e08a367780f0b8c8d3d",
     "short_commit": "2526c5b",
     "committed_at": "2026-11-03T10:50:35+08:00",
     "summary": "docs: add split archive recovery instructions",
-    "summary_zh": "補充大型備份分卷的還原步驟"
+    "summary_zh": "補充大型備份分卷的還原步驟",
+    "details": []
   },
   {
     "commit": "77164eac6fddfb7f67139892b96b518a84a8e1ea",
     "short_commit": "77164ea",
     "committed_at": "2026-11-03T10:48:12+08:00",
     "summary": "backup: archive Supabase content and recovery docs",
-    "summary_zh": "備份後台內容資料並建立復原說明"
+    "summary_zh": "備份後台內容資料並建立復原說明",
+    "details": []
   },
   {
     "commit": "397165ae894500044b82f2d144abbff3e9a6ec8b",
     "short_commit": "397165a",
     "committed_at": "2026-11-01T00:17:58+08:00",
     "summary": "docs: add ChatGPT project guidance and source index",
-    "summary_zh": "補充專案維護指引與原始資料索引"
+    "summary_zh": "補充專案維護指引與原始資料索引",
+    "details": []
   },
   {
     "commit": "a31124d9d7fad673037041c15321f159ad347391",
     "short_commit": "a31124d",
     "committed_at": "2026-11-01T00:02:58+08:00",
     "summary": "docs: add development and admin guides",
-    "summary_zh": "建立網站開發文件與後台操作手冊"
+    "summary_zh": "建立網站開發文件與後台操作手冊",
+    "details": []
   },
   {
     "commit": "a10893b62b076f9627ad59d3656403b5678f13b1",
     "short_commit": "a10893b",
     "committed_at": "2026-10-31T23:52:18+08:00",
     "summary": "refine home statistics layout",
-    "summary_zh": "優化首頁統計資訊的版面呈現"
+    "summary_zh": "優化首頁統計資訊的版面呈現",
+    "details": []
   },
   {
     "commit": "d19682f409b1abb254ff26dc5995bedc7d0f6765",
     "short_commit": "d19682f",
     "committed_at": "2026-10-31T23:39:14+08:00",
     "summary": "feat: edit images and show published content immediately",
-    "summary_zh": "加入圖片裁切縮放，並讓發布內容立即顯示"
+    "summary_zh": "加入圖片裁切縮放，並讓發布內容立即顯示",
+    "details": []
   },
   {
     "commit": "621b0145a77f0b5ac13605cc2b780ed0872643e7",
     "short_commit": "621b014",
     "committed_at": "2026-10-31T23:21:54+08:00",
     "summary": "chore: refresh admin script cache",
-    "summary_zh": "更新後台程式版本，確保使用者載入最新功能"
+    "summary_zh": "更新後台程式版本，確保使用者載入最新功能",
+    "details": []
   },
   {
     "commit": "adebcf0b33cbad8c2b8ac7ac71ade2e9fe8a7d5d",
     "short_commit": "adebcf0",
     "committed_at": "2026-10-31T23:21:10+08:00",
     "summary": "fix: defer dashboard loading after auth",
-    "summary_zh": "修正登入後後台資料載入時機"
+    "summary_zh": "修正登入後後台資料載入時機",
+    "details": []
   },
   {
     "commit": "650177aff71cbb704de73b77bf3b60655645d5b9",
     "short_commit": "650177a",
     "committed_at": "2026-10-31T23:19:42+08:00",
     "summary": "feat: add structured navigation management",
-    "summary_zh": "建立導覽選單管理，可編輯名稱、副標、顯示與順序"
+    "summary_zh": "建立導覽選單管理，可編輯名稱、副標、顯示與順序",
+    "details": []
   },
   {
     "commit": "2be80600bda3d00a4a84cc4510fcce6670719ecb",
     "short_commit": "2be8060",
     "committed_at": "2026-10-31T23:09:55+08:00",
     "summary": "Improve responsive site and CMS layouts",
-    "summary_zh": "改善網站與後台在手機、平板上的操作版面"
+    "summary_zh": "改善網站與後台在手機、平板上的操作版面",
+    "details": []
   },
   {
     "commit": "31fb9dbf59a85602f18e7523320d64e7cd0765ee",
     "short_commit": "31fb9db",
     "committed_at": "2026-10-31T22:46:51+08:00",
     "summary": "Add second CMS administrator",
-    "summary_zh": "新增第二位網站後台管理員"
+    "summary_zh": "新增第二位網站後台管理員",
+    "details": []
   },
   {
     "commit": "7ca691cb86089f7c84452cf94164d74bacb5a4e3",
     "short_commit": "7ca691c",
     "committed_at": "2026-10-31T22:41:42+08:00",
     "summary": "Refresh CMS stylesheet cache",
-    "summary_zh": "更新後台樣式版本，避免瀏覽器顯示舊畫面"
+    "summary_zh": "更新後台樣式版本，避免瀏覽器顯示舊畫面",
+    "details": []
   },
   {
     "commit": "9cb8e0be05eca1e76d2cb25ea87be40362f931f0",
     "short_commit": "9cb8e0b",
     "committed_at": "2026-10-31T22:40:51+08:00",
     "summary": "Hide CMS editor until authenticated",
-    "summary_zh": "加強後台登入保護，未驗證前不顯示編輯器"
+    "summary_zh": "加強後台登入保護，未驗證前不顯示編輯器",
+    "details": []
   },
   {
     "commit": "2d5dd12cce8ba860bb2e335969df4a70aa8201df",
     "short_commit": "2d5dd12",
     "committed_at": "2026-10-31T22:39:16+08:00",
     "summary": "Add Supabase-powered website CMS",
-    "summary_zh": "建立 Supabase 網站後台，加入草稿與發布功能"
+    "summary_zh": "建立 Supabase 網站後台，加入草稿與發布功能",
+    "details": []
   },
   {
     "commit": "51a0b84c157b0fbb70e8d14a9d213071ec86e3ff",
     "short_commit": "51a0b84",
     "committed_at": "2026-10-31T22:01:04+08:00",
     "summary": "Configure GitHub Pages deployment",
-    "summary_zh": "建立 GitHub Pages 自動部署流程"
+    "summary_zh": "建立 GitHub Pages 自動部署流程",
+    "details": []
   },
   {
     "commit": "bf687c966801b82f28c0852fcd30bff22596bf6b",
     "short_commit": "bf687c9",
     "committed_at": "2026-10-31T11:32:03+09:00",
     "summary": "Update Site source",
-    "summary_zh": "加強手機版與不同螢幕尺寸的版面樣式"
+    "summary_zh": "加強手機版與不同螢幕尺寸的版面樣式",
+    "details": []
   },
   {
     "commit": "b6eadbd2686e21d410367ab73d522daf54b377a9",
     "short_commit": "b6eadbd",
     "committed_at": "2026-10-31T09:07:42+08:00",
     "summary": "Update Site source",
-    "summary_zh": "更新全站共用資源版本，確保瀏覽器取得最新內容"
+    "summary_zh": "更新全站共用資源版本，確保瀏覽器取得最新內容",
+    "details": []
   },
   {
     "commit": "c43f320b3ababaaebb380bef3153a76093738a66",
     "short_commit": "c43f320",
     "committed_at": "2026-10-30T20:05:45+10:00",
     "summary": "Update Site source",
-    "summary_zh": "調整全站中文字型與頁面視覺一致性"
+    "summary_zh": "調整全站中文字型與頁面視覺一致性",
+    "details": []
   },
   {
     "commit": "d117409803f43263793e2f814f7dad7f26365d7d",
     "short_commit": "d117409",
     "committed_at": "2026-10-30T19:53:46+10:00",
     "summary": "Update Site source",
-    "summary_zh": "統整各頁標題、人物照片與響應式顯示"
+    "summary_zh": "統整各頁標題、人物照片與響應式顯示",
+    "details": []
   },
   {
     "commit": "c769be16f4e8df8ee4d9f8b7d580f25e0527d2cd",
     "short_commit": "c769be1",
     "committed_at": "2026-10-29T23:45:34-07:00",
     "summary": "Update Site source",
-    "summary_zh": "補齊合作團隊、人物、建案圖片與網站中文字型"
+    "summary_zh": "補齊合作團隊、人物、建案圖片與網站中文字型",
+    "details": []
   },
   {
     "commit": "049b0bcdc555b141b2dc1aa7093c0fc17ade451a",
     "short_commit": "049b0bc",
     "committed_at": "2026-10-29T18:02:16+11:00",
     "summary": "Update Site source",
-    "summary_zh": "新增泰安建案施工歷程與都市更新內容"
+    "summary_zh": "新增泰安建案施工歷程與都市更新內容",
+    "details": []
   },
   {
     "commit": "0b644063131edcc9183ae44f2323fbf9e89b8f1a",
     "short_commit": "0b64406",
     "committed_at": "2026-10-29T17:54:51+11:00",
     "summary": "Update Site source",
-    "summary_zh": "新增和平東路建案施工紀錄"
+    "summary_zh": "新增和平東路建案施工紀錄",
+    "details": []
   },
   {
     "commit": "ae34055dd78fe9b03ee68a8454cdfbc627f95059",
     "short_commit": "ae34055",
     "committed_at": "2026-10-29T17:51:33+11:00",
     "summary": "Update Site source",
-    "summary_zh": "補上聯絡方式與 LINE 線上諮詢入口"
+    "summary_zh": "補上聯絡方式與 LINE 線上諮詢入口",
+    "details": []
   },
   {
     "commit": "e45698c62dc5e9c8b6fde93531512236a578e12a",
     "short_commit": "e45698c",
     "committed_at": "2026-10-29T09:45:12+04:00",
     "summary": "Update Site source",
-    "summary_zh": "新增九太建設品牌介紹與相關圖片內容"
+    "summary_zh": "新增九太建設品牌介紹與相關圖片內容",
+    "details": []
   },
   {
     "commit": "5e6f32013891f0a3b25c937c349cee1b2e685d24",
     "short_commit": "5e6f320",
     "committed_at": "2026-10-29T09:25:25+04:00",
     "summary": "Update Site source",
-    "summary_zh": "匯入歷年建案資料與大量建案圖片"
+    "summary_zh": "匯入歷年建案資料與大量建案圖片",
+    "details": []
   },
   {
     "commit": "05459345f8bacabf6c720adee2e7c463745fb0e1",
     "short_commit": "0545934",
     "committed_at": "2026-10-29T13:01:44+09:00",
     "summary": "Update Site source",
-    "summary_zh": "調整團隊頁面版面與共用樣式"
+    "summary_zh": "調整團隊頁面版面與共用樣式",
+    "details": []
   },
   {
     "commit": "9a9c8ba5d69052d3fe43385b70fbbfb73feb88b3",
     "short_commit": "9a9c8ba",
     "committed_at": "2026-10-29T12:48:01+09:00",
     "summary": "Update Site source",
-    "summary_zh": "建立菁英團隊頁面並補齊團隊與企業價值圖片"
+    "summary_zh": "建立菁英團隊頁面並補齊團隊與企業價值圖片",
+    "details": []
   },
   {
     "commit": "a50b053453d0f5e594a0b45cc775dcdb24fb4813",
     "short_commit": "a50b053",
     "committed_at": "2026-10-29T12:27:13+09:00",
     "summary": "Update Site source",
-    "summary_zh": "擴充公司理念、問與答及建案頁面內容"
+    "summary_zh": "擴充公司理念、問與答及建案頁面內容",
+    "details": []
   },
   {
     "commit": "0d9699892d2d2315b74d2aca122dabb7149801ef",
     "short_commit": "0d96998",
     "committed_at": "2026-10-28T16:47:44+08:00",
     "summary": "Update Site source",
-    "summary_zh": "建立網站專案，匯入首頁與第一批建案圖片素材"
+    "summary_zh": "建立網站專案，匯入首頁與第一批建案圖片素材",
+    "details": []
   }
 ]
