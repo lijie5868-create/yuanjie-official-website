@@ -40,8 +40,8 @@
         };
         const normalizedMarkup=main=>{
           const copy=main.cloneNode(true);
-          copy.querySelectorAll('a.link-motion').forEach(link=>{
-            link.textContent=link.querySelector('.link-motion-text')?.textContent||link.textContent;
+          copy.querySelectorAll('a.text-link,a.team-section-link').forEach(link=>{
+            link.textContent=(link.querySelector('.link-motion-text')?.textContent||link.textContent).trim();
             link.classList.remove('link-motion');
             if(link.classList.contains('team-section-link'))link.classList.remove('text-link');
             link.removeAttribute('aria-label');
