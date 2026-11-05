@@ -12,6 +12,8 @@
 
 ## 開始修改前
 
+每次開始處理本專案的請求（包含檢查、回答現況與修改）時，自動檢查公開網站與同層私人備份兩庫的 `git status --short --branch`，並對兩庫執行 `git fetch origin`。若位於乾淨的 `main` 且僅落後於 `origin/main`，自動執行 `git pull --ff-only`，不必等待使用者另行要求同步。若有未提交修改、分支分歧或無法快轉，保留現場並向使用者說明；不要強制覆蓋。
+
 1. 閱讀本庫 `README.md` 和私人庫的完整維運文件。
 2. 每次在任何電腦開始修改前，先執行 `git status --short --branch` 與 `git fetch origin`，比較本機分支和 `origin/main`；保留使用者尚未提交的修改。
 3. 若工作目錄乾淨且本機 `main` 落後於 `origin/main`，先執行 `git pull --ff-only` 再修改。若有未提交修改、分支分歧或無法快轉，先查明並安全處理，不得強制覆蓋或重置使用者資料。
