@@ -1,6 +1,6 @@
 /* Uiverse-inspired sliding text for the site's existing underlined links. */
-(() => {
-  for (const link of document.querySelectorAll('main a.text-link, main a.team-section-link')) {
+window.enhanceLinkMotion = (root = document) => {
+  for (const link of root.querySelectorAll('a.text-link, a.team-section-link')) {
     if (link.querySelector('.link-motion-text')) continue;
     const label = link.textContent.trim();
     link.textContent = '';
@@ -28,4 +28,5 @@
     link.append(text, clone, icon);
     link.setAttribute('aria-label', label);
   }
-})();
+};
+window.enhanceLinkMotion(document.querySelector('main'));

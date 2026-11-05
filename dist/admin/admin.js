@@ -154,7 +154,7 @@ async function editorDocument(page,html){
         .find(script=>script.textContent.includes("document.querySelector('.case-grid')"));
       if(layoutScript)previewScripts+=`<script>${layoutScript.textContent}</script>`;
     }
-    previewScripts+='<script src="link-motion.js?v=1" defer></script>';
+    previewScripts+='<script src="link-motion.js?v=2" defer></script>';
   }catch(error){
     console.warn('Using the basic editor preview.',error);
   }

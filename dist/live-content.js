@@ -18,7 +18,31 @@
     if(page){
       document.title=page.title;
       document.querySelector('meta[name="description"]')?.setAttribute('content',page.meta_description);
-      document.querySelector('main')?.replaceWith(document.createRange().createContextualFragment(page.main_html));
+      const incoming=document.createRange().createContextualFragment(page.main_html).querySelector('main');
+      const existing=document.querySelector('main');
+      if(incoming&&existing){
+        if(fileName==='index.html'){
+          for(const portal of incoming.querySelectorAll('.home-project-category .portal')){
+            if(portal.querySelector(':scope > .category-copy'))continue;
+            const image=portal.querySelector(':scope > img');
+            if(!image)continue;
+            const copy=document.createElement('div');copy.className='category-copy';
+            while(image.nextSibling)copy.append(image.nextSibling);
+            portal.append(copy);
+          }
+        }
+        const meaningfulText=main=>{
+          const copy=main.cloneNode(true);
+          copy.querySelectorAll('.project-filter,.project-filter-status,.link-motion-clone,.link-motion-icon').forEach(node=>node.remove());
+          const text=copy.textContent.replace('進行個案（都更）','進行個案').replace(/\s+/g,'').trim();
+          const assets=[...copy.querySelectorAll('img,a')].map(node=>node.getAttribute('src')||node.getAttribute('href')||'').join('|');
+          return `${text}|${assets}`;
+        };
+        if(meaningfulText(incoming)!==meaningfulText(existing)){
+          window.enhanceLinkMotion?.(incoming);
+          existing.replaceWith(incoming);
+        }
+      }
     }
     const nav=document.querySelector('header nav[aria-label="主要導覽"]');
     if(nav){
@@ -50,8 +74,6 @@
       script.textContent=source.textContent;
       source.replaceWith(script);
     }
-    const motion=document.createElement('script');
-    motion.src='link-motion.js?v=1';
-    document.body.append(motion);
+    window.enhanceLinkMotion?.(document.querySelector('main'));
   }
 })();
