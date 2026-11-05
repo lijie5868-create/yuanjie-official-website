@@ -83,6 +83,13 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 }
 [data-block="specs"] .case-amount.amount-in-view{animation:amount-reveal .85s cubic-bezier(.2,.75,.2,1) both}
 [data-block="specs"] .case-amount.amount-in-view::before{transform:translateX(12%)}
+[data-block="specs"] .case-amount.is-counting{color:transparent;text-shadow:none}
+[data-block="specs"] .case-amount.is-counting::before{
+ content:attr(data-count-value);position:absolute;z-index:1;
+ inset:clamp(28px,4vw,48px) auto auto clamp(20px,3vw,38px);
+ color:#e6c68d;background:none;white-space:nowrap;
+ text-shadow:0 3px 24px #d2a96855;transform:none;transition:none;
+}
 @keyframes amount-reveal{from{opacity:.45;transform:translateY(22px) scale(.97);filter:brightness(.65)}to{opacity:1;transform:none;filter:none}}
 
 /* An editorial list replaces the uniform feature cards. */
@@ -107,6 +114,7 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 }
 @media(max-width:750px){
  [data-block="specs"] .case-amount{font-size:clamp(72px,18vw,112px);padding:28px 24px 34px}
+ [data-block="specs"] .case-amount.is-counting::before{inset:28px auto auto 24px}
  [data-block="specs"] .case-amount::after{left:24px;right:24px}
  [data-block="features"] :is(.case-highlights,.heping-highlights,ul){grid-template-columns:1fr;margin-top:22px}
  [data-block="features"] :is(.case-highlights,.heping-highlights,ul)>li,
