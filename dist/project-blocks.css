@@ -160,7 +160,7 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 
 [data-block="albums"] .project-album-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}
 .project-album-cover{display:block;width:100%;height:100%;padding:0;border:0;background:#e9edf3;color:#26343d;text-align:left;cursor:pointer}
-.project-album-cover figure{height:100%}.project-album-cover img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;background:#dbe1e7}
+.project-album-cover figure{height:100%}.project-album-cover img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;background:#dbe1e7}
 .project-album-cover figcaption{display:grid;gap:5px;padding:14px 16px;min-height:82px;background:#f1f2ef}
 .project-album-cover strong{font:600 17px/1.4 "Noto Serif TC",serif}.project-album-cover small{color:#65737c;font:13px/1.4 sans-serif}
 .project-album-cover:hover,.project-album-cover:focus-visible{outline:3px solid #4a6984;outline-offset:-3px}

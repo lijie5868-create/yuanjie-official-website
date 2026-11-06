@@ -142,7 +142,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     target.alt=$('imageAlt').value.trim();
     target.removeAttribute('data-admin-selected');
     onChange(target);
-    dialog.close();
+    if(dialog.open)dialog.close();
     onMessage('圖片大小與說明已更新，請儲存草稿或發布。');
   }
 
@@ -169,6 +169,26 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     setSelection(target);
   }
 
+  async function uploadAlbumPhoto(file){
+    const source=await createImageBitmap(file);
+    try{
+      const output=document.createElement('canvas');output.width=1200;output.height=900;
+      const ratio=4/3,sourceRatio=source.width/source.height;
+      const cropWidth=sourceRatio>ratio?source.height*ratio:source.width;
+      const cropHeight=sourceRatio>ratio?source.height:source.width/ratio;
+      output.getContext('2d').drawImage(source,(source.width-cropWidth)/2,(source.height-cropHeight)/2,cropWidth,cropHeight,0,0,1200,900);
+      const blob=await new Promise(resolve=>output.toBlob(resolve,'image/webp',0.88));
+      if(!blob)throw new Error('無法處理這張照片。');
+      const path=`${Date.now()}-${crypto.randomUUID()}.webp`;
+      const {error}=await supabase.storage.from('site-media').upload(path,blob,{contentType:'image/webp',upsert:false});
+      if(error)throw error;
+      const {data}=supabase.storage.from('site-media').getPublicUrl(path);
+      $('imageAlt').value=file.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+      insertImage(data.publicUrl,1200,900);
+      onMessage('相簿照片已自動裁成 4:3，請儲存草稿或發布。');
+    }finally{source.close()}
+  }
+
   $('imageUploadButton').onclick=()=>{
     const selection=frame.contentWindow.getSelection();
     if(selection?.rangeCount)savedRange=selection.getRangeAt(0).cloneRange();
@@ -180,6 +200,11 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     if(!file)return;
     if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
       onMessage('請選擇 JPG、PNG 或 WebP 圖片。',true);return;
+    }
+    if(selected?.closest?.('[data-block="albums"] .project-album')){
+      onMessage('正在將相簿照片裁成 4:3…');
+      try{await uploadAlbumPhoto(file)}catch(error){onMessage(error.message||'相簿照片上傳失敗，請重試。',true)}
+      return;
     }
     const objectUrl=URL.createObjectURL(file);
     await open(objectUrl,file.name,selected?.tagName==='IMG'?selected:null,false);
