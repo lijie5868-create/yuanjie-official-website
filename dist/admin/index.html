@@ -75,7 +75,7 @@
               <span class="sr-only">搜尋頁面</span>
               <input id="pageSearch" type="search" placeholder="搜尋頁面">
             </label>
-            <div id="pageList" class="page-list"><button id="newProject" type="button" class="new-project-button">＋ 新增個案</button></div>
+            <div id="pageList" class="page-list"><button id="newProject" type="button" class="new-project-button">＋ 新增個案</button><button id="newCompanyPage" type="button" class="new-project-button">＋ 新增公司頁面</button></div>
           </aside>
 
           <div id="pageResizer" class="page-resizer" role="separator" tabindex="0" aria-label="調整內容管理與編輯區寬度" aria-orientation="vertical" aria-controls="pageSidebar pageEditor" aria-valuemin="220" aria-valuemax="600" aria-valuenow="250" title="拖曳調整寬度；方向鍵可微調"></div>
@@ -132,6 +132,17 @@
           </fieldset>
           <p id="newProjectMessage" class="message" role="status"></p>
           <div class="new-project-actions"><button id="cancelNewProject" type="button" class="secondary">取消</button><button id="createNewProject" type="submit">建立草稿</button></div>
+        </form>
+      </dialog>
+
+      <dialog id="newCompanyDialog" class="new-project-dialog" aria-labelledby="newCompanyTitle">
+        <form id="newCompanyForm">
+          <h2 id="newCompanyTitle">新增公司詳情頁</h2>
+          <p>先建立草稿，再用區塊編輯內容；確認後才發布到正式網站。</p>
+          <label>公司名稱<input id="newCompanyName" required maxlength="80" placeholder="例如：合作公司名稱"></label>
+          <label>公司簡介<textarea id="newCompanySummary" required rows="3" maxlength="300" placeholder="簡短介紹公司"></textarea></label>
+          <p id="newCompanyMessage" class="message" role="status"></p>
+          <div class="new-project-actions"><button id="cancelNewCompany" type="button" class="secondary">取消</button><button id="createNewCompany" type="submit">建立草稿</button></div>
         </form>
       </dialog>
 
@@ -265,6 +276,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js?v=12"></script><script type="module" src="admin.js?v=57"></script>
+  <script src="../project-blocks.js?v=12"></script><script type="module" src="admin.js?v=58"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 import {bindBlocks} from './block-editor.js?v=7';
-import {createFloatingEditor} from './floating-editor.js?v=4';
+import {createFloatingEditor} from './floating-editor.js?v=5';
+import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=4";
 
 const cfg=window.YUANJIE_CONFIG;
 const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunclek@gmail.com"]);
 const primaryPages=new Set(["home","about","team","urban","renewal","qa"]);
-const companyDetailFiles=new Set(['chengyu.html','jiutai.html']);
 const basePath=location.pathname.replace(/admin\/?$/,'');
 const supabase=createClient(cfg.supabaseUrl,cfg.publishableKey);
 const recoveryUrl=new URL(location.href);
@@ -209,6 +209,15 @@ function newProjectHtml({name,category,city,district,summary,layout=[]}){
   return main.outerHTML;
 }
 
+function newCompanyHtml(name,summary){
+  const main=document.createElement('main');main.dataset.companyBlocks='1';
+  main.innerHTML='<section class="page-head" data-company-block="intro"><div class="crumb"><a href="index.html">首頁</a> ／ <span></span></div><div class="eyebrow">COMPANY / PARTNER</div><h1 class="page-title"></h1><p class="lead"></p></section><section class="company-content-block" data-company-block="text"><div class="wrap"><div class="eyebrow">COMPANY / 公司介紹</div><h2>關於我們</h2><p class="copy"></p></div></section>';
+  main.querySelector('.crumb span').textContent=name;
+  main.querySelector('h1').textContent=name;
+  main.querySelectorAll('.lead,.copy').forEach(node=>node.textContent=summary);
+  return main.outerHTML;
+}
+
 function managedProjectCard(project,category){
   if(!isManagedProject(project))return null;
   const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
@@ -246,7 +255,7 @@ async function editorDocument(page,html){
   let previewScripts='';
   let previewHeader='';
   try{
-    const templateFile=isManagedProject(page)?'project.html':ProjectBlocks.canonicalProjectFile(page.file_name).split('?')[0];
+    const templateFile=isManagedProject(page)?'project.html':/^company-\d+\.html$/.test(page.file_name)?'chengyu.html':ProjectBlocks.canonicalProjectFile(page.file_name).split('?')[0];
     const response=await fetch(`${basePath}${templateFile}?admin-preview=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`無法載入頁面樣板：${response.status}`);
     const template=new DOMParser().parseFromString(await response.text(),'text/html');
@@ -302,7 +311,7 @@ async function editorDocument(page,html){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=12"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=12"><link rel="stylesheet" href="company-blocks.css?v=1"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 async function loadEditor(page){
@@ -338,6 +347,8 @@ async function loadEditor(page){
     const main=frame.contentDocument.querySelector('main');
     if(main && ProjectBlocks.applies(page.file_name) && ProjectBlocks.prepare(main)){
       bindBlocks(main,$('blockPanel'),()=>{pageDirty=true});
+    }else if(main && isCompanyPage(page)){
+      bindCompanyBlocks(main,$('blockPanel'),()=>{pageDirty=true});
     }else if(main)main.contentEditable='true';
     imageEditor.bindFrame();
     floatingEditor.bindFrame();
@@ -364,11 +375,13 @@ function mainHtml(){
     throw new Error('新版首頁建案版型未載入，已停止儲存與發布；請重新整理後台。');
   if(ProjectBlocks.applies(current.file_name) && main.dataset.blockVersion!=='1')
     throw new Error('個案結構需要人工檢查，已保留原稿。');
+  if(isCompanyPage(current) && main.dataset.companyBlocks!=='1')
+    throw new Error('公司頁面區塊尚未載入，已保留原稿。');
   const copy=main.cloneNode(true);
   copy.removeAttribute('contenteditable');
   copy.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());
   copy.querySelectorAll('[data-admin-card-upload]').forEach(node=>node.remove());
-  if(copy.dataset.blockVersion){
+  if(copy.dataset.blockVersion||copy.dataset.companyBlocks){
     for(const node of copy.querySelectorAll('[contenteditable],[data-selected-block],[data-drop]')){
       for(const attr of ['contenteditable','data-selected-block','data-drop'])node.removeAttribute(attr);
     }
@@ -443,14 +456,14 @@ function appendProjectSubgroup(group,label,items){
 
 function renderPageList(filter=''){
   const list=$('pageList');
-  const newProjectButton=$('newProject');
+  const newProjectButton=$('newProject'),newCompanyButton=$('newCompanyPage');
   const query=filter.trim().toLocaleLowerCase('zh-Hant');
   const matches=pages.filter(page=>`${page.title} ${page.file_name} ${ProjectBlocks.canonicalProjectFile(page.file_name)}`.toLocaleLowerCase('zh-Hant').includes(query));
   list.replaceChildren();
-  const isCompanyDetail=page=>companyDetailFiles.has(ProjectBlocks.canonicalProjectFile(page.file_name));
+  const isCompanyDetail=isCompanyPage;
   for(const [heading,predicate] of [["主要頁面",page=>primaryPages.has(page.slug)],["公司詳情頁",isCompanyDetail],["個案頁面",page=>!primaryPages.has(page.slug)&&!isCompanyDetail(page)]]){
     const grouped=matches.filter(predicate);
-    if(!grouped.length&&heading!=='個案頁面')continue;
+    if(!grouped.length&&heading==='主要頁面')continue;
     const group=document.createElement('details');
     group.className='page-group';
     group.open=Boolean(query)||expandedPageGroups.has(heading);
@@ -467,6 +480,9 @@ function renderPageList(filter=''){
       group.append(newProjectButton);
       appendProjectSubgroup(group,'都更個案',grouped.filter(page=>pageProjectCategory(page)==='urban'));
       appendProjectSubgroup(group,'危老個案',grouped.filter(page=>pageProjectCategory(page)==='renewal'));
+    }else if(heading==='公司詳情頁'){
+      title.textContent=`公司詳情頁（${grouped.length}）`;
+      group.append(newCompanyButton,...grouped.map(pageButton));
     }else group.append(...grouped.map(pageButton));
     list.append(group);
   }
@@ -1185,6 +1201,33 @@ $('newProjectForm').onsubmit=async event=>{
     await loadEditor(data);
     message('個案草稿已建立。請上傳圖片、補齊資料並儲存；確認後再發布。');
   }catch(error){$('newProjectMessage').textContent=error.message;$('newProjectMessage').classList.add('error')}
+  finally{submit.disabled=false}
+};
+$('newCompanyPage').onclick=()=>{$('newCompanyMessage').textContent='';$('newCompanyDialog').showModal();$('newCompanyName').focus()};
+$('cancelNewCompany').onclick=()=>$('newCompanyDialog').close();
+$('newCompanyForm').onsubmit=async event=>{
+  event.preventDefault();
+  if(pageDirty&&!confirm('目前頁面有尚未儲存的修改。要放棄修改並建立新公司頁面嗎？'))return;
+  const name=$('newCompanyName').value.trim(),summary=$('newCompanySummary').value.trim();
+  if(!name||!summary)return;
+  const submit=$('createNewCompany');submit.disabled=true;$('newCompanyMessage').textContent='建立草稿中…';
+  try{
+    const used=pages.map(page=>Number(page.file_name.match(/^company-(\d+)\.html$/)?.[1]||0));
+    let nextNumber=Math.max(0,...used)+1;
+    const payload={slug:`company-${crypto.randomUUID()}`,file_name:'',title:`${name}｜元捷建設`,meta_description:summary,main_html:newCompanyHtml(name,summary),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
+    let data,error;
+    for(let attempt=0;attempt<5;attempt++){
+      payload.file_name=`company-${nextNumber++}.html`;
+      ({data,error}=await supabase.from('cms_pages').insert(payload).select().single());
+      if(!error||error.code!=='23505')break;
+    }
+    if(error)throw error;
+    pages.push(data);pages.sort((a,b)=>a.sort_order-b.sort_order);
+    $('pageSearch').value='';expandedPageGroups.add('公司詳情頁');renderPageList();
+    $('newCompanyDialog').close();$('newCompanyForm').reset();activityLoaded=false;pageDirty=false;
+    await loadEditor(data);
+    message('公司頁面草稿已建立。請編輯區塊、補上圖片並儲存；確認後再發布。');
+  }catch(error){$('newCompanyMessage').textContent=error.message;$('newCompanyMessage').classList.add('error')}
   finally{submit.disabled=false}
 };
 $('addQuestion').onclick=()=>{

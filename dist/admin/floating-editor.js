@@ -124,7 +124,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     featureActions.push(action('特色上移','上移','up',()=>{const item=featureItem(),block=featureBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
     featureActions.push(action('特色下移','下移','down',()=>{const item=featureItem(),block=featureBlock();if(item?.nextElementSibling){item.nextElementSibling.after(item);notifyBlock(block)}root.hidden=true}));
     const removeFeature=action('刪除所選特色','刪除特色','delete',()=>{const item=featureItem(),block=featureBlock();if(item&&win.confirm('刪除此項特色？')){item.remove();notifyBlock(block)}root.hidden=true});removeFeature.classList.add('inline-delete-action');featureActions.push(removeFeature);
-    const removeBlock=action('刪除所選區塊','刪除區塊','delete',()=>{const block=lastTarget?.closest('[data-block]');if(!block||['cover','footer'].includes(block.dataset.block))return;const name=window.ProjectBlocks.types[block.dataset.block]||'此區塊';if(win.confirm(`刪除整個「${name}」區塊及其內容？`)){block.remove();notifyBlock(null)}root.hidden=true});removeBlock.classList.add('inline-delete-action','inline-block-action');
+    const removeBlock=action('刪除所選區塊','刪除區塊','delete',()=>{const block=lastTarget?.closest('[data-block],[data-company-block]');if(!block||['cover','footer'].includes(block.dataset.block))return;const name=window.ProjectBlocks.types[block.dataset.block]||block.querySelector('h2,h1')?.textContent.trim()||'此區塊';if(win.confirm(`刪除整個「${name}」區塊及其內容？`)){block.remove();notifyBlock(null)}root.hidden=true});removeBlock.classList.add('inline-delete-action','inline-block-action');
     menu.append(media);root.append(toggle,menu);doc.body.append(root);
     root.addEventListener('pointerdown',event=>{if(event.target!==urlInput&&event.target!==fileInput)event.preventDefault()});
     toggle.onclick=()=>{
@@ -189,7 +189,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       lastTarget=event.target;
       const selection=win.getSelection();
       savedRange=selection?.rangeCount&&main.contains(selection.anchorNode)?selection.getRangeAt(0).cloneRange():null;
-      const block=lastTarget.closest('[data-block]');
+      const block=lastTarget.closest('[data-block],[data-company-block]');
       const textSelected=Boolean(savedRange&&!savedRange.collapsed);
       selectedLevel=block&&(event.forceBlock||(!textSelected&&(event.target===block||event.target.matches('[data-block] > .wrap,[data-block] > .page-head,[data-block] > .case-overview,[data-block] > .details'))))?'block':
         lastTarget.closest('[data-block="features"] li,[data-block="features"] article')&&!textSelected?'feature':
