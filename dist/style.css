@@ -338,10 +338,10 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .project-filter button.is-active{border-color:#4A6984;background:#4A6984;color:#fff}
 .project-filter button.is-active b{color:#E6EDF2}
 .project-filter-status{margin:0 0 26px;font-size:13px;color:#626D74}
-.case-card[hidden]{display:none}
 .case-card .project-location{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 14px!important}
 .case-card .project-location span{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border:1px solid #BFC9CF;border-radius:999px;color:#4A6984;font-size:12px;line-height:1.25;letter-spacing:.5px;background:#F8F8F5}
 .case-grid .case-card{display:flex;flex-direction:column}
+.case-grid .case-card[hidden]{display:none}
 .case-grid .case-card-copy{display:flex;flex:1;flex-direction:column}
 .case-card-stats{display:grid;grid-template-columns:1.05fr .85fr 1.1fr;gap:6px;margin-top:auto;padding-top:14px;border-top:1px solid #d8d9d5;order:2}
 .case-card-stat{display:flex;align-items:flex-start;gap:6px;min-width:0;color:#34444d}
