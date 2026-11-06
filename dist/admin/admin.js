@@ -1,8 +1,8 @@
-import {bindBlocks} from './block-editor.js?v=10';
-import {createFloatingEditor} from './floating-editor.js?v=11';
+import {bindBlocks} from './block-editor.js?v=11';
+import {createFloatingEditor} from './floating-editor.js?v=12';
 import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
-import {createImageEditor} from "./image-editor.js?v=4";
+import {createImageEditor} from "./image-editor.js?v=5";
 
 const cfg=window.YUANJIE_CONFIG;
 const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunclek@gmail.com"]);

@@ -28,6 +28,10 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     const doc=frame.contentDocument;
     setSelection(null);
     savedRange=null;
+    doc.querySelector('main')?.addEventListener('yuanjie:select-image',event=>{
+      const img=event.detail?.image;
+      if(img?.tagName==='IMG'&&doc.contains(img))setSelection(img);
+    });
     if(doc.querySelector('.case-grid')){
       for(const card of doc.querySelectorAll('a.case-card')){
         const target=card.querySelector('img, .case-placeholder');
