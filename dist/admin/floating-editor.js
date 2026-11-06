@@ -35,11 +35,12 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
   function bindFrame(){
     const doc=frame.contentDocument,win=frame.contentWindow,main=doc.querySelector('main');
     if(!main)return;
-    let savedRange=null,lastTarget=null;
+    let savedRange=null,lastTarget=null,selectedLevel='text';
     const style=doc.createElement('style');
     style.textContent='.inline-edit-ui{position:fixed;z-index:1000;font:14px/1.4 system-ui,sans-serif}.inline-edit-ui[hidden],.inline-edit-menu[hidden],.inline-media-form[hidden]{display:none!important}.inline-edit-toggle{display:flex;align-items:center;gap:5px;height:32px;padding:0 9px;border:1px solid #b5966a;border-radius:7px;background:#fff;color:#5d4931;box-shadow:0 3px 12px #0002;font:600 12px/1 system-ui;cursor:pointer}.inline-edit-toggle svg{width:16px;height:16px;flex:none}.inline-edit-toggle[aria-expanded=true]{background:#4a6984;color:#fff}.inline-edit-menu{position:absolute;top:38px;left:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;width:min(500px,calc(100vw - 24px));box-sizing:border-box;padding:8px;border:1px solid #c9c5bc;border-radius:10px;background:#fff;box-shadow:0 12px 30px #0003}.inline-edit-ui.open-up .inline-edit-menu{top:auto;bottom:38px}.inline-edit-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:7px 2px;font:11px/1.25 system-ui;cursor:pointer}.inline-edit-menu>.inline-edit-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:53px;white-space:nowrap}.inline-edit-action svg{width:18px;height:18px;flex:none}.inline-edit-menu button:hover,.inline-edit-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}.inline-edit-menu button:disabled{opacity:.45;cursor:not-allowed}.inline-edit-menu .inline-delete-action{color:#8e3530;background:#fff1ef}.inline-media-form{grid-column:1/-1;display:grid;gap:7px;padding-top:6px;border-top:1px solid #dedbd4}.inline-media-form label{font-size:12px;color:#53616a}.inline-media-form input{box-sizing:border-box;width:100%;padding:8px;border:1px solid #c9c8c0;border-radius:5px;font:13px system-ui}.inline-media-form .inline-media-actions{display:flex;gap:6px}.inline-media-form .inline-media-actions button{flex:1}.inline-media-status{grid-column:1/-1;color:#526574;font-size:12px;min-height:1em}.inline-media-status.error{color:#ad392f}';
     doc.head.append(style);
     style.textContent+='.inline-edit-action[hidden]{display:none!important}';
+    style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
     const root=doc.createElement('div');root.className='inline-edit-ui';root.hidden=true;root.dataset.editorUi='';
     const icon=paths=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
     const icons={
@@ -49,6 +50,9 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       image:icon('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/>'),
       crop:icon('<path d="M7 3v13a2 2 0 0 0 2 2h12M3 7h13a2 2 0 0 1 2 2v12"/>'),
       video:icon('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9Z"/>'),
+      add:icon('<path d="M12 5v14M5 12h14"/>'),
+      up:icon('<path d="m6 14 6-6 6 6"/>'),
+      down:icon('<path d="m6 10 6 6 6-6"/>'),
       delete:icon('<path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/>')
     };
     const toggle=doc.createElement('button');toggle.type='button';toggle.className='inline-edit-toggle';toggle.innerHTML=`${icons.edit}<span>編輯</span>`;toggle.title='編輯工具';toggle.setAttribute('aria-label','開啟編輯工具');toggle.setAttribute('aria-expanded','false');
@@ -91,16 +95,18 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       const figcaption=doc.createElement('figcaption');figcaption.textContent=caption;figure.append(figcaption);
       return figure;
     }
-    action('粗體','粗體','bold',()=>{restore();if(doc.execCommand('bold',false,null))onChange();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
-    action('加入連結','連結','link',()=>{
+    const textActions=[];
+    textActions.push(action('粗體','粗體','bold',()=>{restore();if(doc.execCommand('bold',false,null))onChange();menu.hidden=true;toggle.setAttribute('aria-expanded','false')}));
+    textActions.push(action('加入連結','連結','link',()=>{
       const value=prompt('請輸入連結網址（https://、mailto: 或 tel:）');
       if(!value)return;
       if(!/^(https:\/\/|mailto:|tel:)/i.test(value)){report('請輸入有效的連結網址。',true);return}
       restore();if(doc.execCommand('createLink',false,value))onChange();menu.hidden=true;toggle.setAttribute('aria-expanded','false');
-    });
-    action('上傳圖片','上傳圖片','image',()=>{restore();document.getElementById('imageUploadButton').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
+    }));
+    textActions.push(action('上傳圖片','上傳圖片','image',()=>{restore();document.getElementById('imageUploadButton').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')}));
     const editButton=action('編輯選取圖片','編輯圖片','crop',()=>{document.getElementById('editImage').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
-    action('插入媒體','媒體','video',()=>{media.hidden=!media.hidden;if(!media.hidden)urlInput.focus()});
+    textActions.push(editButton);
+    textActions.push(action('插入媒體','媒體','video',()=>{media.hidden=!media.hidden;if(!media.hidden)urlInput.focus()}));
     const deleteButton=action('刪除所選資料欄位','刪除欄位','delete',()=>{
       const row=lastTarget?.closest('[data-block="specs"] dl.specs > div');
       if(!row||!main.contains(row))return;
@@ -109,12 +115,28 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       row.remove();root.hidden=true;onChange();
     });
     deleteButton.classList.add('inline-delete-action');deleteButton.hidden=true;
+    const featureActions=[];
+    const featureBlock=()=>lastTarget?.closest('[data-block="features"]');
+    const featureList=()=>featureBlock()?.querySelector('.case-highlights,.heping-highlights,.features,ul');
+    const featureItem=()=>lastTarget?.closest('[data-block="features"] li,[data-block="features"] article');
+    const notifyBlock=block=>main.dispatchEvent(new CustomEvent('yuanjie:block-changed',{detail:{block}}));
+    featureActions.push(action('新增特色','新增特色','add',()=>{const block=featureBlock(),list=featureList();if(!list)return;const item=featureItem()||list.lastElementChild;if(!item)return;const clone=item.cloneNode(true);clone.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());item.after(clone);notifyBlock(block);root.hidden=true}));
+    featureActions.push(action('特色上移','上移','up',()=>{const item=featureItem(),block=featureBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
+    featureActions.push(action('特色下移','下移','down',()=>{const item=featureItem(),block=featureBlock();if(item?.nextElementSibling){item.nextElementSibling.after(item);notifyBlock(block)}root.hidden=true}));
+    const removeFeature=action('刪除所選特色','刪除特色','delete',()=>{const item=featureItem(),block=featureBlock();if(item&&win.confirm('刪除此項特色？')){item.remove();notifyBlock(block)}root.hidden=true});removeFeature.classList.add('inline-delete-action');featureActions.push(removeFeature);
+    const removeBlock=action('刪除所選區塊','刪除區塊','delete',()=>{const block=lastTarget?.closest('[data-block]');if(!block||['cover','footer'].includes(block.dataset.block))return;const name=window.ProjectBlocks.types[block.dataset.block]||'此區塊';if(win.confirm(`刪除整個「${name}」區塊及其內容？`)){block.remove();notifyBlock(null)}root.hidden=true});removeBlock.classList.add('inline-delete-action','inline-block-action');
     menu.append(media);root.append(toggle,menu);doc.body.append(root);
     root.addEventListener('pointerdown',event=>{if(event.target!==urlInput&&event.target!==fileInput)event.preventDefault()});
     toggle.onclick=()=>{
       menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden));
       editButton.disabled=document.getElementById('editImage').disabled;
-      deleteButton.hidden=!lastTarget?.closest('[data-block="specs"] dl.specs > div');
+      const isBlock=selectedLevel==='block',isFeature=selectedLevel==='feature',isRow=selectedLevel==='row';
+      root.dataset.level=selectedLevel;
+      textActions.forEach(button=>button.hidden=isBlock||isFeature);
+      featureActions.forEach(button=>button.hidden=!isFeature);
+      removeBlock.hidden=!isBlock;
+      deleteButton.hidden=!isRow;
+      media.hidden=true;
       if(!menu.hidden){
         const left=root.getBoundingClientRect().left;
         menu.style.left=`${Math.min(0,win.innerWidth-left-menu.offsetWidth-12)}px`;
@@ -167,13 +189,20 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       lastTarget=event.target;
       const selection=win.getSelection();
       savedRange=selection?.rangeCount&&main.contains(selection.anchorNode)?selection.getRangeAt(0).cloneRange():null;
+      const block=lastTarget.closest('[data-block]');
+      const textSelected=Boolean(savedRange&&!savedRange.collapsed);
+      selectedLevel=block&&(event.forceBlock||(!textSelected&&(event.target===block||event.target.matches('[data-block] > .wrap,[data-block] > .page-head,[data-block] > .case-overview,[data-block] > .details'))))?'block':
+        lastTarget.closest('[data-block="features"] li,[data-block="features"] article')&&!textSelected?'feature':
+        lastTarget.closest('[data-block="specs"] dl.specs > div')?'row':'text';
       const rect=savedRange?.getBoundingClientRect();
       const x=rect?.right||event.clientX||40,y=rect?.top||event.clientY||40;
       root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-44))}px`;
       root.style.top=`${Math.max(10,Math.min(y-40,win.innerHeight-44))}px`;
+      toggle.querySelector('span').textContent=selectedLevel==='block'?'區塊':selectedLevel==='feature'?'特色':selectedLevel==='row'?'欄位':'編輯';
       root.hidden=false;menu.hidden=true;media.hidden=true;toggle.setAttribute('aria-expanded','false');
     }
     doc.addEventListener('mouseup',show);
+    main.addEventListener('yuanjie:select-block',event=>{const block=event.detail?.block;if(!block||!main.contains(block))return;show({target:block,clientX:event.detail.x,clientY:event.detail.y,forceBlock:true});toggle.click()});
     doc.addEventListener('keyup',event=>{if(['Shift','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)&&doc.activeElement?.closest('main'))show({target:doc.activeElement,clientX:40,clientY:40})});
     doc.addEventListener('keydown',event=>{if(event.key==='Escape'){menu.hidden=true;root.hidden=true}});
   }

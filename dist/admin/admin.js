@@ -1,5 +1,5 @@
 import {bindBlocks} from './block-editor.js?v=7';
-import {createFloatingEditor} from './floating-editor.js?v=3';
+import {createFloatingEditor} from './floating-editor.js?v=4';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=4";
 
