@@ -1,8 +1,16 @@
 [
   {
-    "commit": "9965de29ed18c44aac1b35665f2ade39e8b5ab2c",
-    "short_commit": "9965de2",
-    "committed_at": "2026-11-06T13:58:34+08:00",
+    "commit": "c58a0719e23daebd71989a8144c3014682ed3e7e",
+    "short_commit": "c58a071",
+    "committed_at": "2026-11-06T14:05:20+08:00",
+    "summary": "feat: add participating team unit controls",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "99850d893ee8f22f89b782e7953c712cfecc0bb5",
+    "short_commit": "99850d8",
+    "committed_at": "2026-11-06T13:58:35+08:00",
     "summary": "feat: add narrative highlights and project albums",
     "summary_zh": "更新網站功能與介面",
     "details": []

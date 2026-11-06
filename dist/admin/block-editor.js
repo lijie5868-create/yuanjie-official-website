@@ -186,10 +186,11 @@ export function bindBlocks(main,panel,changed){
       [...rows.children].forEach((r,i)=>option(pick,String(i),`項目 ${i+1}　${r.textContent.trim().slice(0,20)}`));
       fields.append(pick);
       const row=()=>rows.children[pick.selectedIndex];
-      button(fields,'新增同類項目',()=>{const clone=row().cloneNode(true);delete clone.dataset.fieldId;rows.append(clone);select(el);changed()});
-      button(fields,'項目上移',()=>{const r=row();if(r.previousElementSibling){r.previousElementSibling.before(r);select(el);changed()}});
-      button(fields,'項目下移',()=>{const r=row();if(r.nextElementSibling){r.nextElementSibling.after(r);select(el);changed()}});
-      button(fields,'移除項目',()=>{if(rows.children.length>1&&confirm('移除所選項目？')){row().remove();api.refresh(main);select(el);changed()}}).disabled=rows.children.length===1;
+      const isTeam=el.dataset.block==='team';
+      button(fields,isTeam?'新增單位':'新增同類項目',()=>{const clone=row().cloneNode(true);delete clone.dataset.fieldId;rows.append(clone);select(el);changed()});
+      button(fields,isTeam?'單位上移':'項目上移',()=>{const r=row();if(r.previousElementSibling){r.previousElementSibling.before(r);select(el);changed()}});
+      button(fields,isTeam?'單位下移':'項目下移',()=>{const r=row();if(r.nextElementSibling){r.nextElementSibling.after(r);select(el);changed()}});
+      button(fields,isTeam?'刪除單位':'移除項目',()=>{if(rows.children.length>1&&confirm(isTeam?'刪除此參與單位？':'移除所選項目？')){row().remove();api.refresh(main);select(el);changed()}}).disabled=rows.children.length===1;
     }
   }
   main.addEventListener('yuanjie:media-inserted',event=>select(event.detail.block));

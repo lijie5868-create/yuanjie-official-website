@@ -40,7 +40,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     style.textContent='.inline-edit-ui{position:fixed;z-index:1000;font:14px/1.4 system-ui,sans-serif}.inline-edit-ui[hidden],.inline-edit-menu[hidden],.inline-media-form[hidden]{display:none!important}.inline-edit-toggle{display:flex;align-items:center;gap:5px;height:32px;padding:0 9px;border:1px solid #b5966a;border-radius:7px;background:#fff;color:#5d4931;box-shadow:0 3px 12px #0002;font:600 12px/1 system-ui;cursor:pointer}.inline-edit-toggle svg{width:16px;height:16px;flex:none}.inline-edit-toggle[aria-expanded=true]{background:#4a6984;color:#fff}.inline-edit-menu{position:absolute;top:38px;left:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;width:min(500px,calc(100vw - 24px));box-sizing:border-box;padding:8px;border:1px solid #c9c5bc;border-radius:10px;background:#fff;box-shadow:0 12px 30px #0003}.inline-edit-ui.open-up .inline-edit-menu{top:auto;bottom:38px}.inline-edit-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:7px 2px;font:11px/1.25 system-ui;cursor:pointer}.inline-edit-menu>.inline-edit-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:53px;white-space:nowrap}.inline-edit-action svg{width:18px;height:18px;flex:none}.inline-edit-menu button:hover,.inline-edit-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}.inline-edit-menu button:disabled{opacity:.45;cursor:not-allowed}.inline-edit-menu .inline-delete-action{color:#8e3530;background:#fff1ef}.inline-media-form{grid-column:1/-1;display:grid;gap:7px;padding-top:6px;border-top:1px solid #dedbd4}.inline-media-form label{font-size:12px;color:#53616a}.inline-media-form input{box-sizing:border-box;width:100%;padding:8px;border:1px solid #c9c8c0;border-radius:5px;font:13px system-ui}.inline-media-form .inline-media-actions{display:flex;gap:6px}.inline-media-form .inline-media-actions button{flex:1}.inline-media-status{grid-column:1/-1;color:#526574;font-size:12px;min-height:1em}.inline-media-status.error{color:#ad392f}';
     doc.head.append(style);
     style.textContent+='.inline-edit-action[hidden]{display:none!important}';
-    style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
+    style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu,.inline-edit-ui[data-level="team"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
     const root=doc.createElement('div');root.className='inline-edit-ui';root.hidden=true;root.dataset.editorUi='';
     const icon=paths=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
     const icons={
@@ -124,16 +124,25 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     featureActions.push(action('特色上移','上移','up',()=>{const item=featureItem(),block=featureBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
     featureActions.push(action('特色下移','下移','down',()=>{const item=featureItem(),block=featureBlock();if(item?.nextElementSibling){item.nextElementSibling.after(item);notifyBlock(block)}root.hidden=true}));
     const removeFeature=action('刪除所選特色','刪除特色','delete',()=>{const item=featureItem(),block=featureBlock();if(item&&win.confirm('刪除此項特色？')){item.remove();notifyBlock(block)}root.hidden=true});removeFeature.classList.add('inline-delete-action');featureActions.push(removeFeature);
+    const teamActions=[];
+    const teamBlock=()=>lastTarget?.closest('[data-block="team"]');
+    const teamList=()=>teamBlock()?.querySelector('.team,.pb-items');
+    const teamItem=()=>lastTarget?.closest('[data-block="team"] .team > div,[data-block="team"] .pb-items > article');
+    teamActions.push(action('新增參與單位','新增單位','add',()=>{const block=teamBlock(),list=teamList(),item=teamItem()||list?.lastElementChild;if(!item)return;const clone=item.cloneNode(true);clone.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());item.after(clone);notifyBlock(block);root.hidden=true}));
+    teamActions.push(action('單位上移','上移','up',()=>{const item=teamItem(),block=teamBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
+    teamActions.push(action('單位下移','下移','down',()=>{const item=teamItem(),block=teamBlock();if(item?.nextElementSibling){item.nextElementSibling.after(item);notifyBlock(block)}root.hidden=true}));
+    const removeTeam=action('刪除所選參與單位','刪除單位','delete',()=>{const item=teamItem(),block=teamBlock(),list=teamList();if(item&&list?.children.length>1&&win.confirm('刪除此參與單位？')){item.remove();notifyBlock(block)}root.hidden=true});removeTeam.classList.add('inline-delete-action');teamActions.push(removeTeam);
     const removeBlock=action('刪除所選區塊','刪除區塊','delete',()=>{const block=lastTarget?.closest('[data-block],[data-company-block]');if(!block||['cover','footer'].includes(block.dataset.block))return;const name=window.ProjectBlocks.types[block.dataset.block]||block.querySelector('h2,h1')?.textContent.trim()||'此區塊';if(win.confirm(`刪除整個「${name}」區塊及其內容？`)){block.remove();notifyBlock(null)}root.hidden=true});removeBlock.classList.add('inline-delete-action','inline-block-action');
     menu.append(media);root.append(toggle,menu);doc.body.append(root);
     root.addEventListener('pointerdown',event=>{if(event.target!==urlInput&&event.target!==fileInput)event.preventDefault()});
     toggle.onclick=()=>{
       menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden));
       editButton.disabled=document.getElementById('editImage').disabled;
-      const isBlock=selectedLevel==='block',isFeature=selectedLevel==='feature',isRow=selectedLevel==='row';
+      const isBlock=selectedLevel==='block',isFeature=selectedLevel==='feature',isTeam=selectedLevel==='team',isRow=selectedLevel==='row';
       root.dataset.level=selectedLevel;
-      textActions.forEach(button=>button.hidden=isBlock||isFeature);
+      textActions.forEach(button=>button.hidden=isBlock||isFeature||isTeam);
       featureActions.forEach(button=>button.hidden=!isFeature);
+      teamActions.forEach(button=>button.hidden=!isTeam);
       removeBlock.hidden=!isBlock;
       deleteButton.hidden=!isRow;
       media.hidden=true;
@@ -193,12 +202,13 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       const textSelected=Boolean(savedRange&&!savedRange.collapsed);
       selectedLevel=block&&(event.forceBlock||(!textSelected&&(event.target===block||event.target.matches('[data-block] > .wrap,[data-block] > .page-head,[data-block] > .case-overview,[data-block] > .details'))))?'block':
         lastTarget.closest('[data-block="features"] li,[data-block="features"] article,[data-block="featureStory"] article')&&!textSelected?'feature':
+        lastTarget.closest('[data-block="team"] .team > div,[data-block="team"] .pb-items > article')&&!textSelected?'team':
         lastTarget.closest('[data-block="specs"] dl.specs > div')?'row':'text';
       const rect=savedRange?.getBoundingClientRect();
       const x=rect?.right||event.clientX||40,y=rect?.top||event.clientY||40;
       root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-44))}px`;
       root.style.top=`${Math.max(10,Math.min(y-40,win.innerHeight-44))}px`;
-      toggle.querySelector('span').textContent=selectedLevel==='block'?'區塊':selectedLevel==='feature'?'特色':selectedLevel==='row'?'欄位':'編輯';
+      toggle.querySelector('span').textContent=selectedLevel==='block'?'區塊':selectedLevel==='feature'?'特色':selectedLevel==='team'?'單位':selectedLevel==='row'?'欄位':'編輯';
       root.hidden=false;menu.hidden=true;media.hidden=true;toggle.setAttribute('aria-expanded','false');
     }
     doc.addEventListener('mouseup',show);
