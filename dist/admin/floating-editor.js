@@ -40,7 +40,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     style.textContent='.inline-edit-ui{position:fixed;z-index:1000;font:14px/1.4 system-ui,sans-serif}.inline-edit-ui[hidden],.inline-edit-menu[hidden],.inline-media-form[hidden]{display:none!important}.inline-edit-toggle{display:flex;align-items:center;gap:5px;height:32px;padding:0 9px;border:1px solid #b5966a;border-radius:7px;background:#fff;color:#5d4931;box-shadow:0 3px 12px #0002;font:600 12px/1 system-ui;cursor:pointer}.inline-edit-toggle svg{width:16px;height:16px;flex:none}.inline-edit-toggle[aria-expanded=true]{background:#4a6984;color:#fff}.inline-edit-menu{position:absolute;top:38px;left:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;width:min(500px,calc(100vw - 24px));box-sizing:border-box;padding:8px;border:1px solid #c9c5bc;border-radius:10px;background:#fff;box-shadow:0 12px 30px #0003}.inline-edit-ui.open-up .inline-edit-menu{top:auto;bottom:38px}.inline-edit-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:7px 2px;font:11px/1.25 system-ui;cursor:pointer}.inline-edit-menu>.inline-edit-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:53px;white-space:nowrap}.inline-edit-action svg{width:18px;height:18px;flex:none}.inline-edit-menu button:hover,.inline-edit-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}.inline-edit-menu button:disabled{opacity:.45;cursor:not-allowed}.inline-edit-menu .inline-delete-action{color:#8e3530;background:#fff1ef}.inline-media-form{grid-column:1/-1;display:grid;gap:7px;padding-top:6px;border-top:1px solid #dedbd4}.inline-media-form label{font-size:12px;color:#53616a}.inline-media-form input{box-sizing:border-box;width:100%;padding:8px;border:1px solid #c9c8c0;border-radius:5px;font:13px system-ui}.inline-media-form .inline-media-actions{display:flex;gap:6px}.inline-media-form .inline-media-actions button{flex:1}.inline-media-status{grid-column:1/-1;color:#526574;font-size:12px;min-height:1em}.inline-media-status.error{color:#ad392f}';
     doc.head.append(style);
     style.textContent+='.inline-edit-action[hidden]{display:none!important}';
-    style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu,.inline-edit-ui[data-level="team"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
+    style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu,.inline-edit-ui[data-level="team"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="album"] .inline-edit-menu{width:min(450px,calc(100vw - 24px));grid-template-columns:repeat(5,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
     const root=doc.createElement('div');root.className='inline-edit-ui';root.hidden=true;root.dataset.editorUi='';
     const icon=paths=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
     const icons={
@@ -132,17 +132,28 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     teamActions.push(action('單位上移','上移','up',()=>{const item=teamItem(),block=teamBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
     teamActions.push(action('單位下移','下移','down',()=>{const item=teamItem(),block=teamBlock();if(item?.nextElementSibling){item.nextElementSibling.after(item);notifyBlock(block)}root.hidden=true}));
     const removeTeam=action('刪除所選參與單位','刪除單位','delete',()=>{const item=teamItem(),block=teamBlock(),list=teamList();if(item&&list?.children.length>1&&win.confirm('刪除此參與單位？')){item.remove();notifyBlock(block)}root.hidden=true});removeTeam.classList.add('inline-delete-action');teamActions.push(removeTeam);
+    const albumActions=[];
+    const albumBlock=()=>lastTarget?.closest('[data-block="albums"]');
+    const albumList=()=>albumBlock()?.querySelector('.project-album-grid');
+    const albumItem=()=>lastTarget?.closest('[data-block="albums"] .project-album');
+    albumActions.push(action('新增相簿','新增相簿','add',()=>{const block=albumBlock(),list=albumList(),item=albumItem()||list?.lastElementChild;if(!item||list.children.length>=12)return;const clone=item.cloneNode(true);clone.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());item.after(clone);notifyBlock(block);root.hidden=true}));
+    albumActions.push(action('相簿上移','上移','up',()=>{const item=albumItem(),block=albumBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
+    albumActions.push(action('相簿下移','下移','down',()=>{const item=albumItem(),block=albumBlock();if(item?.nextElementSibling){item.nextElementSibling.after(item);notifyBlock(block)}root.hidden=true}));
+    albumActions.push(action('更換相簿封面','更換封面','crop',()=>{document.getElementById('imageUploadButton').click();root.hidden=true}));
+    const removeAlbum=action('刪除所選相簿','刪除相簿','delete',()=>{const item=albumItem(),block=albumBlock(),list=albumList();if(item&&list?.children.length>1&&win.confirm('刪除此相簿及其中所有照片？')){item.remove();notifyBlock(block)}root.hidden=true});removeAlbum.classList.add('inline-delete-action');albumActions.push(removeAlbum);
     const removeBlock=action('刪除所選區塊','刪除區塊','delete',()=>{const block=lastTarget?.closest('[data-block],[data-company-block]');if(!block||['cover','footer'].includes(block.dataset.block))return;const name=window.ProjectBlocks.types[block.dataset.block]||block.querySelector('h2,h1')?.textContent.trim()||'此區塊';if(win.confirm(`刪除整個「${name}」區塊及其內容？`)){block.remove();notifyBlock(null)}root.hidden=true});removeBlock.classList.add('inline-delete-action','inline-block-action');
     menu.append(media);root.append(toggle,menu);doc.body.append(root);
     root.addEventListener('pointerdown',event=>{if(event.target!==urlInput&&event.target!==fileInput)event.preventDefault()});
     toggle.onclick=()=>{
       menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden));
       editButton.disabled=document.getElementById('editImage').disabled;
-      const isBlock=selectedLevel==='block',isFeature=selectedLevel==='feature',isTeam=selectedLevel==='team',isRow=selectedLevel==='row';
+      const isBlock=selectedLevel==='block',isFeature=selectedLevel==='feature',isTeam=selectedLevel==='team',isAlbum=selectedLevel==='album',isRow=selectedLevel==='row';
       root.dataset.level=selectedLevel;
-      textActions.forEach(button=>button.hidden=isBlock||isFeature||isTeam);
+      textActions.forEach(button=>button.hidden=isBlock||isFeature||isTeam||isAlbum);
       featureActions.forEach(button=>button.hidden=!isFeature);
       teamActions.forEach(button=>button.hidden=!isTeam);
+      albumActions.forEach(button=>button.hidden=!isAlbum);
+      if(isAlbum){albumActions[0].disabled=albumList()?.children.length>=12;removeAlbum.disabled=(albumList()?.children.length||0)<=1}
       removeBlock.hidden=!isBlock;
       deleteButton.hidden=!isRow;
       media.hidden=true;
@@ -193,7 +204,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       finally{upload.disabled=false;embed.disabled=false}
     };
     function show(event){
-      if(event.target.closest('.inline-edit-ui,[data-editor-ui],button,input,textarea,select'))return;
+      if(event.target.closest('.inline-edit-ui,[data-editor-ui],input,textarea,select')||(event.target.closest('button')&&!event.target.closest('.project-album-cover')))return;
       const target=event.target.closest('main');if(target!==main){root.hidden=true;return}
       lastTarget=event.target;
       const selection=win.getSelection();
@@ -203,12 +214,13 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       selectedLevel=block&&(event.forceBlock||(!textSelected&&(event.target===block||event.target.matches('[data-block] > .wrap,[data-block] > .page-head,[data-block] > .case-overview,[data-block] > .details'))))?'block':
         lastTarget.closest('[data-block="features"] li,[data-block="features"] article,[data-block="featureStory"] article')&&!textSelected?'feature':
         lastTarget.closest('[data-block="team"] .team > div,[data-block="team"] .pb-items > article')&&!textSelected?'team':
+        lastTarget.closest('[data-block="albums"] .project-album')&&!textSelected?'album':
         lastTarget.closest('[data-block="specs"] dl.specs > div')?'row':'text';
       const rect=savedRange?.getBoundingClientRect();
       const x=rect?.right||event.clientX||40,y=rect?.top||event.clientY||40;
       root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-44))}px`;
       root.style.top=`${Math.max(10,Math.min(y-40,win.innerHeight-44))}px`;
-      toggle.querySelector('span').textContent=selectedLevel==='block'?'區塊':selectedLevel==='feature'?'特色':selectedLevel==='team'?'單位':selectedLevel==='row'?'欄位':'編輯';
+      toggle.querySelector('span').textContent=selectedLevel==='block'?'區塊':selectedLevel==='feature'?'特色':selectedLevel==='team'?'單位':selectedLevel==='album'?'相簿':selectedLevel==='row'?'欄位':'編輯';
       root.hidden=false;menu.hidden=true;media.hidden=true;toggle.setAttribute('aria-expanded','false');
     }
     doc.addEventListener('mouseup',show);
