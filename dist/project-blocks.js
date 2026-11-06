@@ -291,8 +291,6 @@ window.ProjectBlocks = (() => {
       card.dataset.city=address[1];card.dataset.district=address[2];
       const loc=card.querySelector('.project-location');if(loc)loc.textContent=address[0];
     }
-    const lead=cover?.querySelector('.lead')?.textContent;
-    if(lead){const summary=card.ownerDocument.createElement('p');summary.textContent=lead;card.querySelector('.case-card-copy')?.append(summary)}
   }
   const enhancedAlbumRails=new WeakSet();
   function openAlbum(article,startIndex=0){
