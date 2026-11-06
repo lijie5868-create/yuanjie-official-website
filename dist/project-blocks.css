@@ -30,6 +30,8 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 [data-block="cover"] .eyebrow{color:#49687d}
 [data-block="cover"] figure{background:#e8e8e3}
 [data-block="cover"] figcaption{position:static;background:transparent;color:#49575d;padding:10px 12px;font-size:13px}
+[data-block="cover"] .project-location{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px!important;letter-spacing:0}
+[data-block="cover"] .project-location-tag{display:inline-flex;align-items:center;min-height:30px;padding:5px 11px;border:1px solid #bfc9cf;border-radius:999px;background:#f8f8f5;color:#4a6984;font:600 13px/1.3 sans-serif;letter-spacing:.04em}
 [data-block="specs"] :is(.case-overview>div,.details){display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,2fr);column-gap:clamp(24px,5vw,72px);align-content:start}
 [data-block="specs"] :is(.case-overview>div,.details)>*{grid-column:1}
 [data-block="specs"] :is(.case-overview>div,.details)>dl{grid-column:2;grid-row:1/span 12;width:100%;margin:0}

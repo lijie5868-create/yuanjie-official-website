@@ -87,6 +87,12 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .page-list button { display: flex; width: 100%; flex-direction: column; gap: 2px; text-align: left; background: transparent; color: #333; padding: 9px; border-radius: 7px; }
 .page-group button { border-radius: 0; }
 .page-group button + button { border-top: 1px solid #eeeae4; }
+.page-project-subgroup{padding:10px 8px 4px}
+.page-project-subgroup+.page-project-subgroup{border-top:1px solid #e7e3dc}
+.page-project-subgroup h3{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;padding:5px 4px 8px;color:#66727a;font-size:12px;font-weight:700;letter-spacing:.05em}
+.page-project-subgroup h3 span{display:inline-flex;min-width:24px;justify-content:center;padding:2px 7px;border-radius:999px;background:#e9edf0;color:#4a6984;font-size:11px;letter-spacing:0}
+.page-project-subgroup button{border-radius:6px}
+.page-project-subgroup button+button{border-top:1px solid #eeeae4}
 .page-list button strong { font-size: 14px; font-weight: 600; }
 .page-list button small { font-size: 11px; }
 .page-list button.active { background: #f0ebe4; color: #674a2e; }
@@ -291,6 +297,9 @@ iframe { display: block; width: 100%; height: max(960px, calc(100dvh - 90px)); b
 #blockPanel button[aria-pressed=true]{background:#4a6984;color:white}
 #blockPanel label{display:grid;gap:3px;width:100%;font-size:13px}
 #blockPanel>div:last-child{max-height:360px;overflow:auto}
+.block-item-summary{display:flex!important;width:100%;align-items:baseline!important;justify-content:space-between;gap:12px;margin:4px 0!important;padding:10px 12px;border:1px solid #cbd5da;border-radius:8px;background:#f4f7f8;color:#344d60}
+.block-item-summary strong{font-size:14px}
+.block-item-summary span{color:#66727a;font-size:12px;line-height:1.45;text-align:right}
 
 #newProjectLayout{min-width:0;margin:0;padding:14px;border:1px solid #d6cec4;border-radius:8px}
 #newProjectPalette{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}

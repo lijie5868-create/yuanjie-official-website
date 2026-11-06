@@ -90,6 +90,25 @@ window.ProjectBlocks = (() => {
       if(label?.tagName==='P')amount.after(label);
     }
   }
+  function formatProjectLocation(main,city='',district=''){
+    const location=main.querySelector('[data-block="cover"] .project-location,.page-head .project-location,.hero .project-location');
+    if(!location)return;
+    const current=location.textContent.replace(/\s+/g,'').trim();
+    if(!city||!district){
+      const match=current.match(/^(.+?[市縣])(.+)$/);
+      if(!match)return;
+      city ||= match[1];district ||= match[2];
+    }
+    district=district.replace(/^[｜|/·・]+/,'').trim();
+    if(!district)return;
+    const makeTag=value=>{
+      const tag=main.ownerDocument.createElement('span');
+      tag.className='project-location-tag';tag.textContent=value;
+      return tag;
+    };
+    location.replaceChildren(makeTag(city),makeTag(district));
+    location.setAttribute('aria-label',`${city}${district}`);
+  }
   function enhanceAmounts(main){
     // Public presentation only: keep the editor's source text untouched.
     if(!main.isConnected||main.ownerDocument.defaultView!==window)return;
@@ -115,7 +134,7 @@ window.ProjectBlocks = (() => {
   }
   function prepare(main){
     if(!main)return false;
-    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){layoutProfiles(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
+    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);layoutProfiles(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -154,6 +173,7 @@ window.ProjectBlocks = (() => {
     }
     main.replaceChildren(...blocks);
     main.dataset.blockVersion='1';
+    formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);
     layoutProfiles(main);
     enhanceAmounts(main);
     return true;
@@ -194,5 +214,5 @@ window.ProjectBlocks = (() => {
     const lead=cover?.querySelector('.lead')?.textContent;
     if(lead){const summary=card.ownerDocument.createElement('p');summary.textContent=lead;card.querySelector('.case-card-copy')?.append(summary)}
   }
-  return {types,applies,prepare,newBlock,refresh,updateCard,formatCardFacts,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
+  return {types,applies,prepare,newBlock,refresh,updateCard,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();

@@ -1,4 +1,4 @@
-import {bindBlocks} from './block-editor.js?v=4';
+import {bindBlocks} from './block-editor.js?v=5';
 import {createFloatingEditor} from './floating-editor.js?v=2';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=4";
@@ -302,7 +302,7 @@ async function editorDocument(page,html){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=11"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=12"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 async function loadEditor(page){
@@ -388,7 +388,7 @@ function mainHtml(){
     copy.dataset.projectDistrict=district;
     const type=category==='urban'?'進行個案（都更）':'在建工程（危老）';
     const destination=category==='urban'?'urban.html':'renewal.html';
-    copy.querySelector('.page-head .project-location').textContent=`${city}${district}`;
+    ProjectBlocks.formatProjectLocation(copy,city,district);
     const locationRow=[...copy.querySelectorAll('.specs div')].find(row=>row.querySelector('dt')?.textContent==='所在地區');
     if(locationRow)locationRow.querySelector('dd').textContent=`${city}${district}`;
     const typeRow=[...copy.querySelectorAll('.specs div')].find(row=>row.querySelector('dt')?.textContent==='個案類型');
@@ -424,6 +424,23 @@ function pageButton(page){
   return button;
 }
 
+function pageProjectCategory(page){
+  const main=new DOMParser().parseFromString(page.main_html||'','text/html').querySelector('main');
+  if(main?.dataset.projectCategory)return main.dataset.projectCategory;
+  if(main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"]'))return 'renewal';
+  if(main?.querySelector('a[href="urban.html"],a.project-return[href="urban.html"]'))return 'urban';
+  const text=`${page.title||''} ${main?.querySelector('.eyebrow')?.textContent||''}`;
+  return /危老|RECONSTRUCTION/i.test(text)?'renewal':'urban';
+}
+
+function appendProjectSubgroup(group,label,items){
+  if(!items.length)return;
+  const section=document.createElement('section');section.className='page-project-subgroup';
+  const heading=document.createElement('h3');heading.textContent=label;
+  const count=document.createElement('span');count.textContent=items.length;count.setAttribute('aria-label',`${items.length} 件`);
+  heading.append(count);section.append(heading,...items.map(pageButton));group.append(section);
+}
+
 function renderPageList(filter=''){
   const list=$('pageList');
   const newProjectButton=$('newProject');
@@ -445,8 +462,12 @@ function renderPageList(filter=''){
       else expandedPageGroups.delete(heading);
     });
     group.append(title);
-    if(heading==='個案頁面')group.append(newProjectButton);
-    group.append(...grouped.map(pageButton));
+    if(heading==='個案頁面'){
+      title.textContent=`個案頁面（${grouped.length}）`;
+      group.append(newProjectButton);
+      appendProjectSubgroup(group,'都更個案',grouped.filter(page=>pageProjectCategory(page)==='urban'));
+      appendProjectSubgroup(group,'危老個案',grouped.filter(page=>pageProjectCategory(page)==='renewal'));
+    }else group.append(...grouped.map(pageButton));
     list.append(group);
   }
   if(!matches.length){

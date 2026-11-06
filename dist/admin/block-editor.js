@@ -156,14 +156,21 @@ export function bindBlocks(main,panel,changed){
     }
     const rows=el.querySelector('.specs,.pb-items,.case-highlights,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid,.features,.heping-highlights,.team,.metrics,ul');
     if(rows?.children.length){
+      const featureItems=el.dataset.block==='features';
+      if(featureItems){
+        const summary=document.createElement('div');summary.className='block-item-summary';
+        const count=document.createElement('strong');count.textContent=`目前 ${rows.children.length} 項特色`;
+        const guidance=document.createElement('span');guidance.textContent='數量不限，頁面會依實際項目自動排版。';
+        summary.append(count,guidance);fields.append(summary);
+      }
       const pick=document.createElement('select');pick.ariaLabel='選擇項目';
-      [...rows.children].forEach((r,i)=>option(pick,String(i),(i+1)+' '+r.textContent.trim().slice(0,20)));
+      [...rows.children].forEach((r,i)=>option(pick,String(i),`${featureItems?'特色':'項目'} ${i+1}　${r.textContent.trim().slice(0,20)}`));
       fields.append(pick);
       const row=()=>rows.children[pick.selectedIndex];
-      button(fields,'新增同類項目',()=>{const clone=row().cloneNode(true);delete clone.dataset.fieldId;rows.append(clone);select(el);changed()});
+      button(fields,featureItems?'＋ 新增特色':'新增同類項目',()=>{const clone=row().cloneNode(true);delete clone.dataset.fieldId;rows.append(clone);select(el);changed()});
       button(fields,'項目上移',()=>{const r=row();if(r.previousElementSibling){r.previousElementSibling.before(r);select(el);changed()}});
       button(fields,'項目下移',()=>{const r=row();if(r.nextElementSibling){r.nextElementSibling.after(r);select(el);changed()}});
-      button(fields,'移除項目',()=>{if(rows.children.length>1&&confirm('移除所選項目？')){row().remove();api.refresh(main);select(el);changed()}}).disabled=rows.children.length===1;
+      button(fields,featureItems?'移除所選特色':'移除項目',()=>{if(rows.children.length>1&&confirm(`移除所選${featureItems?'特色':'項目'}？`)){row().remove();api.refresh(main);select(el);changed()}}).disabled=rows.children.length===1;
     }
   }
   main.addEventListener('yuanjie:media-inserted',event=>select(event.detail.block));
