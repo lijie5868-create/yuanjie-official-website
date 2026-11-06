@@ -53,7 +53,7 @@ window.ProjectBlocks = (() => {
         note.remove();
       }
       const inlineNote=location?.querySelector('.case-card-inline-note');
-      if(inlineNote){inlineNote.tabIndex=0;inlineNote.setAttribute('role','button');inlineNote.setAttribute('aria-label',`查看補充說明：${inlineNote.textContent.trim()}`)}
+      if(inlineNote){inlineNote.removeAttribute('tabindex');inlineNote.removeAttribute('role');inlineNote.removeAttribute('aria-label');inlineNote.classList.remove('is-open')}
       if(copy.querySelector('.case-card-stats'))continue;
       const paragraphs=[...copy.querySelectorAll(':scope > p:not(.project-location)')];
       const areaLine=paragraphs.find(node=>/^基地\s*.+[|｜]\s*.+戶/.test(node.textContent.trim()));
@@ -329,10 +329,5 @@ window.ProjectBlocks = (() => {
 document.addEventListener('click',event=>{
   const note=event.target.closest?.('.case-card-inline-note');
   if(!note||note.closest('[contenteditable="true"]'))return;
-  event.preventDefault();event.stopPropagation();note.classList.toggle('is-open');
-});
-document.addEventListener('keydown',event=>{
-  const note=event.target.closest?.('.case-card-inline-note');
-  if(!note||!['Enter',' '].includes(event.key))return;
-  event.preventDefault();note.click();
+  event.preventDefault();event.stopPropagation();
 });
