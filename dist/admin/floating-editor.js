@@ -152,7 +152,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       featureActions.forEach(button=>button.hidden=!isFeature);
       teamActions.forEach(button=>button.hidden=!isTeam);
       albumActions.forEach(button=>button.hidden=!isAlbum);
-      if(isAlbum){albumActions[0].disabled=1+(albumItem()?.querySelectorAll('.project-album-items figure').length||0)>=40;removePhoto.disabled=!albumItem()?.querySelector('.project-album-items figure')}
+      if(isAlbum){albumActions[0].disabled=1+(albumItem()?.querySelectorAll('.project-album-items figure').length||0)>=40;removePhoto.disabled=false}
       removeBlock.hidden=!isBlock;
       deleteButton.hidden=!isRow;
       media.hidden=true;
