@@ -1,6 +1,6 @@
 const templates={
   text:'<div class="wrap"><div class="eyebrow">COMPANY / 公司介紹</div><h2>段落標題</h2><p class="copy">請在此輸入內容。</p></div>',
-  image:'<div class="wrap"><div class="eyebrow">COMPANY / 圖片</div><h2>圖片與說明</h2><figure><img src="assets/project-placeholder.svg" alt="待上傳圖片"><figcaption>圖片說明</figcaption></figure></div>',
+  image:'<div class="wrap"><div class="eyebrow">COMPANY / 圖片</div><h2>圖片與說明</h2><figure><img src="../assets/project-placeholder.svg" alt="待上傳圖片"><figcaption>圖片說明</figcaption></figure></div>',
   cards:'<div class="wrap"><div class="eyebrow">COMPANY / 服務項目</div><h2>服務項目</h2><div class="service-grid"><article><h3>服務名稱</h3><p>服務說明</p></article><article><h3>服務名稱</h3><p>服務說明</p></article></div></div>'
 };
 const labels={intro:'公司頁首',text:'文字段落',image:'圖片段落',cards:'服務項目',content:'內容區塊'};

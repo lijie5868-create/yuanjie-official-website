@@ -50,19 +50,21 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 
 [data-block][data-layout="wide"] :is(.gallery,.heping-gallery,.meeting-gallery,.taian-journal-grid,.pb-items,.team,.features,.heping-highlights,.case-highlights,ul){grid-template-columns:1fr}
 
-/* Keep project facts close to their heading, with a readable measure. */
-[data-block="specs"] :is(.case-overview>div,.details){grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);column-gap:clamp(32px,5vw,76px);align-items:start}
-[data-block="specs"] :is(.case-overview>div,.details)>dl{grid-row:1;max-width:720px}
+/* Keep project facts compact enough to scan while preserving long company names. */
+[data-block="specs"] :is(.case-overview>div,.details){grid-template-columns:minmax(260px,.95fr) minmax(0,1.05fr);column-gap:clamp(28px,3.5vw,48px);align-items:start}
+[data-block="specs"] :is(.case-overview>div,.details)>dl{grid-row:1;max-width:640px;font-size:clamp(15px,1.2vw,17px)}
 [data-block="specs"] :is(.case-overview>div,.details)>:not(dl){max-width:440px}
 [data-block="specs"] :is(.case-overview>div,.details) h2{margin:14px 0 26px;line-height:1.35}
 [data-block="specs"] .case-amount{margin:8px 0 0;line-height:1.1}
-[data-block="specs"] .specs>div{grid-template-columns:minmax(100px,32%) minmax(0,1fr);gap:18px;padding:10px 0;align-items:baseline}
+[data-block="specs"] .specs>div{grid-template-columns:minmax(110px,30%) minmax(0,1fr);gap:20px;padding:7px 0;align-items:baseline;font-size:clamp(15px,1.2vw,17px);line-height:1.55}
 [data-block="specs"] .specs>div:has(>dd:empty){display:none}
-[data-block="specs"] .specs dd{overflow-wrap:normal;word-break:break-word}
+[data-block="specs"] .specs dt{color:#65737c;font-weight:500}
+[data-block="specs"] .specs dd{overflow-wrap:normal;word-break:break-word;font-weight:500}
 @media(max-width:750px){
  [data-block="specs"] :is(.case-overview>div,.details){display:block}
  [data-block="specs"] :is(.case-overview>div,.details)>dl{max-width:none;margin-top:28px}
- [data-block="specs"] .specs>div{grid-template-columns:minmax(86px,32%) minmax(0,1fr)}
+ [data-block="specs"] :is(.case-overview>div,.details)>dl{font-size:16px}
+ [data-block="specs"] .specs>div{grid-template-columns:minmax(96px,30%) minmax(0,1fr);gap:16px;padding:8px 0;font-size:16px}
 }
 
 /* Open project profile: the amount leads, its label follows below. */
