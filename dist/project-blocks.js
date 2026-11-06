@@ -186,10 +186,23 @@ window.ProjectBlocks = (() => {
       const media=[...candidates,...loose];
       if(media.length<3)continue;
       const grid=main.ownerDocument.createElement('div');grid.className='project-album-grid';
-      media.slice(0,12).forEach((item,index)=>grid.append(albumFromFigure(main.ownerDocument,item,index)));
+      const album=albumFromFigure(main.ownerDocument,media[0],0);
+      const items=album.querySelector('.project-album-items');
+      media.slice(1,40).forEach(item=>{const figure=main.ownerDocument.createElement('figure');const img=item.querySelector('img')?.cloneNode(true);if(!img)return;const caption=main.ownerDocument.createElement('figcaption');caption.textContent=item.querySelector('figcaption')?.textContent.trim()||item.querySelector('span')?.textContent.trim()||img.alt||'照片說明';figure.append(img,caption);items.append(figure)});
+      grid.append(album);
       const container=block.querySelector('.pb-items,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid');
       if(container)container.replaceWith(grid);else block.append(grid);
       block.dataset.block='albums';
+    }
+    for(const block of main.querySelectorAll('[data-block="albums"]')){
+      const grid=block.querySelector('.project-album-grid');if(!grid||grid.children.length<2)continue;
+      const first=grid.querySelector('.project-album'),items=first?.querySelector('.project-album-items');if(!items)continue;
+      for(const album of [...grid.children].slice(1)){
+        const cover=album.querySelector('.project-album-cover figure');
+        if(cover){const figure=main.ownerDocument.createElement('figure');const img=cover.querySelector('img')?.cloneNode(true);const caption=main.ownerDocument.createElement('figcaption');caption.textContent=cover.querySelector('figcaption strong')?.textContent.trim()||img?.alt||'照片說明';if(img)figure.append(img,caption);items.append(figure)}
+        for(const figure of album.querySelectorAll('.project-album-items figure'))items.append(figure);
+        album.remove();
+      }
     }
   }
   function prepare(main){

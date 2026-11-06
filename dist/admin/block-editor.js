@@ -151,10 +151,6 @@ export function bindBlocks(main,panel,changed){
       albumPick.selectedIndex=Math.max(0,Math.min(Number(el.dataset.activeAlbum)||0,grid.children.length-1));
       albumPick.onchange=()=>{el.dataset.activeAlbum=String(albumPick.selectedIndex);select(el)};fields.append(albumPick);
       const album=()=>grid.children[albumPick.selectedIndex];
-      button(fields,'新增一本相簿',()=>{if(grid.children.length>=12)return alert('每個圖片集最多 12 個相簿。');const clone=api.newBlock(doc,'albums').querySelector('.project-album');grid.append(clone);el.dataset.activeAlbum=String(grid.children.length-1);select(el);changed()});
-      button(fields,'相簿上移',()=>{const a=album();if(a.previousElementSibling){a.previousElementSibling.before(a);select(el);changed()}});
-      button(fields,'相簿下移',()=>{const a=album();if(a.nextElementSibling){a.nextElementSibling.after(a);select(el);changed()}});
-      button(fields,'刪除這本相簿',()=>{if(grid.children.length>1&&confirm('刪除此相簿及其中所有照片？')){album().remove();el.dataset.activeAlbum=String(Math.max(0,albumPick.selectedIndex-1));select(el);changed()}}).disabled=grid.children.length===1;
       button(fields,'更換相簿封面',()=>{album().querySelector('.project-album-cover img').click();document.getElementById('imageUploadButton').click()});
       const innerCount=album().querySelectorAll('.project-album-items figure').length;
       const photoStatus=doc.createElement('p');photoStatus.textContent=`此相簿：封面 1 張＋內頁照片 ${innerCount} 張`;fields.append(photoStatus);
