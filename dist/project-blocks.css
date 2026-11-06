@@ -171,3 +171,37 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 .project-album-thumbs{display:flex;gap:8px;overflow-x:auto;height:90px;padding-top:10px}.project-album-thumbs button{flex:0 0 96px;padding:0;border:2px solid transparent;background:none}.project-album-thumbs button[aria-current]{border-color:#d4b27c}.project-album-thumbs img{width:100%;height:70px;object-fit:cover}
 @media(max-width:900px){[data-block="albums"] .project-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){[data-block="featureStory"] .feature-story-head,[data-block="albums"] .album-section-head{display:block}[data-block="featureStory"] .feature-story-head p,[data-block="albums"] .album-section-head p{margin-top:12px}[data-block="featureStory"] .feature-story-grid{grid-template-columns:1fr}[data-block="featureStory"] .feature-story-grid article{min-height:0}[data-block="albums"] .project-album-grid{grid-template-columns:1fr}.project-album-dialog{padding-inline:12px}}
+
+/* Project cover: one editorial opening system for every case page. */
+[data-block="cover"] :is(.page-head,.hero .intro){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+[data-block="cover"] .project-signature{margin:0 0 8px;color:#4a6984;font-size:clamp(13px,1.1vw,16px);line-height:1.75;letter-spacing:.19em}
+[data-block="cover"] :is(.page-title,.intro h1){margin:0 0 clamp(18px,2vw,28px);font-size:clamp(42px,5.2vw,76px);line-height:1.16;letter-spacing:.025em;text-wrap:balance}
+[data-block="cover"] .project-location{margin:0 0 clamp(26px,3vw,42px)!important}
+[data-block="cover"] .cover-narrative{display:grid;gap:16px;width:100%;min-height:190px;padding-top:clamp(24px,3vw,40px);border-top:1px solid #c5a880}
+[data-block="cover"] .cover-motto{max-width:14em;margin:0;font-size:clamp(24px,2.5vw,36px);line-height:1.55;letter-spacing:.04em;text-wrap:balance}
+[data-block="cover"] .cover-description{max-width:31em;min-height:3.8em;margin:0;color:#59666d;font-size:clamp(16px,1.3vw,19px);line-height:1.95;white-space:pre-line}
+[data-block="cover"] [contenteditable][data-placeholder]:empty::before{content:attr(data-placeholder);color:#879198;font-style:normal}
+[data-block="cover"] .cover-explore{display:inline-flex;align-items:center;gap:14px;min-height:58px;margin-top:clamp(14px,2vw,24px);color:#2d3b43;font-size:18px;font-weight:600;letter-spacing:.08em;text-decoration:none}
+[data-block="cover"] .cover-explore>span{display:inline;border:0;border-radius:0;width:auto;height:auto}
+[data-block="cover"] .cover-explore svg{width:58px;height:58px;padding:16px;overflow:visible;border:1px solid #b9c1c5;border-radius:50%;fill:none;stroke:currentColor;stroke-width:1.35;transition:background .25s ease,color .25s ease,transform .25s ease}
+[data-block="cover"] .cover-explore:focus-visible{outline:2px solid #4a6984;outline-offset:5px}
+@media(hover:hover){[data-block="cover"] .cover-explore:hover svg{background:#4a6984;color:#fff;transform:translateY(3px)}}
+@media(min-width:801px){
+ [data-block="cover"]:has(>.page-head):has(>figure){grid-template-columns:minmax(360px,.82fr) minmax(0,1.18fr);gap:clamp(44px,5vw,78px);align-items:stretch}
+ [data-block="cover"]:has(>.page-head):has(>figure)>.page-head{justify-content:center;padding-block:12px}
+ [data-block="cover"]:has(>.page-head):has(>figure)>figure{align-self:center}
+ [data-block="cover"]>figure img{min-height:620px;max-height:760px;object-fit:cover}
+}
+@media(max-width:800px){
+ [data-block="cover"] .project-signature{margin-top:10px}
+ [data-block="cover"] .cover-narrative{min-height:0;padding-top:24px}
+ [data-block="cover"] .cover-explore{margin-bottom:26px}
+ [data-block="cover"]>figure img{min-height:0;max-height:68vh;object-fit:contain}
+}
+@media(max-width:520px){
+ [data-block="cover"] :is(.page-title,.intro h1){font-size:clamp(38px,12vw,54px)}
+ [data-block="cover"] .project-location{margin-bottom:24px!important}
+ [data-block="cover"] .cover-narrative{gap:12px}
+ [data-block="cover"] .cover-explore{gap:12px;font-size:17px}
+ [data-block="cover"] .cover-explore svg{width:52px;height:52px;padding:14px}
+}

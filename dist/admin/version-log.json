@@ -1,7 +1,15 @@
 [
   {
-    "commit": "c58a0719e23daebd71989a8144c3014682ed3e7e",
-    "short_commit": "c58a071",
+    "commit": "d11c85e61caee9be48ca8a15efa1c929e52e9140",
+    "short_commit": "d11c85e",
+    "committed_at": "2026-11-06T14:18:50+08:00",
+    "summary": "feat: standardize project cover storytelling layout",
+    "summary_zh": "更新網站功能與介面",
+    "details": []
+  },
+  {
+    "commit": "6a5ddc81698aa4ac55a4a0d77023274fdcaf2040",
+    "short_commit": "6a5ddc8",
     "committed_at": "2026-11-06T14:05:20+08:00",
     "summary": "feat: add participating team unit controls",
     "summary_zh": "更新網站功能與介面",

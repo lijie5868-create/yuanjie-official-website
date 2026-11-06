@@ -187,9 +187,9 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 /* Compact public-site header — keep branding clear without delaying page content. */
 @media(min-width:601px){
  header{min-height:60px;padding-top:6px;padding-bottom:6px;gap:16px}
- .brand-lockup{gap:8px}
+ .brand-lockup{gap:5px}
  .brand-mark{width:40px;height:40px}
- .brand-lines{gap:2px}
+ .brand-lines{gap:1px}
  .brand-lines strong{font-size:16px;line-height:1.2}
  .brand-lines small{font-size:11px!important;line-height:1.2;letter-spacing:.8px!important}
  header nav{gap:16px}
@@ -198,7 +198,7 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 }
 @media(max-width:600px){
  header{padding:8px 14px 7px;gap:6px}
- .brand-lockup{gap:8px}
+ .brand-lockup{gap:5px}
  .brand-mark{width:36px;height:36px}
  .brand-lines strong{font-size:16px;line-height:1.25}
  .brand-lines small{font-size:11px!important;line-height:1.25}

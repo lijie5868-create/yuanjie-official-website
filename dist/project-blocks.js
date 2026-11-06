@@ -132,6 +132,25 @@ window.ProjectBlocks = (() => {
       amount.replaceChildren(holo,unit);
     }
   }
+  function normalizeCover(main){
+    const cover=main.querySelector('[data-block="cover"]');if(!cover)return;
+    const copy=cover.querySelector(':scope > .page-head')||cover.querySelector('.hero .intro');if(!copy)return;
+    const identity=copy.querySelector('.eyebrow');if(identity)identity.classList.add('project-signature');
+    let narrative=copy.querySelector('.cover-narrative');
+    if(!narrative){
+      narrative=main.ownerDocument.createElement('div');narrative.className='cover-narrative';
+      const existingHeading=copy.querySelector(':scope > h2'),existingLead=copy.querySelector(':scope > .lead');
+      const existingBody=existingHeading?.nextElementSibling?.matches('p:not(.project-location)')?existingHeading.nextElementSibling:null;
+      const heading=existingHeading||main.ownerDocument.createElement('h2');heading.classList.add('cover-motto');heading.dataset.placeholder='補充個案標語';
+      if(!existingHeading&&existingLead){heading.textContent=existingLead.textContent;existingLead.remove()}
+      const body=existingBody||main.ownerDocument.createElement('p');body.classList.add('cover-description');body.dataset.placeholder='補充個案說明文字';
+      narrative.append(heading,body);const location=copy.querySelector('.project-location');(location||copy.querySelector('h1'))?.after(narrative);
+    }
+    let explore=copy.querySelector('.cover-explore,.explore');
+    if(!explore){explore=main.ownerDocument.createElement('a');explore.href='#project';copy.append(explore)}
+    explore.classList.add('cover-explore');explore.innerHTML='<span>探索本案</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13m-5-5 5 5 5-5"/></svg>';
+    const specs=main.querySelector('[data-block="specs"]');if(specs&&!main.querySelector('#project'))specs.id='project';
+  }
   function albumFromFigure(doc,source,index){
     const article=doc.createElement('article');article.className='project-album';
     const cover=doc.createElement('button');cover.type='button';cover.className='project-album-cover';
@@ -164,7 +183,7 @@ window.ProjectBlocks = (() => {
   }
   function prepare(main){
     if(!main)return false;
-    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);layoutProfiles(main);upgradeAlbums(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
+    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);layoutProfiles(main);upgradeAlbums(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -204,6 +223,7 @@ window.ProjectBlocks = (() => {
     main.replaceChildren(...blocks);
     main.dataset.blockVersion='1';
     formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);
+    normalizeCover(main);
     layoutProfiles(main);
     upgradeAlbums(main);
     enhanceAmounts(main);
@@ -263,5 +283,5 @@ window.ProjectBlocks = (() => {
   }
   document.addEventListener('click',event=>{const cover=event.target.closest?.('.project-album-cover');if(cover&&!cover.closest('[contenteditable]')){event.preventDefault();event.stopImmediatePropagation();openAlbum(cover.closest('.project-album'))}},true);
   document.addEventListener('DOMContentLoaded',()=>{const main=document.querySelector('main');if(main&&applies(location.pathname.split('/').pop()+location.search)){prepare(main);upgradeAlbums(main);cleanupAlbumZoom();new MutationObserver(()=>cleanupAlbumZoom()).observe(main,{childList:true,subtree:true})}});
-  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,updateCard,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
+  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,normalizeCover,updateCard,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();
