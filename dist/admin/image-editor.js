@@ -117,6 +117,10 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     setMessage('');
     $('resizeImage').hidden=!showResize;
     $('imageDialogTitle').textContent=existing?'更換或編輯圖片':'上傳並裁切圖片';
+    const albumImage=Boolean(selected?.closest?.('[data-block="albums"] .project-album'));
+    dialog.toggleAttribute('data-album-image',albumImage);
+    $('imageWidth').closest('label').hidden=albumImage;
+    $('cropRatio').closest('label').firstChild.textContent=albumImage?'圖庫照片裁切比例':'裁切比例';
     $('imageAlt').value=existing?.alt||name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
     const currentWidth=existing?.style.width?.match(/^(\d+)%$/)?.[1]||'100';
     $('imageWidth').value=currentWidth;
@@ -126,7 +130,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   }
 
   function applySize(target){
-    if(target.closest('a.case-card')){
+    if(target.closest('a.case-card,[data-block="albums"] .project-album')){
       target.style.removeProperty('width');
       target.style.removeProperty('max-width');
       target.style.removeProperty('height');
