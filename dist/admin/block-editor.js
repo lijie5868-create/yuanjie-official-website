@@ -146,23 +146,27 @@ export function bindBlocks(main,panel,changed){
     }
     if(el.dataset.block==='albums'){
       const grid=el.querySelector('.project-album-grid');
-      const albumPick=document.createElement('select');albumPick.ariaLabel='選擇相簿';
-      [...grid.children].forEach((album,i)=>option(albumPick,String(i),`相簿 ${i+1}　${album.querySelector('strong')?.textContent||''}`));fields.append(albumPick);
+      const albumPick=document.createElement('select');albumPick.ariaLabel='選擇相簿（整本）';
+      [...grid.children].forEach((album,i)=>option(albumPick,String(i),`相簿 ${i+1}　${album.querySelector('strong')?.textContent||''}`));
+      albumPick.selectedIndex=Math.max(0,Math.min(Number(el.dataset.activeAlbum)||0,grid.children.length-1));
+      albumPick.onchange=()=>{el.dataset.activeAlbum=String(albumPick.selectedIndex);select(el)};fields.append(albumPick);
       const album=()=>grid.children[albumPick.selectedIndex];
-      button(fields,'新增相簿',()=>{if(grid.children.length>=12)return alert('每個圖片集最多 12 個相簿。');const clone=api.newBlock(doc,'albums').querySelector('.project-album');grid.append(clone);select(el);changed()});
+      button(fields,'新增一本相簿',()=>{if(grid.children.length>=12)return alert('每個圖片集最多 12 個相簿。');const clone=api.newBlock(doc,'albums').querySelector('.project-album');grid.append(clone);el.dataset.activeAlbum=String(grid.children.length-1);select(el);changed()});
       button(fields,'相簿上移',()=>{const a=album();if(a.previousElementSibling){a.previousElementSibling.before(a);select(el);changed()}});
       button(fields,'相簿下移',()=>{const a=album();if(a.nextElementSibling){a.nextElementSibling.after(a);select(el);changed()}});
-      button(fields,'刪除相簿',()=>{if(grid.children.length>1&&confirm('刪除此相簿及其中所有照片？')){album().remove();select(el);changed()}}).disabled=grid.children.length===1;
+      button(fields,'刪除這本相簿',()=>{if(grid.children.length>1&&confirm('刪除此相簿及其中所有照片？')){album().remove();el.dataset.activeAlbum=String(Math.max(0,albumPick.selectedIndex-1));select(el);changed()}}).disabled=grid.children.length===1;
       button(fields,'更換相簿封面',()=>{album().querySelector('.project-album-cover img').click();document.getElementById('imageUploadButton').click()});
-      button(fields,'新增相簿照片',()=>{const a=album(),count=1+a.querySelectorAll('.project-album-items figure').length;if(count>=40)return alert('每個相簿最多 40 張照片。');const figure=doc.createElement('figure');figure.innerHTML='<img alt="相簿照片"><figcaption>照片說明</figcaption>';figure.querySelector('img').src=new URL('../assets/project-placeholder.svg',import.meta.url).href;a.querySelector('.project-album-items').append(figure);select(el);figure.querySelector('img').click();document.getElementById('imageUploadButton').click();changed()});
+      const innerCount=album().querySelectorAll('.project-album-items figure').length;
+      const photoStatus=doc.createElement('p');photoStatus.textContent=`此相簿：封面 1 張＋內頁照片 ${innerCount} 張`;fields.append(photoStatus);
+      button(fields,'新增一張照片（此相簿）',()=>{const a=album(),count=1+a.querySelectorAll('.project-album-items figure').length;if(count>=40)return alert('每個相簿最多 40 張照片。');const figure=doc.createElement('figure');figure.innerHTML='<img alt="相簿照片"><figcaption>照片說明</figcaption>';figure.querySelector('img').src=new URL('../assets/project-placeholder.svg',import.meta.url).href;a.querySelector('.project-album-items').append(figure);a.dataset.activePhoto=String(count-1);select(el);figure.querySelector('img').click();document.getElementById('imageUploadButton').click();changed()});
       const photos=[...album().querySelectorAll('.project-album-items figure')];
       if(photos.length){
-        const photoPick=document.createElement('select');photoPick.ariaLabel='選擇相簿內照片';photos.forEach((figure,i)=>option(photoPick,String(i),`內頁照片 ${i+1}　${figure.querySelector('figcaption')?.textContent||''}`));fields.append(photoPick);
+        const photoPick=document.createElement('select');photoPick.ariaLabel='選擇一張內頁照片';photos.forEach((figure,i)=>option(photoPick,String(i),`內頁照片 ${i+1}　${figure.querySelector('figcaption')?.textContent||''}`));photoPick.selectedIndex=Math.max(0,Math.min(Number(album().dataset.activePhoto)||0,photos.length-1));photoPick.onchange=()=>{album().dataset.activePhoto=String(photoPick.selectedIndex);select(el)};fields.append(photoPick);
         const photo=()=>album().querySelectorAll('.project-album-items figure')[photoPick.selectedIndex];
-        button(fields,'更換內頁照片',()=>{photo().querySelector('img').click();document.getElementById('imageUploadButton').click()});
+        button(fields,'更換這張照片',()=>{photo().querySelector('img').click();document.getElementById('imageUploadButton').click()});
         button(fields,'照片上移',()=>{const p=photo();if(p.previousElementSibling){p.previousElementSibling.before(p);select(el);changed()}});
         button(fields,'照片下移',()=>{const p=photo();if(p.nextElementSibling){p.nextElementSibling.after(p);select(el);changed()}});
-        button(fields,'刪除內頁照片',()=>{if(confirm('刪除這張相簿內頁照片？')){photo().remove();select(el);changed()}});
+        button(fields,'刪除這張照片',()=>{if(confirm('刪除這張相簿內頁照片？')){photo().remove();album().dataset.activePhoto=String(Math.max(0,photoPick.selectedIndex-1));select(el);changed()}});
       }
       return;
     }
