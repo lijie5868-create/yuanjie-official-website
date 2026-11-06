@@ -1,6 +1,6 @@
 // Versioned semantic HTML is both the block document and the deployable fallback.
 window.ProjectBlocks = (() => {
-  const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色', gallery:'圖片集', journal:'工程與活動紀錄', team:'參與團隊'};
+  const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色（條列卡片）', featureStory:'個案特色（敘事卡片）', gallery:'圖片集（單層）', albums:'圖片集（相簿）', journal:'工程與活動紀錄', team:'參與團隊'};
   const files = new Set(['shidong','heping','project-xinguang-urban','project-wuxing',...Array.from({length:19},(_,i)=>'project-'+(i+2)).filter(name=>name!=='project-11')].map(name=>name+'.html'));
   const aliases={
     'shidong.html':'project-1.html',
@@ -132,9 +132,39 @@ window.ProjectBlocks = (() => {
       amount.replaceChildren(holo,unit);
     }
   }
+  function albumFromFigure(doc,source,index){
+    const article=doc.createElement('article');article.className='project-album';
+    const cover=doc.createElement('button');cover.type='button';cover.className='project-album-cover';
+    const figure=doc.createElement('figure');
+    const image=source.querySelector?.('img')?.cloneNode(true)||doc.createElement('img');
+    if(!image.getAttribute('src'))image.src='assets/project-placeholder.svg';
+    image.removeAttribute('style');
+    const originalCaption=source.querySelector?.('figcaption')?.textContent.trim()||source.querySelector?.('span')?.textContent.trim()||image.alt||`相簿 ${index+1}`;
+    const caption=doc.createElement('figcaption');
+    const title=doc.createElement('strong');title.textContent=originalCaption;
+    const hint=doc.createElement('small');hint.textContent='點選查看相簿';
+    caption.append(title,hint);figure.append(image,caption);cover.append(figure);
+    const items=doc.createElement('div');items.className='project-album-items';items.hidden=true;
+    article.append(cover,items);return article;
+  }
+  function upgradeAlbums(main){
+    const selectors=['[data-block="gallery"]','[data-block="journal"]'];
+    for(const block of main.querySelectorAll(selectors.join(','))){
+      if(block.dataset.block==='albums'||block.querySelector('.project-album-grid'))continue;
+      const candidates=[...block.querySelectorAll('figure')].filter(figure=>figure.querySelector('img'));
+      const loose=[...block.querySelectorAll('button > img')].filter(img=>!img.closest('figure')).map(img=>img.parentElement);
+      const media=[...candidates,...loose];
+      if(media.length<3)continue;
+      const grid=main.ownerDocument.createElement('div');grid.className='project-album-grid';
+      media.slice(0,12).forEach((item,index)=>grid.append(albumFromFigure(main.ownerDocument,item,index)));
+      const container=block.querySelector('.pb-items,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid');
+      if(container)container.replaceWith(grid);else block.append(grid);
+      block.dataset.block='albums';
+    }
+  }
   function prepare(main){
     if(!main)return false;
-    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);layoutProfiles(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
+    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);layoutProfiles(main);upgradeAlbums(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -175,14 +205,17 @@ window.ProjectBlocks = (() => {
     main.dataset.blockVersion='1';
     formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);
     layoutProfiles(main);
+    upgradeAlbums(main);
     enhanceAmounts(main);
     return true;
   }
   const templates={
     story:'<h2>段落標題</h2><p>段落內容</p>',
     features:'<h2>個案特色</h2><ul><li>特色說明</li></ul>',
+    featureStory:'<div class="feature-story-head"><h2>在熟悉的街區，想像新的日常</h2><p>生活底蘊 × 建築美學 × 更新願景</p></div><div class="feature-story-grid"><article><small>NEIGHBORHOOD</small><h3>特色主標題</h3><p>完整說明這項特色帶來的生活價值。</p></article><article><small>ARCHITECTURE</small><h3>特色主標題</h3><p>完整說明建築規劃與設計想法。</p></article></div>',
     metrics:'<h2>重點數據</h2><div class="pb-items"><p data-metric-ref=""></p></div>',
     gallery:'<h2>圖片集</h2><div class="pb-items"><figure><img alt="個案照片"><figcaption>照片說明</figcaption></figure></div>',
+    albums:'<div class="album-section-head"><h2>工程與活動紀錄</h2><p>點選相簿查看更多照片</p></div><div class="project-album-grid"><article class="project-album"><button type="button" class="project-album-cover"><figure><img alt="相簿封面"><figcaption><strong>相簿名稱</strong><small>點選查看相簿</small></figcaption></figure></button><div class="project-album-items" hidden></div></article></div>',
     journal:'<h2>工程與活動紀錄</h2><div class="pb-items"><article><time>日期</time><h3>事件名稱</h3><p>事件說明</p></article></div>',
     team:'<h2>參與團隊</h2><div class="pb-items"><article><small>角色</small><h3>單位名稱</h3><p>人員與說明</p></article></div>'
   };
@@ -214,5 +247,21 @@ window.ProjectBlocks = (() => {
     const lead=cover?.querySelector('.lead')?.textContent;
     if(lead){const summary=card.ownerDocument.createElement('p');summary.textContent=lead;card.querySelector('.case-card-copy')?.append(summary)}
   }
-  return {types,applies,prepare,newBlock,refresh,updateCard,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
+  function openAlbum(article){
+    let dialog=document.querySelector('.project-album-dialog');
+    if(!dialog){dialog=document.createElement('dialog');dialog.className='project-album-dialog';dialog.innerHTML='<button type="button" class="project-album-close" aria-label="關閉相簿">×</button><div class="project-album-viewer"><img alt=""><button type="button" class="project-album-prev" aria-label="上一張">‹</button><button type="button" class="project-album-next" aria-label="下一張">›</button><p></p></div><div class="project-album-thumbs"></div>';document.body.append(dialog);dialog.querySelector('.project-album-close').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()})}
+    const figures=[article.querySelector('.project-album-cover figure'),...article.querySelectorAll('.project-album-items figure')].filter(Boolean);
+    let index=0;const image=dialog.querySelector('.project-album-viewer img'),caption=dialog.querySelector('.project-album-viewer p'),thumbs=dialog.querySelector('.project-album-thumbs');
+    const show=i=>{index=(i+figures.length)%figures.length;const img=figures[index].querySelector('img');image.src=img.src;image.alt=img.alt;caption.textContent=figures[index].querySelector('figcaption strong')?.textContent.trim()||figures[index].querySelector('figcaption')?.textContent.trim()||img.alt;[...thumbs.children].forEach((b,n)=>b.toggleAttribute('aria-current',n===index))};
+    thumbs.replaceChildren(...figures.map((figure,i)=>{const b=document.createElement('button');b.type='button';const img=figure.querySelector('img').cloneNode(true);b.append(img);b.onclick=()=>show(i);return b}));
+    dialog.querySelector('.project-album-prev').onclick=()=>show(index-1);dialog.querySelector('.project-album-next').onclick=()=>show(index+1);show(0);dialog.showModal();
+  }
+  function cleanupAlbumZoom(root=document){
+    for(const zoom of root.querySelectorAll('.project-album-cover .image-zoom')){
+      const img=zoom.querySelector('img');if(img)zoom.replaceWith(img);
+    }
+  }
+  document.addEventListener('click',event=>{const cover=event.target.closest?.('.project-album-cover');if(cover&&!cover.closest('[contenteditable]')){event.preventDefault();event.stopImmediatePropagation();openAlbum(cover.closest('.project-album'))}},true);
+  document.addEventListener('DOMContentLoaded',()=>{const main=document.querySelector('main');if(main&&applies(location.pathname.split('/').pop()+location.search)){prepare(main);upgradeAlbums(main);cleanupAlbumZoom();new MutationObserver(()=>cleanupAlbumZoom()).observe(main,{childList:true,subtree:true})}});
+  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,updateCard,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();

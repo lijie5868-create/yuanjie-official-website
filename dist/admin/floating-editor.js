@@ -116,9 +116,9 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     });
     deleteButton.classList.add('inline-delete-action');deleteButton.hidden=true;
     const featureActions=[];
-    const featureBlock=()=>lastTarget?.closest('[data-block="features"]');
-    const featureList=()=>featureBlock()?.querySelector('.case-highlights,.heping-highlights,.features,ul');
-    const featureItem=()=>lastTarget?.closest('[data-block="features"] li,[data-block="features"] article');
+    const featureBlock=()=>lastTarget?.closest('[data-block="features"],[data-block="featureStory"]');
+    const featureList=()=>featureBlock()?.querySelector('.case-highlights,.heping-highlights,.features,.feature-story-grid,ul');
+    const featureItem=()=>lastTarget?.closest('[data-block="features"] li,[data-block="features"] article,[data-block="featureStory"] article');
     const notifyBlock=block=>main.dispatchEvent(new CustomEvent('yuanjie:block-changed',{detail:{block}}));
     featureActions.push(action('新增特色','新增特色','add',()=>{const block=featureBlock(),list=featureList();if(!list)return;const item=featureItem()||list.lastElementChild;if(!item)return;const clone=item.cloneNode(true);clone.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());item.after(clone);notifyBlock(block);root.hidden=true}));
     featureActions.push(action('特色上移','上移','up',()=>{const item=featureItem(),block=featureBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
@@ -192,7 +192,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       const block=lastTarget.closest('[data-block],[data-company-block]');
       const textSelected=Boolean(savedRange&&!savedRange.collapsed);
       selectedLevel=block&&(event.forceBlock||(!textSelected&&(event.target===block||event.target.matches('[data-block] > .wrap,[data-block] > .page-head,[data-block] > .case-overview,[data-block] > .details'))))?'block':
-        lastTarget.closest('[data-block="features"] li,[data-block="features"] article')&&!textSelected?'feature':
+        lastTarget.closest('[data-block="features"] li,[data-block="features"] article,[data-block="featureStory"] article')&&!textSelected?'feature':
         lastTarget.closest('[data-block="specs"] dl.specs > div')?'row':'text';
       const rect=savedRange?.getBoundingClientRect();
       const x=rect?.right||event.clientX||40,y=rect?.top||event.clientY||40;

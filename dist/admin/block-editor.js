@@ -74,7 +74,7 @@ export function bindBlocks(main,panel,changed){
   const style=doc.createElement('style');style.textContent='[data-block]{position:relative}[data-selected-block]{outline:2px solid #a68b65;outline-offset:3px}[data-drop=before]{box-shadow:inset 0 5px #49728c}[data-drop=after]{box-shadow:inset 0 -5px #49728c}[data-editor-ui]:not(.block-insert-slot){display:block;border:0;background:#ece6dc;color:#574531;padding:6px 12px;cursor:grab;margin-bottom:12px}[data-block="specs"]>[data-editor-ui]{cursor:pointer}[contenteditable]:focus{outline:1px solid #ad9370}.block-insert-slot{position:relative;display:flex;justify-content:center;align-items:center;height:48px;margin:-24px 0;z-index:3;pointer-events:none}.block-insert-slot:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed #b9b5ab;opacity:.7}.block-insert-toggle{position:relative;width:34px;height:34px;border:1px solid #a88a61;border-radius:50%;background:#fff;color:#6f5634;font:600 24px/1 sans-serif;cursor:pointer;box-shadow:0 3px 12px #0002;pointer-events:auto}.block-insert-toggle:hover,.block-insert-toggle[aria-expanded=true]{background:#4a6984;color:#fff;border-color:#4a6984}.block-insert-menu{position:absolute;left:50%;top:calc(50% + 22px);transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(340px,calc(100vw - 38px));padding:12px;border:1px solid #c9c5bc;border-radius:12px;background:#fff;box-shadow:0 12px 32px #0003;pointer-events:auto}.block-insert-menu[hidden]{display:none}.block-insert-menu strong{grid-column:1/-1;font:600 14px/1.4 sans-serif;color:#344d60;margin-bottom:3px}.block-insert-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:9px 7px;font:14px/1.3 sans-serif;cursor:pointer}.block-insert-menu button:hover,.block-insert-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}@media(max-width:600px){.block-insert-slot{height:42px;margin:-21px 0}.block-insert-menu{grid-template-columns:1fr 1fr}}';doc.head.append(style);
   const heading=document.createElement('summary');heading.textContent='拖曳元件到預覽頁面，或點選元件加入';panel.append(heading,tools,list,fields);
   let active,dragged;
-  const itemRows=el=>el.querySelector('.specs,.pb-items,.case-highlights,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid,.features,.heping-highlights,.team,.metrics,ul');
+  const itemRows=el=>el.querySelector('.specs,.pb-items,.case-highlights,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid,.features,.feature-story-grid,.heping-highlights,.team,.metrics,ul');
   function renderInsertControls(){
     main.querySelectorAll(':scope > .block-insert-slot').forEach(slot=>slot.remove());
     for(const block of blocks()){
@@ -112,7 +112,7 @@ export function bindBlocks(main,panel,changed){
       b.ondragend=()=>{dragged=null};
     }
     if(!el)return;
-    if(['gallery','journal','features','team'].includes(el.dataset.block)){
+    if(['gallery','albums','journal','features','featureStory','team'].includes(el.dataset.block)){
       const layout=document.createElement('select');layout.ariaLabel='區塊排列';
       option(layout,'auto','自動分欄');option(layout,'wide','單欄展開');
       layout.value=el.dataset.layout||'auto';
@@ -144,8 +144,30 @@ export function bindBlocks(main,panel,changed){
         const a=doc.createElement('a');a.href=href;a.textContent='連結文字';el.append(a);select(el);changed();
       });
     }
+    if(el.dataset.block==='albums'){
+      const grid=el.querySelector('.project-album-grid');
+      const albumPick=document.createElement('select');albumPick.ariaLabel='選擇相簿';
+      [...grid.children].forEach((album,i)=>option(albumPick,String(i),`相簿 ${i+1}　${album.querySelector('strong')?.textContent||''}`));fields.append(albumPick);
+      const album=()=>grid.children[albumPick.selectedIndex];
+      button(fields,'新增相簿',()=>{if(grid.children.length>=12)return alert('每個圖片集最多 12 個相簿。');const clone=api.newBlock(doc,'albums').querySelector('.project-album');grid.append(clone);select(el);changed()});
+      button(fields,'相簿上移',()=>{const a=album();if(a.previousElementSibling){a.previousElementSibling.before(a);select(el);changed()}});
+      button(fields,'相簿下移',()=>{const a=album();if(a.nextElementSibling){a.nextElementSibling.after(a);select(el);changed()}});
+      button(fields,'刪除相簿',()=>{if(grid.children.length>1&&confirm('刪除此相簿及其中所有照片？')){album().remove();select(el);changed()}}).disabled=grid.children.length===1;
+      button(fields,'更換相簿封面',()=>{album().querySelector('.project-album-cover img').click();document.getElementById('imageUploadButton').click()});
+      button(fields,'新增相簿照片',()=>{const a=album(),count=1+a.querySelectorAll('.project-album-items figure').length;if(count>=40)return alert('每個相簿最多 40 張照片。');const figure=doc.createElement('figure');figure.innerHTML='<img alt="相簿照片"><figcaption>照片說明</figcaption>';figure.querySelector('img').src=new URL('../assets/project-placeholder.svg',import.meta.url).href;a.querySelector('.project-album-items').append(figure);select(el);figure.querySelector('img').click();document.getElementById('imageUploadButton').click();changed()});
+      const photos=[...album().querySelectorAll('.project-album-items figure')];
+      if(photos.length){
+        const photoPick=document.createElement('select');photoPick.ariaLabel='選擇相簿內照片';photos.forEach((figure,i)=>option(photoPick,String(i),`內頁照片 ${i+1}　${figure.querySelector('figcaption')?.textContent||''}`));fields.append(photoPick);
+        const photo=()=>album().querySelectorAll('.project-album-items figure')[photoPick.selectedIndex];
+        button(fields,'更換內頁照片',()=>{photo().querySelector('img').click();document.getElementById('imageUploadButton').click()});
+        button(fields,'照片上移',()=>{const p=photo();if(p.previousElementSibling){p.previousElementSibling.before(p);select(el);changed()}});
+        button(fields,'照片下移',()=>{const p=photo();if(p.nextElementSibling){p.nextElementSibling.after(p);select(el);changed()}});
+        button(fields,'刪除內頁照片',()=>{if(confirm('刪除這張相簿內頁照片？')){photo().remove();select(el);changed()}});
+      }
+      return;
+    }
     for(const link of el.querySelectorAll('a[href]'))input('連結網址',link.getAttribute('href'),v=>{if(/^(https?:|mailto:|tel:|#|[\w.-]+\.html)/i.test(v))link.setAttribute('href',v)});
-    for(const img of el.querySelectorAll('img')){
+    for(const img of el.dataset.block==='albums'?[]:el.querySelectorAll('img')){
       button(fields,'圖片說明',()=>{const v=prompt('圖片替代文字',img.alt);if(v!==null){img.alt=v;changed()}});
       button(fields,'更換這張圖片',()=>{img.click();document.getElementById('imageUploadButton').click()});
     }
