@@ -175,7 +175,7 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
 /* Project cover: one editorial opening system for every case page. */
 [data-block="cover"] :is(.page-head,.hero .intro){display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 [data-block="cover"] .project-signature{margin:0 0 8px;color:#4a6984;font-size:clamp(13px,1.1vw,16px);line-height:1.75;letter-spacing:.19em}
-[data-block="cover"] :is(.page-title,.intro h1){margin:0 0 clamp(18px,2vw,28px);font-size:clamp(42px,5.2vw,76px);line-height:1.16;letter-spacing:.025em;text-wrap:balance}
+[data-block="cover"] .page-title{margin:0 0 clamp(18px,2vw,28px);font-size:clamp(44px,4.6vw,68px);line-height:1.16;letter-spacing:.025em;text-wrap:balance}
 [data-block="cover"] .project-location{margin:0 0 clamp(26px,3vw,42px)!important}
 [data-block="cover"] .cover-narrative{display:grid;gap:16px;width:100%;min-height:190px;padding-top:clamp(24px,3vw,40px);border-top:1px solid #c5a880}
 [data-block="cover"] .cover-motto{max-width:14em;margin:0;font-size:clamp(24px,2.5vw,36px);line-height:1.55;letter-spacing:.04em;text-wrap:balance}
@@ -199,7 +199,7 @@ main[data-block-version]{width:min(91%,1160px);padding-block:clamp(24px,5vw,72px
  [data-block="cover"]>figure img{min-height:0;max-height:68vh;object-fit:contain}
 }
 @media(max-width:520px){
- [data-block="cover"] :is(.page-title,.intro h1){font-size:clamp(38px,12vw,54px)}
+ [data-block="cover"] .page-title{font-size:clamp(38px,12vw,54px)}
  [data-block="cover"] .project-location{margin-bottom:24px!important}
  [data-block="cover"] .cover-narrative{gap:12px}
  [data-block="cover"] .cover-explore{gap:12px;font-size:17px}

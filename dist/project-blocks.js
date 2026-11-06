@@ -134,7 +134,18 @@ window.ProjectBlocks = (() => {
   }
   function normalizeCover(main){
     const cover=main.querySelector('[data-block="cover"]');if(!cover)return;
-    const copy=cover.querySelector(':scope > .page-head')||cover.querySelector('.hero .intro');if(!copy)return;
+    const hero=cover.querySelector(':scope > .hero');
+    if(hero){
+      const existing=cover.querySelector(':scope > .page-head'),intro=hero.querySelector(':scope > .intro'),figure=hero.querySelector(':scope > figure');
+      if(existing){if(figure)hero.after(figure);hero.remove()}
+      else if(intro){
+        intro.classList.remove('intro');intro.classList.add('page-head');
+        const breadcrumbs=cover.querySelector(':scope > .breadcrumbs');if(breadcrumbs)intro.prepend(breadcrumbs);
+        hero.replaceWith(intro,...(figure?[figure]:[]));
+      }
+    }
+    const copy=cover.querySelector(':scope > .page-head');if(!copy)return;
+    copy.querySelector(':scope > h1')?.classList.add('page-title');
     const identity=copy.querySelector('.eyebrow');if(identity)identity.classList.add('project-signature');
     let narrative=copy.querySelector('.cover-narrative');
     if(!narrative){

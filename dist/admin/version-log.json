@@ -1,7 +1,15 @@
 [
   {
-    "commit": "d11c85e61caee9be48ca8a15efa1c929e52e9140",
-    "short_commit": "d11c85e",
+    "commit": "42f3ffc9ee58e6fc6451cb87d4b9b461600758ec",
+    "short_commit": "42f3ffc",
+    "committed_at": "2026-11-06T14:25:04+08:00",
+    "summary": "fix: unify project cover typography proportions",
+    "summary_zh": "修正網站功能",
+    "details": []
+  },
+  {
+    "commit": "227074a72313bbc2c9ccdec398b1ee368c0c10b1",
+    "short_commit": "227074a",
     "committed_at": "2026-11-06T14:18:50+08:00",
     "summary": "feat: standardize project cover storytelling layout",
     "summary_zh": "更新網站功能與介面",
