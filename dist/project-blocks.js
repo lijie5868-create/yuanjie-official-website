@@ -52,6 +52,8 @@ window.ProjectBlocks = (() => {
         location.append(inline);
         note.remove();
       }
+      const inlineNote=location?.querySelector('.case-card-inline-note');
+      if(inlineNote){inlineNote.tabIndex=0;inlineNote.setAttribute('role','button');inlineNote.setAttribute('aria-label',`查看補充說明：${inlineNote.textContent.trim()}`)}
       if(copy.querySelector('.case-card-stats'))continue;
       const paragraphs=[...copy.querySelectorAll(':scope > p:not(.project-location)')];
       const areaLine=paragraphs.find(node=>/^基地\s*.+[|｜]\s*.+戶/.test(node.textContent.trim()));
@@ -326,3 +328,13 @@ window.ProjectBlocks = (() => {
   document.addEventListener('DOMContentLoaded',()=>{const main=document.querySelector('main');if(main&&applies(location.pathname.split('/').pop()+location.search)){prepare(main);upgradeAlbums(main);enhanceAlbumRails(main);cleanupAlbumZoom();new MutationObserver(()=>{enhanceAlbumRails(main);cleanupAlbumZoom()}).observe(main,{childList:true,subtree:true})}});
   return {types,applies,prepare,newBlock,refresh,upgradeAlbums,enhanceAlbumRails,cleanupAlbumZoom,normalizeCover,updateCard,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();
+document.addEventListener('click',event=>{
+  const note=event.target.closest?.('.case-card-inline-note');
+  if(!note||note.closest('[contenteditable="true"]'))return;
+  event.preventDefault();event.stopPropagation();note.classList.toggle('is-open');
+});
+document.addEventListener('keydown',event=>{
+  const note=event.target.closest?.('.case-card-inline-note');
+  if(!note||!['Enter',' '].includes(event.key))return;
+  event.preventDefault();note.click();
+});
