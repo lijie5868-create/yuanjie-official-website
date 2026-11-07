@@ -40,52 +40,11 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     style.textContent='.inline-edit-ui{position:fixed;z-index:1000;font:14px/1.4 system-ui,sans-serif}.inline-edit-ui[hidden],.inline-edit-menu[hidden],.inline-media-form[hidden]{display:none!important}.inline-edit-toggle{display:flex;align-items:center;gap:5px;height:30px;padding:0 9px;border:1px solid #d8dfe3;border-radius:7px;background:#fff;color:#4a6984;box-shadow:0 4px 14px #23313d20;font:600 12px/1 system-ui;cursor:pointer}.inline-edit-toggle svg{width:15px;height:15px;flex:none}.inline-edit-toggle[aria-expanded=true]{background:#4a6984;color:#fff}.inline-edit-menu{position:absolute;top:35px;left:0;display:flex;flex-wrap:wrap;align-items:center;gap:10px;width:max-content;max-width:min(520px,calc(100vw - 24px));box-sizing:border-box;padding:8px;border:1px solid #e1e5e7;border-radius:10px;background:#fff;box-shadow:0 8px 24px #23313d26}.inline-edit-ui.open-up .inline-edit-menu{top:auto;bottom:35px}.inline-edit-menu button{border:0;border-radius:6px;background:transparent;color:#34434b;padding:6px;font:12px/1.25 system-ui;cursor:pointer}.inline-edit-menu>.inline-edit-action{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;min-height:32px;white-space:nowrap}.inline-edit-action svg{width:17px;height:17px;flex:none}.inline-edit-menu button:hover,.inline-edit-menu button:focus-visible{background:#edf2f4;outline:2px solid #4a6984;outline-offset:1px}.inline-edit-menu button:disabled{opacity:.45;cursor:not-allowed}.inline-edit-menu .inline-delete-action{color:#a43f36;background:#fff1ef}.inline-edit-ui[data-selection=true] .inline-edit-menu>.inline-edit-action span{display:none}.inline-edit-ui[data-selection=true] .inline-edit-menu>.inline-edit-action{width:32px;height:32px;padding:0}.inline-edit-ui[data-selection=true] .inline-edit-toggle{display:none}.inline-edit-ui[data-selection=true] .inline-edit-menu{position:relative;top:auto;left:auto;bottom:auto}.inline-style-tool{position:relative;display:flex;align-items:center}.inline-style-tool>button{display:grid;place-items:center;width:32px;height:32px;padding:0}.inline-style-tool>button svg{width:17px;height:17px}.inline-style-tool>button .color-mark{position:absolute;bottom:4px;left:9px;width:14px;height:3px;border-radius:3px;background:var(--mark-color,#4a6984)}.inline-style-palette{position:absolute;z-index:2;left:0;top:38px;display:grid;grid-template-columns:repeat(5,24px);gap:4px;padding:7px;border:1px solid #e1e5e7;border-radius:9px;background:#fff;box-shadow:0 6px 18px #23313d26}.inline-style-tool.open-up .inline-style-palette{top:auto;bottom:38px}.inline-style-palette[hidden]{display:none}.inline-style-palette button{width:24px;height:24px;padding:0;border:1px solid #d8dde0;border-radius:50%;font-size:13px}.inline-style-palette button[aria-label^="移除"]{background:linear-gradient(135deg,#fff 45%,#b54b45 46%,#b54b45 53%,#fff 54%)}.inline-font-size{height:30px;max-width:66px;padding:0 6px;border:0;border-radius:6px;background:#f5f7f8;color:#34434b;font:12px system-ui}.inline-size-tool{margin-left:2px;padding-left:9px;border-left:1px solid #e1e5e7}.inline-paragraph-style{height:30px;max-width:70px;padding:0 6px;border:0;border-radius:6px;background:#f5f7f8;color:#34434b;font:12px system-ui}.inline-media-form{flex-basis:100%;display:grid;gap:7px;padding-top:6px;border-top:1px solid #e1e5e7}.inline-media-form label{font-size:12px;color:#53616a}.inline-media-form input{box-sizing:border-box;width:100%;padding:8px;border:1px solid #c9c8c0;border-radius:5px;font:13px system-ui}.inline-media-form .inline-media-actions{display:flex;gap:6px}.inline-media-form .inline-media-actions button{flex:1}.inline-media-status{grid-column:1/-1;color:#526574;font-size:12px;min-height:1em}.inline-media-status.error{color:#ad392f}';
     doc.head.append(style);
     style.textContent+='.inline-edit-action[hidden],.inline-style-tool[hidden]{display:none!important}';
-    style.textContent+='[data-block="albums"] .project-album-grid{display:block!important}[data-block="albums"] .project-album-items[hidden]{display:contents!important}';
     style.textContent+='[data-block="specs"] .specs>div:has(>dd:empty){display:grid!important}[data-block="specs"] .specs dd:empty::before{content:"點此填寫";color:#98a3a8;pointer-events:none}';
     style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu,.inline-edit-ui[data-level="team"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="album"] .inline-edit-menu{width:min(420px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
     style.textContent+='.inline-edit-ui [data-tooltip]{position:relative}.inline-edit-ui [data-tooltip]::after{content:attr(data-tooltip);position:absolute;z-index:30;top:calc(100% + 8px);left:50%;padding:5px 8px;border:1px solid #34434b;border-radius:6px;background:#263238;color:#fff;box-shadow:0 4px 12px #18232b30;font:11px/1.2 system-ui,sans-serif;white-space:nowrap;pointer-events:none;visibility:hidden;opacity:0;transform:translate(-50%,4px);transition:opacity .12s ease,transform .12s ease,visibility .12s}.inline-edit-ui [data-tooltip]:hover::after,.inline-edit-ui [data-tooltip]:focus-visible::after{visibility:visible;opacity:1;transform:translate(-50%,0)}.inline-edit-ui.open-up [data-tooltip]::after{top:auto;bottom:calc(100% + 8px);transform:translate(-50%,-4px)}.inline-edit-ui.open-up [data-tooltip]:hover::after,.inline-edit-ui.open-up [data-tooltip]:focus-visible::after{transform:translate(-50%,0)}';
     style.textContent+='.inline-edit-ui[data-level="image"] .inline-edit-toggle{display:none}.inline-edit-ui[data-level="image"] .inline-edit-menu{position:relative;top:auto;left:auto;bottom:auto}';
     const root=doc.createElement('div');root.className='inline-edit-ui';root.hidden=true;root.dataset.editorUi='';
-    let albumDrag=null,suppressAlbumClick=false;
-    const finishAlbumDrag=event=>{
-      if(!albumDrag)return;
-      const {rail,moved,pointerId}=albumDrag;
-      rail.classList.remove('is-dragging');
-      if(rail.hasPointerCapture?.(pointerId))rail.releasePointerCapture(pointerId);
-      suppressAlbumClick=moved;
-      albumDrag=null;
-      if(moved)event.preventDefault();
-    };
-    main.addEventListener('pointerdown',event=>{
-      const rail=event.target.closest?.('[data-block="albums"] .project-album');
-      if(!rail||event.button!==0||event.target.closest('.inline-edit-ui'))return;
-      albumDrag={rail,pointerId:event.pointerId,startX:event.clientX,startScrollLeft:rail.scrollLeft,moved:false};
-      rail.setPointerCapture?.(event.pointerId);
-    });
-    main.addEventListener('pointermove',event=>{
-      if(!albumDrag||event.pointerId!==albumDrag.pointerId)return;
-      const distance=event.clientX-albumDrag.startX;
-      if(Math.abs(distance)>6){albumDrag.moved=true;albumDrag.rail.classList.add('is-dragging')}
-      if(!albumDrag.moved)return;
-      albumDrag.rail.scrollLeft=albumDrag.startScrollLeft-distance;
-      event.preventDefault();
-    });
-    main.addEventListener('pointerup',finishAlbumDrag);
-    main.addEventListener('pointercancel',finishAlbumDrag);
-    main.addEventListener('click',event=>{
-      if(!suppressAlbumClick||!event.target.closest?.('[data-block="albums"] .project-album'))return;
-      suppressAlbumClick=false;event.preventDefault();event.stopImmediatePropagation();
-    },true);
-    const setupAlbumRails=()=>main.querySelectorAll('[data-block="albums"] .project-album').forEach(rail=>{
-      rail.tabIndex=0;rail.setAttribute('role','region');rail.setAttribute('aria-label','相簿照片，可左右拖移或使用方向鍵瀏覽');
-    });
-    setupAlbumRails();
-    main.addEventListener('yuanjie:block-changed',setupAlbumRails);
-    main.addEventListener('keydown',event=>{
-      const rail=event.target.closest?.('[data-block="albums"] .project-album');
-      if(!rail||!['ArrowLeft','ArrowRight'].includes(event.key))return;
-      rail.scrollBy({left:(event.key==='ArrowRight'?1:-1)*rail.clientWidth*.82,behavior:'smooth'});event.preventDefault();
-    });
     doc.addEventListener('keydown',event=>{
       if(!(event.ctrlKey||event.metaKey)||event.altKey)return;
       const editable=event.target.closest?.('[contenteditable="true"]');
@@ -332,7 +291,6 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       finally{upload.disabled=false;embed.disabled=false}
     };
     function show(event){
-      if(suppressAlbumClick)return;
       if(event.target.closest('.inline-edit-ui,[data-editor-ui],input,textarea,select')||(event.target.closest('button')&&!event.target.closest('.project-album-cover')&&!event.target.closest('img,image')))return;
       const target=event.target.closest('main');if(target!==main){root.hidden=true;return}
       lastTarget=event.target;

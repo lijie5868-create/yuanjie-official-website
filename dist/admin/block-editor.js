@@ -28,6 +28,7 @@ export function bindBlocks(main,panel,changed){
   const doc=main.ownerDocument;
   const api=window.ProjectBlocks;
   panel.hidden=false;
+  panel.open=false;
   panel.replaceChildren();
   const list=document.createElement('div'), fields=document.createElement('div');
   const tools=document.createElement('div');
@@ -114,6 +115,59 @@ export function bindBlocks(main,panel,changed){
     save.onclick=()=>{const entries=rows.map(({role,lineOne,lineTwo})=>({role:role.value.trim(),lineOne:lineOne.value.trim(),lineTwo:lineTwo.value.trim()}));if(entries.some(entry=>Boolean(entry.role)!==Boolean(entry.lineOne||entry.lineTwo))){error.textContent='每組請填寫職稱及至少一行名稱，或全部留空。';return}api.setCoverPartners(cover,entries);dialog.close();select(cover);changed()};
     dialog.append(header,hint,form);dialog.addEventListener('close',()=>dialog.remove(),{once:true});modalDoc.body.append(dialog);dialog.showModal();rows[0].role.focus();
   }
+  function editAlbum(album){
+    const grid=album.closest('.project-album-grid');
+    const dialog=document.createElement('dialog');dialog.className='album-edit-dialog';dialog.dataset.editorUi='';
+    const header=document.createElement('header'),title=document.createElement('h2'),close=document.createElement('button');
+    title.textContent='編輯相簿';close.type='button';close.textContent='×';close.setAttribute('aria-label','關閉');close.onclick=()=>dialog.close();header.append(title,close);
+    const body=document.createElement('div');body.className='album-edit-body';dialog.append(header,body);
+    const update=()=>{api.refresh(main);changed();render()};
+    const upload=(image)=>{
+      const picker=document.createElement('input');picker.type='file';picker.accept='image/jpeg,image/png,image/webp';picker.hidden=true;dialog.append(picker);
+      picker.onchange=()=>{
+        const file=picker.files?.[0];picker.remove();if(!file)return;
+        main.dispatchEvent(new CustomEvent('yuanjie:select-image',{detail:{image}}));
+        const input=document.getElementById('imageUpload');
+        const transfer=new DataTransfer();transfer.items.add(file);input.files=transfer.files;input.dispatchEvent(new Event('change',{bubbles:true}));
+        const observer=new MutationObserver(()=>{observer.disconnect();update()});observer.observe(image,{attributes:true,attributeFilter:['src']});
+      };
+      picker.click();
+    };
+    const action=(parent,label,handler)=>{const control=document.createElement('button');control.type='button';control.textContent=label;control.onclick=handler;parent.append(control);return control};
+    function render(){
+      body.replaceChildren();
+      const cover=album.querySelector('.project-album-cover'),coverImage=cover?.querySelector('img'),name=cover?.querySelector('strong'),items=album.querySelector('.project-album-items');
+      if(!coverImage||!name||!items)return;
+      const label=document.createElement('label');label.textContent='相簿名稱';const nameInput=document.createElement('input');nameInput.value=name.textContent.trim();nameInput.maxLength=80;nameInput.onchange=()=>{name.textContent=nameInput.value.trim()||'未命名相簿';update()};label.append(nameInput);body.append(label);
+      const coverRow=document.createElement('section');coverRow.className='album-edit-cover';const preview=document.createElement('img');preview.src=coverImage.src;preview.alt='相簿封面';const coverActions=document.createElement('div');const coverTitle=document.createElement('h3');coverTitle.textContent='相簿封面';coverActions.append(coverTitle);action(coverActions,'更換封面照片',()=>upload(coverImage));coverRow.append(preview,coverActions);body.append(coverRow);
+      const order=document.createElement('div');order.className='album-edit-actions';const all=[...grid.children].filter(node=>node.classList.contains('project-album'));const position=all.indexOf(album);const positionText=document.createElement('span');positionText.textContent=`相簿順序 ${position+1} / ${all.length}`;order.append(positionText);
+      action(order,'相簿往前',()=>{if(position>0){all[position-1].before(album);update()}}).disabled=position===0;
+      action(order,'相簿往後',()=>{if(position<all.length-1){all[position+1].after(album);update()}}).disabled=position===all.length-1;
+      body.append(order);
+      const heading=document.createElement('h3');heading.textContent=`內頁照片 ${items.querySelectorAll(':scope > figure').length} / 39`;body.append(heading);
+      const photos=document.createElement('div');photos.className='album-edit-photos';body.append(photos);
+      const figures=[...items.querySelectorAll(':scope > figure')];
+      figures.forEach((figure,index)=>{
+        const card=document.createElement('article'),image=figure.querySelector('img'),caption=figure.querySelector('figcaption');
+        const thumb=document.createElement('img');thumb.src=image?.src||'';thumb.alt=`內頁照片 ${index+1}`;card.append(thumb);
+        const captionInput=document.createElement('input');captionInput.value=caption?.textContent.trim()||'';captionInput.placeholder='照片說明';captionInput.setAttribute('aria-label',`照片 ${index+1} 說明`);captionInput.onchange=()=>{caption.textContent=captionInput.value.trim();update()};card.append(captionInput);
+        const controls=document.createElement('div');controls.className='album-edit-photo-actions';
+        action(controls,'設為封面',()=>{const current={src:coverImage.getAttribute('src'),alt:coverImage.alt};coverImage.setAttribute('src',image.getAttribute('src'));coverImage.alt=image.alt;image.setAttribute('src',current.src);image.alt=current.alt;update()});
+        action(controls,'更換',()=>upload(image));
+        action(controls,'←',()=>{if(figure.previousElementSibling){figure.previousElementSibling.before(figure);update()}}).disabled=index===0;
+        action(controls,'→',()=>{if(figure.nextElementSibling){figure.nextElementSibling.after(figure);update()}}).disabled=index===figures.length-1;
+        action(controls,'刪除',()=>{if(confirm('刪除這張照片？')){figure.remove();update()}});
+        card.append(controls);photos.append(card);
+      });
+      action(body,'＋ 新增內頁照片',()=>{if(figures.length>=39){alert('每個相簿最多 40 張照片，包含封面。');return}const figure=doc.createElement('figure');figure.innerHTML='<img alt="相簿照片"><figcaption>照片說明</figcaption>';figure.querySelector('img').src=new URL('../assets/project-placeholder.svg',import.meta.url).href;items.append(figure);update();upload(figure.querySelector('img'))});
+    }
+    dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);render();dialog.showModal();
+  }
+  main.addEventListener('click',event=>{
+    const cover=event.target.closest('.project-album-cover');if(!cover||!main.contains(cover))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const album=cover.closest('.project-album');if(album){select(album.closest('[data-block="albums"]'));editAlbum(album)}
+  },true);
   function decorate(block){
     for(const node of block.querySelectorAll('h1,h2,h3,p,dt,dd,li,figcaption,small,time,strong,em,label,span,a,.eyebrow,.case-amount')){
       if(node.closest('[data-editor-ui],[data-metric-ref],.cover-explore')||node.querySelector('img,button,p,h3'))continue;
@@ -162,7 +216,7 @@ export function bindBlocks(main,panel,changed){
   style.textContent+='.block-editor-actions[data-editor-ui]{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;padding:5px 8px;border-radius:7px;cursor:auto}.block-editor-actions button{border:0;border-radius:5px;padding:7px 10px;background:#fff;color:#354957;font:600 12px/1.3 system-ui;cursor:pointer}.block-editor-actions .block-delete-button{background:#fff1ef;color:#a43f36}.cover-team-editor-slot[data-editor-ui]{display:flex;justify-content:flex-end;margin:12px 0 0;padding:0;background:transparent;cursor:auto}.cover-team-editor-button{border:1px solid #b5c4cd;border-radius:999px;background:#fff;color:#4a6984;padding:8px 13px;font:600 13px/1.3 system-ui;cursor:pointer}';
   style.textContent+='.specs > div:has(>.implementer-stage-control){position:relative;padding-right:120px!important}.implementer-stage-control[data-editor-ui]{position:absolute;right:0;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:5px;white-space:nowrap;padding:5px 8px;border:1px solid #b5c4cd;border-radius:999px;background:#fff;color:#4a6984;font:600 11px/1.2 system-ui;cursor:pointer}.implementer-stage-control input{width:14px;height:14px;margin:0;accent-color:#4a6984}@media(max-width:600px){.specs > div:has(>.implementer-stage-control){padding-right:0!important;padding-bottom:32px!important}.implementer-stage-control[data-editor-ui]{top:auto;bottom:3px;right:0;transform:none}}';
   style.textContent+='.block-insert-slot{gap:7px}.block-slot-action{position:relative;display:grid;place-items:center;width:32px;height:32px;flex:none;border:1px solid #c5cbd0;border-radius:50%;background:#fff;color:#4a6984;font:600 18px/1 system-ui;cursor:pointer;pointer-events:auto;box-shadow:0 2px 8px #0001}.block-slot-action:hover,.block-slot-action:focus-visible{background:#e8eff3;outline:2px solid #4a6984}.block-slot-delete{color:#a43f36}.block-slot-delete:hover{background:#fff1ef}.block-slot-action svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}';
-  const heading=document.createElement('summary');heading.textContent='拖曳元件到預覽頁面，或點選元件加入';panel.append(heading,tools,list,fields);
+  const heading=document.createElement('summary');heading.textContent='進階區塊設定';panel.append(heading,tools,list,fields);
   let active,dragged;
   const itemRows=el=>el.querySelector('.specs,.pb-items,.case-highlights,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid,.features,.feature-story-grid,.heping-highlights,.team,.metrics,ul');
   function renderInsertControls(){
@@ -250,25 +304,7 @@ export function bindBlocks(main,panel,changed){
       });
     }
     if(el.dataset.block==='albums'){
-      const grid=el.querySelector('.project-album-grid');
-      const albumPick=document.createElement('select');albumPick.ariaLabel='選擇相簿（整本）';
-      [...grid.children].forEach((album,i)=>option(albumPick,String(i),`相簿 ${i+1}　${album.querySelector('strong')?.textContent||''}`));
-      albumPick.selectedIndex=Math.max(0,Math.min(Number(el.dataset.activeAlbum)||0,grid.children.length-1));
-      albumPick.onchange=()=>{el.dataset.activeAlbum=String(albumPick.selectedIndex);select(el)};fields.append(albumPick);
-      const album=()=>grid.children[albumPick.selectedIndex];
-      button(fields,'更換相簿封面',()=>{album().querySelector('.project-album-cover img').click();document.getElementById('imageUploadButton').click()});
-      const innerCount=album().querySelectorAll('.project-album-items figure').length;
-      const photoStatus=doc.createElement('p');photoStatus.textContent=`此相簿：封面 1 張＋內頁照片 ${innerCount} 張`;fields.append(photoStatus);
-      button(fields,'新增一張照片（此相簿）',()=>{const a=album(),count=1+a.querySelectorAll('.project-album-items figure').length;if(count>=40)return alert('每個相簿最多 40 張照片。');const figure=doc.createElement('figure');figure.innerHTML='<img alt="相簿照片"><figcaption>照片說明</figcaption>';figure.querySelector('img').src=new URL('../assets/project-placeholder.svg',import.meta.url).href;a.querySelector('.project-album-items').append(figure);a.dataset.activePhoto=String(count-1);select(el);main.dispatchEvent(new CustomEvent('yuanjie:select-image',{detail:{image:figure.querySelector('img')}}));document.getElementById('imageUploadButton').click();changed()});
-      const photos=[...album().querySelectorAll('.project-album-items figure')];
-      if(photos.length){
-        const photoPick=document.createElement('select');photoPick.ariaLabel='選擇一張內頁照片';photos.forEach((figure,i)=>option(photoPick,String(i),`內頁照片 ${i+1}　${figure.querySelector('figcaption')?.textContent||''}`));photoPick.selectedIndex=Math.max(0,Math.min(Number(album().dataset.activePhoto)||0,photos.length-1));photoPick.onchange=()=>{album().dataset.activePhoto=String(photoPick.selectedIndex);select(el)};fields.append(photoPick);
-        const photo=()=>album().querySelectorAll('.project-album-items figure')[photoPick.selectedIndex];
-        button(fields,'更換這張照片',()=>{photo().querySelector('img').click();document.getElementById('imageUploadButton').click()});
-        button(fields,'照片上移',()=>{const p=photo();if(p.previousElementSibling){p.previousElementSibling.before(p);select(el);changed()}});
-        button(fields,'照片下移',()=>{const p=photo();if(p.nextElementSibling){p.nextElementSibling.after(p);select(el);changed()}});
-        button(fields,'刪除這張照片',()=>{if(confirm('刪除這張相簿內頁照片？')){photo().remove();album().dataset.activePhoto=String(Math.max(0,photoPick.selectedIndex-1));select(el);changed()}});
-      }
+      const note=document.createElement('p');note.textContent='在預覽畫面點選相簿封面，即可編輯封面、照片及順序。';fields.append(note);
       return;
     }
     if(el.dataset.block==='customHtml'){

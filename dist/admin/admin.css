@@ -354,3 +354,15 @@ iframe { display: block; width: 100%; height: max(960px, calc(100dvh - 90px)); b
 #newProjectOrder li span{flex:1}
 #newProjectOrder button{padding:5px 8px;background:#fff;color:#493c30}
 #newProjectOrder li[data-over]{border-top-color:#47728e}
+.album-edit-dialog{width:min(940px,94vw);max-width:none;max-height:90vh;padding:0;border:1px solid #d7d2c9;border-radius:16px;background:#fff;color:#273640;box-shadow:0 24px 70px #0005}
+.album-edit-dialog::backdrop{background:#172027a8}
+.album-edit-dialog header{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid #e4e6e7;background:#fff}
+.album-edit-dialog h2,.album-edit-dialog h3{margin:0}.album-edit-dialog h2{font-size:22px}.album-edit-dialog h3{font-size:17px}
+.album-edit-dialog header button{border:0;background:#f0f2f3;border-radius:50%;width:36px;height:36px;font-size:28px;cursor:pointer}
+.album-edit-body{display:grid;gap:20px;max-height:calc(90vh - 66px);overflow:auto;padding:22px}
+.album-edit-body label{display:grid;gap:7px;font-weight:600}.album-edit-body input{box-sizing:border-box;width:100%;padding:10px 12px;border:1px solid #cbd2d6;border-radius:8px;font:inherit}
+.album-edit-cover{display:flex;gap:20px;align-items:center;padding:14px;background:#f4f5f5;border-radius:10px}.album-edit-cover img{width:170px;aspect-ratio:4/3;object-fit:cover}.album-edit-cover>div{display:grid;gap:12px}
+.album-edit-dialog button:not(header button){padding:8px 12px;border:1px solid #b9c9d2;border-radius:7px;background:#fff;color:#42647a;font:600 14px/1.3 system-ui;cursor:pointer}.album-edit-dialog button:disabled{opacity:.4;cursor:default}
+.album-edit-actions,.album-edit-photo-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.album-edit-actions span{margin-right:auto;color:#62727c}
+.album-edit-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.album-edit-photos article{display:grid;gap:8px;min-width:0;padding:10px;border:1px solid #e0e3e4;border-radius:9px}.album-edit-photos article>img{width:100%;aspect-ratio:4/3;object-fit:cover}.album-edit-photo-actions button{font-size:12px!important;padding:6px 8px!important}
+@media(max-width:650px){.album-edit-photos{grid-template-columns:repeat(2,minmax(0,1fr))}.album-edit-cover img{width:110px}}
