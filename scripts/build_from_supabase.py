@@ -87,7 +87,7 @@ for page in pages:
     name=canonical_file(page['file_name'])
     path=DIST/name
     old_template=DIST/page['file_name']
-    template=old_template if old_template.is_file() else path if path.is_file() else DIST/'project.html' if re.fullmatch(r'project-\d+\.html',name) else DIST/'chengyu.html' if re.fullmatch(r'company-\d+\.html',name) else DIST/'index.html'
+    template=path if path.is_file() else old_template if old_template.is_file() else DIST/'project.html' if re.fullmatch(r'project-\d+\.html',name) else DIST/'chengyu.html' if re.fullmatch(r'company-\d+\.html',name) else DIST/'index.html'
     source=template.read_text(encoding='utf-8')
     source=replace(r'<title>.*?</title>',f"<title>{page['title']}</title>",source)
     source=replace(r'<meta\s+name="description"\s+content=".*?"\s*/?>',f'<meta name="description" content="{page["meta_description"]}">',source)
