@@ -433,8 +433,71 @@ function pageButton(page){
   button.innerHTML='<strong></strong><small></small>';
   button.querySelector('strong').textContent=page.title;
   button.querySelector('small').textContent=ProjectBlocks.canonicalProjectFile(page.file_name);
+  if(!primaryPages.has(page.slug)&&!isCompanyPage(page)){
+    button.classList.add('case-page-item');
+    button.dataset.caseCategory=pageProjectCategory(page);
+    button.draggable=true;
+  }
   button.onclick=()=>loadEditor(page).catch(error=>message(error.message,true));
   return button;
+}
+
+let draggedCasePage=null;
+let suppressCasePageClick=false;
+const projectList=$('pageList');
+projectList.addEventListener('click',event=>{
+  if(!suppressCasePageClick)return;
+  event.preventDefault();event.stopImmediatePropagation();suppressCasePageClick=false;
+},true);
+projectList.addEventListener('dragstart',event=>{
+  const item=event.target.closest('.case-page-item');
+  if(!item)return;
+  draggedCasePage=item;item.classList.add('is-dragging');
+  event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',item.dataset.slug);
+});
+projectList.addEventListener('dragover',event=>{
+  const target=event.target.closest('.case-page-item');
+  if(!draggedCasePage||!target||target===draggedCasePage||target.dataset.caseCategory!==draggedCasePage.dataset.caseCategory)return;
+  event.preventDefault();event.dataTransfer.dropEffect='move';
+  projectList.querySelectorAll('.case-page-item.is-drop-target').forEach(item=>item.classList.remove('is-drop-target'));
+  target.classList.add('is-drop-target');
+});
+projectList.addEventListener('drop',event=>{
+  const target=event.target.closest('.case-page-item');
+  if(!draggedCasePage||!target||target===draggedCasePage||target.dataset.caseCategory!==draggedCasePage.dataset.caseCategory)return;
+  event.preventDefault();
+  const category=draggedCasePage.dataset.caseCategory;
+  const ordered=[...projectList.querySelectorAll(`.case-page-item[data-case-category="${category}"]`)].map(item=>pages.find(page=>page.slug===item.dataset.slug)).filter(Boolean);
+  const from=ordered.findIndex(page=>page.slug===draggedCasePage.dataset.slug),to=ordered.findIndex(page=>page.slug===target.dataset.slug);
+  if(from<0||to<0)return;
+  ordered.splice(to,0,ordered.splice(from,1)[0]);
+  suppressCasePageClick=true;setTimeout(()=>{suppressCasePageClick=false},350);
+  persistCaseOrder(category,ordered).catch(error=>message(error.message,true));
+});
+projectList.addEventListener('dragend',()=>{
+  projectList.querySelectorAll('.case-page-item.is-dragging,.case-page-item.is-drop-target').forEach(item=>item.classList.remove('is-dragging','is-drop-target'));
+  draggedCasePage=null;
+});
+
+async function persistCaseOrder(category,ordered){
+  if(!ordered.length)return;
+  const prior=ordered.map(page=>({page,sort_order:page.sort_order}));
+  const start=category==='renewal'?2000:1000;
+  const updates=ordered.map((page,index)=>({page,sort_order:start+(index+1)*10}));
+  try{
+    const drafts=await Promise.all(updates.map(({page,sort_order})=>supabase.from('cms_pages').update({sort_order}).eq('id',page.id)));
+    const draftError=drafts.find(result=>result.error)?.error;if(draftError)throw draftError;
+    const publishedUpdates=await Promise.all(updates.filter(({page})=>publishedPages.has(page.slug)).map(({page,sort_order})=>supabase.from('published_pages').update({sort_order}).eq('slug',page.slug)));
+    const publishedError=publishedUpdates.find(result=>result.error)?.error;if(publishedError)throw publishedError;
+    updates.forEach(({page,sort_order})=>{page.sort_order=sort_order;const published=publishedPages.get(page.slug);if(published)published.sort_order=sort_order});
+    pages.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    renderPageList($('pageSearch').value);
+    message('個案順序已儲存，前台列表將依新順序顯示。');
+  }catch(error){
+    await Promise.all(prior.map(({page,sort_order})=>supabase.from('cms_pages').update({sort_order}).eq('id',page.id)));
+    await Promise.all(prior.filter(({page})=>publishedPages.has(page.slug)).map(({page,sort_order})=>supabase.from('published_pages').update({sort_order}).eq('slug',page.slug)));
+    throw new Error(`排序未儲存：${error.message||error}`);
+  }
 }
 
 function pageProjectCategory(page){

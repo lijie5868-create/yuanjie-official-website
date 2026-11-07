@@ -49,6 +49,23 @@ def format_case_card_facts(source):
         card=card.replace(note.group(1),'',1)
         return card[:location.start()]+f'<small class="case-card-inline-note">{note.group(2)}</small>'+card[location.start():]
     return re.sub(r'<a class="case-card".*?</a>',place_note,source,flags=re.S)
+def project_category(page):
+    main=page.get('main_html','')
+    match=re.search(r'data-project-category=["\'](urban|renewal)["\']',main,re.I)
+    if match: return match.group(1)
+    if re.search(r'<a\b[^>]*href=["\']renewal\.html["\']',main,re.I): return 'renewal'
+    if re.search(r'<a\b[^>]*href=["\']urban\.html["\']',main,re.I): return 'urban'
+    if re.search(r'危老|RECONSTRUCTION',page.get('title','')+' '+main,re.I): return 'renewal'
+    return 'urban' if re.match(r'project(?:-|\.html)',page.get('file_name','')) else None
+def reorder_case_cards(source,category,project_pages):
+    ranks={canonical_file(page['file_name']):index for index,page in enumerate(page for page in project_pages if project_category(page)==category)}
+    matches=list(re.finditer(r'<a class="case-card".*?</a>',source,re.S))
+    if len(matches)<2:return source
+    cards=sorted((match.group(0) for match in matches),key=lambda card:ranks.get(re.search(r'href=["\']([^"\']+)',card).group(1),10**9) if re.search(r'href=["\']([^"\']+)',card) else 10**9)
+    result=source[:matches[0].start()];end=matches[0].start()
+    for match,card in zip(matches,cards):
+        result+=source[end:match.start()]+card;end=match.end()
+    return result+source[end:]
 if not URL or not KEY:
     print('Supabase variables not configured; keeping checked-in published site unchanged.'); raise SystemExit(0)
 pages=fetch('published_pages')
@@ -72,6 +89,9 @@ for page in pages:
         links.append(f'<a href="{html.escape(item["href"],quote=True)}"{current}>{html.escape(item["label"])}{subtitle}</a>')
     source=replace(r'<nav\s+aria-label="主要導覽">.*?</nav>','<nav aria-label="主要導覽">'+''.join(links)+'</nav>',source)
     path.write_text(canonicalize_links(source),encoding='utf-8')
+for listing,category in [('urban.html','urban'),('renewal.html','renewal')]:
+    path=DIST/listing
+    if path.is_file(): path.write_text(reorder_case_cards(path.read_text(encoding='utf-8'),category,pages),encoding='utf-8')
 for old,new in PROJECT_ALIASES.items():
     if '?' in old: continue
     destination=html.escape(new,quote=True)

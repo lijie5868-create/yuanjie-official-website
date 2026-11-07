@@ -64,7 +64,7 @@
         :`published_pages?select=title,meta_description,main_html&file_name=eq.${encodeURIComponent(sourceFile)}&limit=1`),
       read('published_navigation?select=label,subtitle,href,is_visible&order=nav_order.asc'),
       fileName==='urban.html'||fileName==='renewal.html'
-        ?read('published_pages?select=slug,file_name,title,main_html&or=(file_name.like.project.html%3Fcase%3D*,main_html.like.*data-block-version*)&order=sort_order.asc')
+        ?read('published_pages?select=slug,file_name,title,main_html,sort_order&order=sort_order.asc')
         :Promise.resolve([])
     ]);
     const page=pages[0];
@@ -135,7 +135,11 @@
         if(existingCard){window.ProjectBlocks?.updateCard(existingCard,project.main_html);continue}
         if(!grid)continue;
         const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
-        if(main?.dataset.projectCategory!==category)continue;
+        const projectCategory=main?.dataset.projectCategory||
+          (main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"]')?'renewal':
+          main?.querySelector('a[href="urban.html"],a.project-return[href="urban.html"]')?'urban':
+          /危老|RECONSTRUCTION/i.test(`${project.title||''} ${main?.querySelector('.eyebrow')?.textContent||''}`)?'renewal':'urban');
+        if(projectCategory!==category)continue;
         const title=main.querySelector('.page-title')?.textContent?.trim()||project.title;
         const city=main.dataset.projectCity||'';
         const district=main.dataset.projectDistrict||'';
@@ -167,6 +171,19 @@
         card.append(image,copy);
         grid.append(card);
       }
+      const orderedProjects=managedProjects.filter(project=>{
+        const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
+        return main?.dataset.projectCategory||main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"],a[href="urban.html"],a.project-return[href="urban.html"]')||/^project(?:-|\.html)/.test(project.file_name||'');
+      }).filter(project=>{
+        const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
+        const categoryForPage=main?.dataset.projectCategory||
+          (main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"]')?'renewal':
+          main?.querySelector('a[href="urban.html"],a.project-return[href="urban.html"]')?'urban':
+          /危老|RECONSTRUCTION/i.test(`${project.title||''} ${main?.querySelector('.eyebrow')?.textContent||''}`)?'renewal':'urban');
+        return categoryForPage===category;
+      });
+      const order=new Map(orderedProjects.map((project,index)=>[window.ProjectBlocks?.canonicalProjectFile(project.file_name)||project.file_name,index]));
+      [...grid.querySelectorAll(':scope > a.case-card')].sort((a,b)=>(order.get(a.getAttribute('href'))??Number.MAX_SAFE_INTEGER)-(order.get(b.getAttribute('href'))??Number.MAX_SAFE_INTEGER)).forEach(card=>grid.append(card));
     }
   }catch(error){
     console.warn('Using the last deployed copy of this page.',error);
