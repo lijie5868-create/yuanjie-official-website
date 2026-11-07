@@ -281,17 +281,21 @@ async function editorDocument(page,html){
       const grid=previewMain?.querySelector('.case-grid');
       const category=page.file_name==='urban.html'?'urban':'renewal';
       if(grid){
-        for(const project of publishedPages.values()){
+        const projects=publishedProjectsForCategory(category);
+        for(const project of projects){
           const existing=[...grid.querySelectorAll('.case-card')].find(a=>a.getAttribute('href')===ProjectBlocks.canonicalProjectFile(project.file_name));
-          if(existing&&project.main_html.includes('data-block-version')){
-            existing.dataset.originalCard=existing.outerHTML;
-            ProjectBlocks.updateCard(existing,project.main_html);
-            existing.contentEditable='false';
+          if(existing){
+            if(project.main_html.includes('data-block-version')){
+              existing.dataset.originalCard=existing.outerHTML;
+              ProjectBlocks.updateCard(existing,project.main_html);
+            }
             continue;
           }
           const card=managedProjectCard(project,category);
           if(card)grid.append(card);
         }
+        const order=new Map(projects.map((project,index)=>[ProjectBlocks.canonicalProjectFile(project.file_name),index]));
+        [...grid.querySelectorAll(':scope > a.case-card')].sort((a,b)=>(order.get(a.getAttribute('href'))??Number.MAX_SAFE_INTEGER)-(order.get(b.getAttribute('href'))??Number.MAX_SAFE_INTEGER)).forEach(card=>grid.append(card));
         applyCaseCardPhotoOverrides(previewMain);
         ProjectBlocks.formatCardFacts(previewMain);
         html=previewMain.outerHTML;
@@ -314,8 +318,18 @@ async function editorDocument(page,html){
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=19"><link rel="stylesheet" href="company-blocks.css?v=1"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}.case-card{position:relative}.case-card .project-location .case-card-inline-note{position:static!important;display:block!important;width:auto!important;height:auto!important;min-height:0!important;padding:4px!important;border:0!important;border-radius:0!important;background:none!important;color:#687a84!important;font-size:12px!important;cursor:text!important}.case-card .project-location .case-card-inline-note::before{display:none!important}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
+function publishedProjectsForCategory(category){
+  return [...publishedPages.values()].filter(project=>{
+    const main=new DOMParser().parseFromString(project.main_html||'','text/html').querySelector('main');
+    return main?.dataset.projectCategory||main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"],a[href="urban.html"],a.project-return[href="urban.html"]')||/^project(?:-|\.html)/.test(project.file_name||'');
+  }).filter(project=>pageProjectCategory(project)===category).sort((a,b)=>(a.sort_order??0)-(b.sort_order??0));
+}
+
 async function loadEditor(page){
   if(pageDirty&&!confirm('目前頁面有尚未儲存的修改。要放棄修改並切換頁面嗎？'))return;
+  activeCaseListPreview=null;
+  $('pageEditor').classList.remove('case-list-preview-active');
+  $('caseListPreviewView').hidden=true;
   const loadToken=++editorLoadToken;
   current=page;
   pageDirty=false;
@@ -335,6 +349,7 @@ async function loadEditor(page){
   }
   $('visitPage').href=`${basePath}${ProjectBlocks.canonicalProjectFile(page.file_name)}`;
   const frame=$('visualEditor');
+  $('previewSize').textContent=frame.style.maxWidth?'桌面預覽':'手機預覽';
   $('publish').disabled=true;
   $('contentSafetyStatus').classList.toggle('warning',staleDraft);
   $('contentSafetyStatus').textContent=staleDraft
@@ -495,7 +510,7 @@ async function persistCaseOrder(category,ordered){
     updates.forEach(({page,sort_order})=>{page.sort_order=sort_order;const published=publishedPages.get(page.slug);if(published)published.sort_order=sort_order});
     pages.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
     renderPageList($('pageSearch').value);
-    refreshCaseListPreview(category);
+    await refreshCaseListPreview(category);
     message('個案順序已儲存，前台列表將依新順序顯示。');
   }catch(error){
     await Promise.all(prior.map(({page,sort_order})=>supabase.from('cms_pages').update({sort_order}).eq('id',page.id)));
@@ -533,22 +548,43 @@ function appendProjectSubgroup(group,label,items,category){
   const title=document.createElement('span');title.className='page-project-subgroup-title';title.textContent=label;
   const tools=document.createElement('span');tools.className='page-project-subgroup-tools';
   const count=document.createElement('span');count.className='page-project-subgroup-count';count.textContent=ordered.length;count.setAttribute('aria-label',`${ordered.length} 件`);
-  const preview=document.createElement('button');preview.type='button';preview.className='case-list-preview';preview.textContent='預覽前台 ↗';preview.title=`開啟${label}前台列表`;
+  const preview=document.createElement('button');preview.type='button';preview.className='case-list-preview';preview.textContent='後台預覽';preview.title=`在後台預覽${label}前台列表`;
   preview.addEventListener('click',()=>openCaseListPreview(category));
   tools.append(count,preview);heading.append(title,tools);
   section.append(heading,...ordered.map(page=>pageButton(page,categoryOrder)));group.append(section);
 }
 
-const casePreviewWindows=new Map();
-function openCaseListPreview(category){
+let activeCaseListPreview=null;
+async function openCaseListPreview(category){
   const fileName=category==='urban'?'urban.html':'renewal.html';
-  const preview=window.open(`${basePath}${fileName}`,`yuanjie-case-preview-${category}`);
-  if(preview){casePreviewWindows.set(category,preview);preview.focus()}
+  const page=publishedPages.get(category)||pages.find(item=>item.file_name===fileName);
+  if(!page){message(`找不到${category==='urban'?'都更':'危老'}列表頁。`,true);return}
+  activeCaseListPreview=category;
+  $('caseListPreviewTitle').textContent=`${category==='urban'?'進行個案（都更）':'在建工程（危老）'}｜前台預覽`;
+  $('caseListPreviewView').hidden=false;
+  $('pageEditor').classList.add('case-list-preview-active');
+  $('caseListPreviewFrame').style.maxWidth='';
+  $('previewSize').textContent='手機預覽';
+  try{$('caseListPreviewFrame').srcdoc=await editorDocument(page,page.main_html)}
+  catch(error){message(`無法載入前台列表預覽：${error.message||error}`,true)}
 }
-function refreshCaseListPreview(category){
-  const preview=casePreviewWindows.get(category);
-  if(preview&&!preview.closed)preview.location.reload();
+async function refreshCaseListPreview(category){
+  if(activeCaseListPreview!==category)return;
+  const page=publishedPages.get(category)||pages.find(item=>item.file_name===(category==='urban'?'urban.html':'renewal.html'));
+  if(page)$('caseListPreviewFrame').srcdoc=await editorDocument(page,page.main_html);
 }
+function closeCaseListPreview(){
+  activeCaseListPreview=null;
+  $('caseListPreviewView').hidden=true;
+  $('pageEditor').classList.remove('case-list-preview-active');
+  $('previewSize').textContent=$('visualEditor').style.maxWidth?'桌面預覽':'手機預覽';
+}
+$('closeCaseListPreview').addEventListener('click',closeCaseListPreview);
+$('previewSize').addEventListener('click',()=>{
+  const frame=activeCaseListPreview?$('caseListPreviewFrame'):$('visualEditor');
+  frame.style.maxWidth=frame.style.maxWidth?'':'390px';
+  $('previewSize').textContent=frame.style.maxWidth?'桌面預覽':'手機預覽';
+});
 
 function renderPageList(filter=''){
   const list=$('pageList');
