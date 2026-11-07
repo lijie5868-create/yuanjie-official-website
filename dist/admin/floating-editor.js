@@ -43,6 +43,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     style.textContent+='[data-block="albums"] .project-album-grid{display:block!important}[data-block="albums"] .project-album-items[hidden]{display:contents!important}';
     style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu,.inline-edit-ui[data-level="team"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="album"] .inline-edit-menu{width:min(420px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
     style.textContent+='.inline-edit-ui [data-tooltip]{position:relative}.inline-edit-ui [data-tooltip]::after{content:attr(data-tooltip);position:absolute;z-index:30;top:calc(100% + 8px);left:50%;padding:5px 8px;border:1px solid #34434b;border-radius:6px;background:#263238;color:#fff;box-shadow:0 4px 12px #18232b30;font:11px/1.2 system-ui,sans-serif;white-space:nowrap;pointer-events:none;visibility:hidden;opacity:0;transform:translate(-50%,4px);transition:opacity .12s ease,transform .12s ease,visibility .12s}.inline-edit-ui [data-tooltip]:hover::after,.inline-edit-ui [data-tooltip]:focus-visible::after{visibility:visible;opacity:1;transform:translate(-50%,0)}.inline-edit-ui.open-up [data-tooltip]::after{top:auto;bottom:calc(100% + 8px);transform:translate(-50%,-4px)}.inline-edit-ui.open-up [data-tooltip]:hover::after,.inline-edit-ui.open-up [data-tooltip]:focus-visible::after{transform:translate(-50%,0)}';
+    style.textContent+='.inline-edit-ui[data-level="image"] .inline-edit-toggle{display:none}.inline-edit-ui[data-level="image"] .inline-edit-menu{position:relative;top:auto;left:auto;bottom:auto}';
     const root=doc.createElement('div');root.className='inline-edit-ui';root.hidden=true;root.dataset.editorUi='';
     let albumDrag=null,suppressAlbumClick=false;
     const finishAlbumDrag=event=>{
@@ -319,7 +320,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     };
     function show(event){
       if(suppressAlbumClick)return;
-      if(event.target.closest('.inline-edit-ui,[data-editor-ui],input,textarea,select')||(event.target.closest('button')&&!event.target.closest('.project-album-cover')))return;
+      if(event.target.closest('.inline-edit-ui,[data-editor-ui],input,textarea,select')||(event.target.closest('button')&&!event.target.closest('.project-album-cover')&&!event.target.closest('img,image')))return;
       const target=event.target.closest('main');if(target!==main){root.hidden=true;return}
       lastTarget=event.target;
       const selection=win.getSelection();
@@ -338,7 +339,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-44))}px`;
       root.style.top=`${Math.max(10,Math.min(y-40,win.innerHeight-44))}px`;
       toggle.querySelector('span').textContent=selectedLevel==='block'?'區塊':selectedLevel==='feature'?'特色':selectedLevel==='team'?'單位':selectedLevel==='album'?'相簿':selectedLevel==='row'?'欄位':'編輯';
-      root.dataset.selection=String(textSelected);root.hidden=false;menu.hidden=!textSelected;menu.style.left='0px';media.hidden=true;toggle.setAttribute('aria-expanded',String(textSelected));
+      root.dataset.selection=String(textSelected);root.hidden=false;menu.hidden=!(textSelected||imageSelected);menu.style.left='0px';media.hidden=true;toggle.setAttribute('aria-expanded',String(textSelected||imageSelected));
       updateActions();
       if(textSelected)root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-menu.getBoundingClientRect().width-12))}px`;
       if(textSelected&&root.getBoundingClientRect().bottom+80>win.innerHeight)root.classList.add('open-up');else root.classList.remove('open-up');
