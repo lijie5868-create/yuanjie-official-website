@@ -291,6 +291,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       finally{upload.disabled=false;embed.disabled=false}
     };
     function show(event){
+      if(event.target.closest?.('[data-block="albums"] .project-album')){root.hidden=true;return}
       if(event.target.closest('.inline-edit-ui,[data-editor-ui],input,textarea,select')||(event.target.closest('button')&&!event.target.closest('.project-album-cover')&&!event.target.closest('img,image')))return;
       const target=event.target.closest('main');if(target!==main){root.hidden=true;return}
       lastTarget=event.target;

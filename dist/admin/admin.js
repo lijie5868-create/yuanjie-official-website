@@ -1,5 +1,5 @@
 import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=22';
-import {createFloatingEditor} from './floating-editor.js?v=29';
+import {createFloatingEditor} from './floating-editor.js?v=30';
 import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=9";

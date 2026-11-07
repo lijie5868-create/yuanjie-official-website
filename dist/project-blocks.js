@@ -369,9 +369,8 @@ window.ProjectBlocks = (() => {
     }
     const caseTitle=main.querySelector('[data-block="cover"] h1')?.textContent||'';
     for(const block of main.querySelectorAll('[data-block="albums"]')){
-      // The Renai draft defines these four legacy singleton cards as one
-      // landlord briefing album; keep separate albums for every other case.
-      if(!caseTitle.includes('仁愛路'))continue;
+      // Briefing photos for these cases belong to one album.
+      if(!/仁愛路|士東路/.test(caseTitle))continue;
       const grid=block.querySelector('.project-album-grid');if(!grid||grid.children.length<2)continue;
       const first=grid.querySelector('.project-album'),items=first?.querySelector('.project-album-items');if(!items)continue;
       for(const album of [...grid.children].slice(1)){
@@ -503,6 +502,7 @@ window.ProjectBlocks = (() => {
     card.append(badge);
   }
   const enhancedAlbumRails=new WeakSet();
+  const boundAlbumRoots=new WeakSet();
   function openAlbum(article,startIndex=0){
     const doc=article.ownerDocument;
     let dialog=doc.querySelector('.project-album-dialog');
@@ -525,11 +525,19 @@ window.ProjectBlocks = (() => {
     const resize=()=>requestAnimationFrame(fit);window.addEventListener('resize',resize);dialog.addEventListener('close',()=>window.removeEventListener('resize',resize),{once:true});
   }
   function enhanceAlbumRails(root=document){
+    if(!boundAlbumRoots.has(root)){
+      boundAlbumRoots.add(root);
+      root.addEventListener('click',event=>{
+        const cover=event.target.closest?.('.project-album-cover');
+        if(!cover||!root.contains(cover)||root.closest?.('[contenteditable]'))return;
+        event.preventDefault();openAlbum(cover.closest('.project-album'),0);
+      });
+    }
     for(const rail of root.querySelectorAll('[data-block="albums"] .project-album')){
       if(enhancedAlbumRails.has(rail))continue;
       enhancedAlbumRails.add(rail);rail.removeAttribute('tabindex');rail.removeAttribute('role');rail.setAttribute('aria-label','相簿');
       const cover=rail.querySelector('.project-album-cover');
-      if(cover){cover.type='button';cover.onclick=event=>{if(rail.closest('[contenteditable]'))return;event.preventDefault();openAlbum(rail,0)};cover.onkeydown=event=>{if(!['Enter',' '].includes(event.key)||rail.closest('[contenteditable]'))return;event.preventDefault();openAlbum(rail,0)}}
+      if(cover)cover.type='button';
     }
   }
   function cleanupAlbumZoom(root=document){
