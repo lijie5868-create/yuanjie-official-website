@@ -213,8 +213,10 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     fontSize.onchange=()=>{if(fontSize.value)applyTextStyle('fontSize',fontSize.value);fontSize.value=''};
     fontSizeTool.append(fontSize);menu.append(fontSizeTool);textActions.push(fontSizeTool);
     textActions.push(action('上傳圖片','上傳圖片','image',()=>{restore();document.getElementById('imageUploadButton').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')}));
+    const imageActions=[];
+    imageActions.push(action('更換選取照片','更換照片','image',()=>{document.getElementById('imageUploadButton').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')}));
     const editButton=action('編輯選取圖片','編輯圖片','crop',()=>{document.getElementById('editImage').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
-    textActions.push(editButton);
+    imageActions.push(editButton);
     textActions.push(action('插入媒體','媒體','video',()=>{media.hidden=!media.hidden;if(!media.hidden)urlInput.focus()}));
     const deleteButton=action('刪除所選資料欄位','刪除欄位','delete',()=>{
       const row=lastTarget?.closest('[data-block="specs"] dl.specs > div');
@@ -248,6 +250,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     albumActions.push(action('在此相簿新增一張照片','新增照片','image',()=>{const block=albumBlock(),item=albumItem();if(!block||!item)return;const items=item.querySelector('.project-album-items'),count=1+items.querySelectorAll('figure').length;if(count>=40){win.alert('每個相簿最多 40 張照片。');return}const figure=doc.createElement('figure');figure.innerHTML='<img alt="相簿照片"><figcaption>照片說明</figcaption>';const image=figure.querySelector('img');image.src=new URL('../assets/project-placeholder.svg',import.meta.url).href;items.append(figure);notifyBlock(block);main.dispatchEvent(new CustomEvent('yuanjie:select-image',{detail:{image}}));document.getElementById('imageUploadButton').click();root.hidden=true}));
     const removePhoto=action('刪除選取的這張照片','刪除這張','delete',()=>{const block=albumBlock(),item=albumItem(),photo=lastTarget?.closest('.project-album-items figure');if(!item)return;const inner=item.querySelector('.project-album-items');if(!photo&&!inner.firstElementChild){win.alert('這是區塊內最後一張照片；若要移除整個圖片集，請刪除區塊。');return}if(!win.confirm('刪除選取的這張照片？'))return;if(photo)photo.remove();else{const next=inner.firstElementChild.querySelector('img'),current=item.querySelector('.project-album-cover img');current.src=next.src;current.alt=next.alt;inner.firstElementChild.remove()}notifyBlock(block);root.hidden=true});removePhoto.classList.add('inline-delete-action');albumActions.push(removePhoto);
     albumActions.push(action('更換選取的照片','更換照片','crop',()=>{const image=lastTarget?.closest('figure')?.querySelector('img');image?.click();document.getElementById('imageUploadButton').click();root.hidden=true}));
+    albumActions.push(action('編輯選取的照片','編輯照片','crop',()=>{const image=lastTarget?.closest('figure')?.querySelector('img');image?.click();document.getElementById('editImage').click();root.hidden=true}));
     const removeBlock=action('刪除所選區塊','刪除區塊','delete',()=>{const block=lastTarget?.closest('[data-block],[data-company-block]');if(!block||['cover','footer'].includes(block.dataset.block))return;const name=window.ProjectBlocks.types[block.dataset.block]||block.querySelector('h2,h1')?.textContent.trim()||'此區塊';if(win.confirm(`刪除整個「${name}」區塊及其內容？`)){block.remove();notifyBlock(null)}root.hidden=true});removeBlock.classList.add('inline-delete-action','inline-block-action');
     menu.append(media);root.append(toggle,menu);doc.body.append(root);
     root.addEventListener('pointerdown',event=>{if(event.target.closest('input,select,textarea'))return;event.preventDefault()});
@@ -256,7 +259,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       const isBlock=selectedLevel==='block',isFeature=selectedLevel==='feature',isTeam=selectedLevel==='team',isAlbum=selectedLevel==='album',isRow=selectedLevel==='row';
       root.dataset.level=selectedLevel;
       textActions.forEach(button=>button.hidden=isBlock||isFeature||isTeam||isAlbum||selectedLevel==='image');
-      editButton.hidden=selectedLevel!=='image';
+      imageActions.forEach(button=>button.hidden=selectedLevel!=='image');
       featureActions.forEach(button=>button.hidden=!isFeature);
       teamActions.forEach(button=>button.hidden=!isTeam);
       albumActions.forEach(button=>button.hidden=!isAlbum);
@@ -323,12 +326,13 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       savedRange=selection?.rangeCount&&main.contains(selection.anchorNode)?selection.getRangeAt(0).cloneRange():null;
       const block=lastTarget.closest('[data-block],[data-company-block]');
       const textSelected=Boolean(savedRange&&!savedRange.collapsed);
-      const imageSelected=Boolean(lastTarget.closest('img'))&&!textSelected;
+      const imageSelected=Boolean(lastTarget.closest('img,image'));
       selectedLevel=block&&(event.forceBlock||(!textSelected&&(event.target===block||event.target.matches('[data-block] > .wrap,[data-block] > .page-head,[data-block] > .case-overview,[data-block] > .details'))))?'block':
+        lastTarget.closest('[data-block="albums"] .project-album')&&!textSelected?'album':
+        imageSelected?'image':
         lastTarget.closest('[data-block="features"] li,[data-block="features"] article,[data-block="featureStory"] article')&&!textSelected?'feature':
         lastTarget.closest('[data-block="team"] .team > div,[data-block="team"] .pb-items > article')&&!textSelected?'team':
-        lastTarget.closest('[data-block="albums"] .project-album')&&!textSelected?'album':
-        lastTarget.closest('[data-block="specs"] dl.specs > div')?'row':imageSelected?'image':'text';
+        lastTarget.closest('[data-block="specs"] dl.specs > div')?'row':'text';
       const rect=savedRange?.getBoundingClientRect();
       const x=rect?.right||event.clientX||40,y=rect?.top||event.clientY||40;
       root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-44))}px`;

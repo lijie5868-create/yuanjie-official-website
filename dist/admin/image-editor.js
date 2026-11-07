@@ -10,6 +10,13 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   let offsetY=0;
   let drawInfo=null;
 
+  const isImageNode=node=>node?.tagName==='IMG'||node?.tagName?.toLowerCase()==='image';
+  const imageSource=node=>{
+    if(node?.tagName==='IMG')return node.currentSrc||node.src;
+    const source=node?.getAttribute?.('href')||node?.getAttribute?.('xlink:href');
+    return source?new URL(source,node.ownerSVGElement?.baseURI||frame.contentDocument.baseURI).href:'';
+  };
+
   function setMessage(text,error=false){
     $('imageMessage').textContent=text;
     $('imageMessage').classList.toggle('error',error);
@@ -17,7 +24,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
 
   function setSelection(node){
     selected=node;
-    const isImage=node?.tagName==='IMG';
+    const isImage=isImageNode(node);
     $('editImage').disabled=!isImage;
     $('imageUploadButton').textContent=isImage?'更換選取圖片':'上傳圖片';
     frame.contentDocument.querySelectorAll('[data-admin-selected]').forEach(item=>item.removeAttribute('data-admin-selected'));
@@ -70,7 +77,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       if(selection?.rangeCount)savedRange=selection.getRangeAt(0).cloneRange();
     });
     doc.addEventListener('click',event=>{
-      const img=event.target.closest?.('img');
+      const img=event.target.closest?.('img,image');
       if(img){
         event.preventDefault();
         setSelection(img);
@@ -115,13 +122,14 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     image=null;
     context.clearRect(0,0,canvas.width,canvas.height);
     setMessage('');
-    $('resizeImage').hidden=!showResize;
+    $('resizeImage').hidden=!showResize||selected?.tagName?.toLowerCase()==='image';
     $('imageDialogTitle').textContent=existing?'更換或編輯圖片':'上傳並裁切圖片';
     const albumImage=Boolean(selected?.closest?.('[data-block="albums"] .project-album'));
+    const svgImage=selected?.tagName?.toLowerCase()==='image';
     dialog.toggleAttribute('data-album-image',albumImage);
-    $('imageWidth').closest('label').hidden=albumImage;
+    $('imageWidth').closest('label').hidden=albumImage||svgImage;
     $('cropRatio').closest('label').firstChild.textContent=albumImage?'圖庫照片裁切比例':'裁切比例';
-    $('imageAlt').value=existing?.alt||name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+    $('imageAlt').value=existing?.alt||existing?.getAttribute?.('aria-label')||name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
     const currentWidth=existing?.style.width?.match(/^(\d+)%$/)?.[1]||'100';
     $('imageWidth').value=currentWidth;
     $('imageWidthValue').textContent=`${currentWidth}%`;
@@ -130,6 +138,14 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   }
 
   function applySize(target){
+    if(target.tagName.toLowerCase()==='image'){
+      target.setAttribute('aria-label',$('imageAlt').value.trim());
+      target.removeAttribute('data-admin-selected');
+      onChange(target);
+      if(dialog.open)dialog.close();
+      onMessage('圖片說明已更新，請儲存草稿或發布。');
+      return;
+    }
     if(target.closest('a.case-card,[data-block="albums"] .project-album')){
       target.style.removeProperty('width');
       target.style.removeProperty('max-width');
@@ -149,6 +165,26 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   function insertImage(src,width,height){
     const doc=frame.contentDocument;
     const placeholder=selected?.classList?.contains('case-placeholder')&&doc.contains(selected)?selected:null;
+    const svgImage=selected?.tagName?.toLowerCase()==='image'&&doc.contains(selected)?selected:null;
+    if(svgImage){
+      const viewBox=svgImage.ownerSVGElement?.viewBox?.baseVal;
+      svgImage.setAttribute('href',src);
+      svgImage.removeAttribute('xlink:href');
+      if(viewBox&&viewBox.width&&viewBox.height){
+        svgImage.setAttribute('x',viewBox.x);
+        svgImage.setAttribute('y',viewBox.y);
+        svgImage.setAttribute('width',viewBox.width);
+        svgImage.setAttribute('height',viewBox.height);
+        svgImage.setAttribute('preserveAspectRatio','xMidYMid slice');
+      }else{
+        svgImage.setAttribute('width',width);
+        svgImage.setAttribute('height',height);
+      }
+      svgImage.setAttribute('aria-label',$('imageAlt').value.trim());
+      applySize(svgImage);
+      setSelection(svgImage);
+      return;
+    }
     const target=selected?.tagName==='IMG'&&doc.contains(selected)?selected:doc.createElement('img');
     target.src=src;
     target.width=width;
@@ -207,12 +243,12 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       return;
     }
     const objectUrl=URL.createObjectURL(file);
-    await open(objectUrl,file.name,selected?.tagName==='IMG'?selected:null,false);
+    await open(objectUrl,file.name,isImageNode(selected)?selected:null,false);
     URL.revokeObjectURL(objectUrl);
   };
   $('editImage').onclick=()=>{
     if(!selected)return;
-    open(selected.src,selected.alt||'image',selected);
+    open(imageSource(selected),selected.alt||selected.getAttribute?.('aria-label')||'image',selected);
   };
   $('closeImageDialog').onclick=()=>dialog.close();
   $('cropRatio').onchange=()=>{if(image){dimensions();offsetX=offsetY=0;render()}};
