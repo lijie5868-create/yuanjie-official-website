@@ -234,12 +234,17 @@ window.ProjectBlocks = (() => {
       narrative=main.ownerDocument.createElement('div');narrative.className='cover-narrative';
       const existingHeading=copy.querySelector(':scope > h2'),existingLead=copy.querySelector(':scope > .lead');
       const existingBody=existingHeading?.nextElementSibling?.matches('p:not(.project-location)')?existingHeading.nextElementSibling:null;
-      const body=existingBody||main.ownerDocument.createElement('p');body.classList.add('cover-description');body.dataset.placeholder='補充個案說明文字';
-      if(existingHeading){existingHeading.classList.add('cover-motto');existingHeading.dataset.placeholder='補充個案標語';narrative.append(existingHeading)}
-      if(existingLead){body.textContent=existingLead.textContent;existingLead.remove()}
+      const motto=existingHeading||main.ownerDocument.createElement('h2');
+      if(existingHeading||existingLead?.textContent.trim()){
+        motto.classList.add('cover-motto');motto.dataset.placeholder='補充個案標語';
+        if(!existingHeading)motto.textContent=existingLead.textContent;
+        narrative.append(motto);
+      }
+      existingLead?.remove();
       if(existingBody)existingBody.remove();
-      narrative.append(body);const location=copy.querySelector('.project-location');(location||copy.querySelector('h1'))?.after(narrative);
+      const location=copy.querySelector('.project-location');(location||copy.querySelector('h1'))?.after(narrative);
     }
+    narrative.querySelectorAll('.cover-description,[data-placeholder="補充個案說明文字"]').forEach(node=>node.remove());
     let explore=copy.querySelector('.cover-explore,.explore');
     if(!explore){explore=main.ownerDocument.createElement('a');explore.href='#project';copy.append(explore)}
     explore.classList.add('cover-explore');explore.innerHTML='<span>探索本案</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13m-5-5 5 5 5-5"/></svg>';

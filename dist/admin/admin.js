@@ -320,7 +320,7 @@ async function editorDocument(page,html){
     console.warn('Using the basic editor preview.',error);
   }
   const attributes=`${bodyId?` id="${bodyId}"`:''}${bodyClass?` class="${bodyClass}"`:''}`;
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=23"><link rel="stylesheet" href="company-blocks.css?v=1"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}main img,main svg image{cursor:pointer}main a img{pointer-events:auto}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}svg image[data-admin-selected]{filter:drop-shadow(0 0 3px #a47c48)}.case-card{position:relative}.case-card .project-location .case-card-inline-note{position:static!important;display:block!important;width:auto!important;height:auto!important;min-height:0!important;padding:4px!important;border:0!important;border-radius:0!important;background:none!important;color:#687a84!important;font-size:12px!important;cursor:text!important}.case-card .project-location .case-card-inline-note::before{display:none!important}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=24"><link rel="stylesheet" href="company-blocks.css?v=1"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}main img,main svg image{cursor:pointer}main a img{pointer-events:auto}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}svg image[data-admin-selected]{filter:drop-shadow(0 0 3px #a47c48)}.case-card{position:relative}.case-card .project-location .case-card-inline-note{position:static!important;display:block!important;width:auto!important;height:auto!important;min-height:0!important;padding:4px!important;border:0!important;border-radius:0!important;background:none!important;color:#687a84!important;font-size:12px!important;cursor:text!important}.case-card .project-location .case-card-inline-note::before{display:none!important}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
 function publishedProjectsForCategory(category){
@@ -740,10 +740,41 @@ async function fetchPages(){
   ]);
   if(draftResult.error)throw draftResult.error;
   if(publishedResult.error)throw publishedResult.error;
+  await removeLegacyCoverDescriptions(draftResult.data,publishedResult.data||[]);
   pages=draftResult.data;
   publishedPages=new Map((publishedResult.data||[]).map(page=>[page.slug,page]));
   renderPageList();
   if(pages.length)await loadEditor(pages[0]);
+}
+
+async function removeLegacyCoverDescriptions(drafts,published){
+  const clean=html=>{
+    if(!/cover-description|補充個案說明文字/.test(html||''))return null;
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    const main=doc.querySelector('main');
+    if(!main)return null;
+    const nodes=main.querySelectorAll('[data-block="cover"] .cover-description,[data-block="cover"] [data-placeholder="補充個案說明文字"]');
+    if(!nodes.length)return null;
+    nodes.forEach(node=>node.remove());
+    return main.outerHTML;
+  };
+  const timestamp=new Date().toISOString();
+  for(const page of drafts){
+    const html=clean(page.main_html);
+    if(!html)continue;
+    const {data,error}=await supabase.from('cms_pages').update({main_html:html,updated_at:timestamp}).eq('id',page.id).eq('updated_at',page.updated_at).select().maybeSingle();
+    if(error)throw error;
+    if(!data)throw new Error(`「${page.title}」草稿已有其他更新，請重新整理後再整理封面。`);
+    Object.assign(page,data);
+  }
+  for(const page of published){
+    const html=clean(page.main_html);
+    if(!html)continue;
+    const {data,error}=await supabase.from('published_pages').update({main_html:html}).eq('slug',page.slug).eq('published_at',page.published_at).select().maybeSingle();
+    if(error)throw error;
+    if(!data)throw new Error(`「${page.title}」上線版本已有其他更新，請重新整理後再整理封面。`);
+    Object.assign(page,data);
+  }
 }
 
 function navigationRow(item){
