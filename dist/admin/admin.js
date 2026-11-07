@@ -588,6 +588,11 @@ $('previewSize').addEventListener('click',()=>{
 
 function renderPageList(filter=''){
   const list=$('pageList');
+  const sidebar=$('pageSidebar');
+  const sidebarScrollTop=sidebar.scrollTop;
+  const listScrollTop=list.scrollTop;
+  const documentScrollTop=window.scrollY;
+  const focusedSlug=document.activeElement?.closest?.('#pageList button[data-slug]')?.dataset.slug||'';
   const newProjectButton=$('newProject'),newCompanyButton=$('newCompanyPage');
   const query=filter.trim().toLocaleLowerCase('zh-Hant');
   const matches=pages.filter(page=>`${page.title} ${page.file_name} ${ProjectBlocks.canonicalProjectFile(page.file_name)}`.toLocaleLowerCase('zh-Hant').includes(query));
@@ -625,6 +630,13 @@ function renderPageList(filter=''){
     list.append(empty);
   }
   if(current)document.querySelector(`#pageList button[data-slug="${CSS.escape(current.slug)}"]`)?.classList.add('active');
+  requestAnimationFrame(()=>{
+    if(!sidebar.isConnected)return;
+    sidebar.scrollTop=sidebarScrollTop;
+    list.scrollTop=listScrollTop;
+    window.scrollTo(0,documentScrollTop);
+    if(focusedSlug)list.querySelector(`button[data-slug="${CSS.escape(focusedSlug)}"]`)?.focus({preventScroll:true});
+  });
 }
 
 async function fetchPages(){
