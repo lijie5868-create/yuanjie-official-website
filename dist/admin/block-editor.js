@@ -127,8 +127,8 @@ export function bindBlocks(main,panel,changed){
       }
       return;
     }
-    if(block.dataset.block==='specs'&&main.dataset.projectCategory==='urban'){
-      const row=[...block.querySelectorAll('.specs > div')].find(item=>item.querySelector('dt')?.textContent.trim()==='實施者');
+    if(block.dataset.block==='specs'&&document.getElementById('projectCategory')?.value==='urban'){
+      const row=[...block.querySelectorAll('dl.specs > div, .specs > div')].find(item=>item.querySelector('dt')?.textContent.trim()==='實施者');
       if(row&&!row.querySelector('.implementer-stage-control')){
         const master=document.getElementById('projectSelectingImplementer');
         if(master){
@@ -161,12 +161,13 @@ export function bindBlocks(main,panel,changed){
   const style=doc.createElement('style');style.textContent='[data-block]{position:relative}[data-selected-block]{outline:2px solid #a68b65;outline-offset:3px}[data-drop=before]{box-shadow:inset 0 5px #49728c}[data-drop=after]{box-shadow:inset 0 -5px #49728c}.block-editor-actions[data-editor-ui]{background:#ece6dc;color:#574531;margin-bottom:12px}[data-block="specs"]>[data-editor-ui]{cursor:pointer}[contenteditable]:focus{outline:1px solid #ad9370}.block-insert-slot{position:relative;display:flex;justify-content:center;align-items:center;height:48px;margin:-24px 0;z-index:3;pointer-events:none}.block-insert-slot:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed #b9b5ab;opacity:.7}.block-insert-toggle{position:relative;width:34px;height:34px;border:1px solid #a88a61;border-radius:50%;background:#fff;color:#6f5634;font:600 24px/1 sans-serif;cursor:pointer;box-shadow:0 3px 12px #0002;pointer-events:auto}.block-insert-toggle:hover,.block-insert-toggle[aria-expanded=true]{background:#4a6984;color:#fff;border-color:#4a6984}.block-insert-menu{position:absolute;left:50%;top:calc(50% + 22px);transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(340px,calc(100vw - 38px));padding:12px;border:1px solid #c9c5bc;border-radius:12px;background:#fff;box-shadow:0 12px 32px #0003;pointer-events:auto}.block-insert-menu[hidden]{display:none}.block-insert-menu strong{grid-column:1/-1;font:600 14px/1.4 sans-serif;color:#344d60;margin-bottom:3px}.block-insert-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:9px 7px;font:14px/1.3 sans-serif;cursor:pointer}.block-insert-menu button:hover,.block-insert-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}@media(max-width:600px){.block-insert-slot{height:42px;margin:-21px 0}.block-insert-menu{grid-template-columns:1fr 1fr}}';doc.head.append(style);
   style.textContent+='.block-editor-actions[data-editor-ui]{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;padding:5px 8px;border-radius:7px;cursor:auto}.block-editor-actions button{border:0;border-radius:5px;padding:7px 10px;background:#fff;color:#354957;font:600 12px/1.3 system-ui;cursor:pointer}.block-editor-actions .block-delete-button{background:#fff1ef;color:#a43f36}.cover-team-editor-slot[data-editor-ui]{display:flex;justify-content:flex-end;margin:12px 0 0;padding:0;background:transparent;cursor:auto}.cover-team-editor-button{border:1px solid #b5c4cd;border-radius:999px;background:#fff;color:#4a6984;padding:8px 13px;font:600 13px/1.3 system-ui;cursor:pointer}';
   style.textContent+='.specs > div:has(>.implementer-stage-control){position:relative;padding-right:120px!important}.implementer-stage-control[data-editor-ui]{position:absolute;right:0;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:5px;white-space:nowrap;padding:5px 8px;border:1px solid #b5c4cd;border-radius:999px;background:#fff;color:#4a6984;font:600 11px/1.2 system-ui;cursor:pointer}.implementer-stage-control input{width:14px;height:14px;margin:0;accent-color:#4a6984}@media(max-width:600px){.specs > div:has(>.implementer-stage-control){padding-right:0!important;padding-bottom:32px!important}.implementer-stage-control[data-editor-ui]{top:auto;bottom:3px;right:0;transform:none}}';
+  style.textContent+='.block-insert-slot{gap:7px}.block-slot-action{position:relative;display:grid;place-items:center;width:32px;height:32px;flex:none;border:1px solid #c5cbd0;border-radius:50%;background:#fff;color:#4a6984;font:600 18px/1 system-ui;cursor:pointer;pointer-events:auto;box-shadow:0 2px 8px #0001}.block-slot-action:hover,.block-slot-action:focus-visible{background:#e8eff3;outline:2px solid #4a6984}.block-slot-delete{color:#a43f36}.block-slot-delete:hover{background:#fff1ef}.block-slot-action svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}';
   const heading=document.createElement('summary');heading.textContent='拖曳元件到預覽頁面，或點選元件加入';panel.append(heading,tools,list,fields);
   let active,dragged;
   const itemRows=el=>el.querySelector('.specs,.pb-items,.case-highlights,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid,.features,.feature-story-grid,.heping-highlights,.team,.metrics,ul');
   function renderInsertControls(){
     main.querySelectorAll(':scope > .block-insert-slot').forEach(slot=>slot.remove());
-    for(const block of blocks()){
+    for(const [index,block] of blocks().entries()){
       if(block.dataset.block==='footer')continue;
       const slot=doc.createElement('div');slot.className='block-insert-slot';slot.dataset.editorUi='';
       const toggle=doc.createElement('button');toggle.type='button';toggle.className='block-insert-toggle';toggle.textContent='+';
@@ -180,7 +181,19 @@ export function bindBlocks(main,panel,changed){
         main.querySelectorAll('.block-insert-menu').forEach(other=>{other.hidden=true;other.previousElementSibling?.setAttribute('aria-expanded','false')});
         menu.hidden=!open;toggle.setAttribute('aria-expanded',String(open));
       };
-      slot.append(toggle,menu);block.after(slot);
+      slot.append(toggle,menu);
+      if(!fixed(block)){
+        const action=(symbol,label,handler,className='')=>{
+          const control=doc.createElement('button');control.type='button';control.className=`block-slot-action ${className}`.trim();control.textContent=symbol;control.setAttribute('aria-label',label);control.title=label;
+          control.onclick=event=>{event.stopPropagation();handler()};slot.append(control);
+        };
+        if(index>1)action('↑','區塊上移',()=>{main.insertBefore(block,blocks()[index-1]);select(block);changed()});
+        const following=blocks()[index+1];
+        if(following&&!fixed(following))action('↓','區塊下移',()=>{following.after(block);select(block);changed()});
+        action('','刪除區塊',()=>{if(confirm(`刪除「${api.types[block.dataset.block]||'此區塊'}」及其內容？`)){block.remove();select(blocks()[Math.max(0,index-1)]);changed()}},'block-slot-delete');
+        slot.lastElementChild.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v6m4-6v6"/></svg>';
+      }
+      block.after(slot);
     }
   }
   doc.addEventListener('click',e=>{
