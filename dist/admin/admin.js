@@ -349,7 +349,7 @@ async function loadEditor(page){
   }
   $('visitPage').href=`${basePath}${ProjectBlocks.canonicalProjectFile(page.file_name)}`;
   const frame=$('visualEditor');
-  $('previewSize').textContent=frame.style.maxWidth?'桌面預覽':'手機預覽';
+  $('previewSize').textContent=frame.dataset.previewMode==='mobile'?'桌面預覽':'手機預覽';
   $('publish').disabled=true;
   $('contentSafetyStatus').classList.toggle('warning',staleDraft);
   $('contentSafetyStatus').textContent=staleDraft
@@ -555,6 +555,23 @@ function appendProjectSubgroup(group,label,items,category){
 }
 
 let activeCaseListPreview=null;
+let previewZoom=1;
+function activePreviewFrame(){return activeCaseListPreview?$('caseListPreviewFrame'):$('visualEditor')}
+function applyPreviewZoom(){
+  const frame=activePreviewFrame();
+  const stage=$(activeCaseListPreview?'caseListPreviewStage':'visualEditorStage');
+  if(!frame||!stage)return;
+  const mobile=frame.dataset.previewMode==='mobile';
+  frame.style.width=`${Math.round(mobile?390:stage.clientWidth/previewZoom)}px`;
+  frame.style.height=`${Math.round(stage.clientHeight/previewZoom)}px`;
+  frame.style.transform=`scale(${previewZoom})`;
+  frame.style.transformOrigin='top left';
+  frame.style.marginLeft=mobile?`${Math.max(0,(stage.clientWidth-390*previewZoom)/2)}px`:'0';
+  $('previewZoomValue').value=`${Math.round(previewZoom*100)}%`;
+  $('previewZoomValue').textContent=`${Math.round(previewZoom*100)}%`;
+  $('previewZoomOut').disabled=previewZoom<=.5;
+  $('previewZoomIn').disabled=previewZoom>=1.2;
+}
 async function openCaseListPreview(category){
   const fileName=category==='urban'?'urban.html':'renewal.html';
   const page=publishedPages.get(category)||pages.find(item=>item.file_name===fileName);
@@ -563,23 +580,30 @@ async function openCaseListPreview(category){
   $('caseListPreviewTitle').textContent=`${category==='urban'?'進行個案（都更）':'在建工程（危老）'}｜前台預覽`;
   $('caseListPreviewView').hidden=false;
   $('pageEditor').classList.add('case-list-preview-active');
-  $('caseListPreviewFrame').style.maxWidth='';
+  $('caseListPreviewFrame').dataset.previewMode='desktop';
   $('previewSize').textContent='手機預覽';
-  try{$('caseListPreviewFrame').srcdoc=await editorDocument(page,page.main_html)}
+  try{$('caseListPreviewFrame').srcdoc=await editorDocument(page,page.main_html);requestAnimationFrame(applyPreviewZoom)}
   catch(error){message(`無法載入前台列表預覽：${error.message||error}`,true)}
 }
 function closeCaseListPreview(){
   activeCaseListPreview=null;
   $('caseListPreviewView').hidden=true;
   $('pageEditor').classList.remove('case-list-preview-active');
-  $('previewSize').textContent=$('visualEditor').style.maxWidth?'桌面預覽':'手機預覽';
+  $('previewSize').textContent=$('visualEditor').dataset.previewMode==='mobile'?'桌面預覽':'手機預覽';
 }
 $('closeCaseListPreview').addEventListener('click',closeCaseListPreview);
 $('previewSize').addEventListener('click',()=>{
-  const frame=activeCaseListPreview?$('caseListPreviewFrame'):$('visualEditor');
-  frame.style.maxWidth=frame.style.maxWidth?'':'390px';
-  $('previewSize').textContent=frame.style.maxWidth?'桌面預覽':'手機預覽';
+  const frame=activePreviewFrame();
+  frame.dataset.previewMode=frame.dataset.previewMode==='mobile'?'desktop':'mobile';
+  $('previewSize').textContent=frame.dataset.previewMode==='mobile'?'桌面預覽':'手機預覽';
+  applyPreviewZoom();
 });
+$('previewZoomOut').addEventListener('click',()=>{previewZoom=Math.max(.5,Math.round((previewZoom-.1)*10)/10);applyPreviewZoom()});
+$('previewZoomIn').addEventListener('click',()=>{previewZoom=Math.min(1.2,Math.round((previewZoom+.1)*10)/10);applyPreviewZoom()});
+window.addEventListener('resize',applyPreviewZoom);
+if('ResizeObserver'in window){const previewStageObserver=new ResizeObserver(applyPreviewZoom);previewStageObserver.observe($('visualEditorStage'));previewStageObserver.observe($('caseListPreviewStage'))}
+$('visualEditor').addEventListener('load',applyPreviewZoom);
+$('caseListPreviewFrame').addEventListener('load',applyPreviewZoom);
 
 function renderPageList(filter=''){
   const list=$('pageList');

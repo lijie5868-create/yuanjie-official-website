@@ -119,10 +119,16 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .upload input { display: none; }
 .content-safety-status { margin: 0 0 12px; padding: 10px 12px; border: 1px solid #cbd8ca; border-radius: 8px; background: #f3f8f2; color: #37643c; font-size: 13px; line-height: 1.55; }
 .content-safety-status.warning { border-color: #dfc79d; background: #fff8e8; color: #725126; }
+.preview-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+.preview-zoom-controls{display:flex;align-items:center;gap:6px;color:#66727a;font-size:12px}
+.preview-zoom-controls button{width:34px;height:34px;padding:0;border:1px solid #d8d3c9;border-radius:50%;font-size:20px;line-height:1}
+.preview-zoom-controls output{min-width:48px;text-align:center;color:#364b5b;font-variant-numeric:tabular-nums;font-weight:700}
+.preview-stage{position:relative;width:100%;height:max(960px,calc(100dvh - 90px));overflow:hidden;border:1px solid #c9c8c0;border-radius:9px;background:#fff}
+.preview-stage iframe{max-width:none!important;height:100%;margin:0;border:0;border-radius:0}
 .case-list-preview-view[hidden]{display:none}
 .case-list-preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:10px 12px;border:1px solid #d8d3c9;border-radius:8px;background:#f7f5f1;color:#4a6984}
 .case-list-preview-toolbar button{flex:0 0 auto}
-.editor.case-list-preview-active>.toolbar,.editor.case-list-preview-active>.form-grid,.editor.case-list-preview-active>#projectFields,.editor.case-list-preview-active>.edit-tools,.editor.case-list-preview-active>#qaTools,.editor.case-list-preview-active>#contentSafetyStatus,.editor.case-list-preview-active>#blockPanel,.editor.case-list-preview-active>#visualEditor,.editor.case-list-preview-active>.hint{display:none!important}
+.editor.case-list-preview-active>.toolbar,.editor.case-list-preview-active>.form-grid,.editor.case-list-preview-active>#projectFields,.editor.case-list-preview-active>.edit-tools,.editor.case-list-preview-active>#qaTools,.editor.case-list-preview-active>#contentSafetyStatus,.editor.case-list-preview-active>#blockPanel,.editor.case-list-preview-active>#visualEditorStage,.editor.case-list-preview-active>.hint{display:none!important}
 iframe { display: block; width: 100%; height: max(960px, calc(100dvh - 90px)); border: 1px solid #c9c8c0; border-radius: 9px; background: #fff; }
 .hint, small { font-size: 13px; }
 .navigation-card { padding: 26px; }

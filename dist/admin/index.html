@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=35">
+  <link rel="stylesheet" href="admin.css?v=36">
 <link rel="icon" type="image/png" href="../favicon-v1.png"><link rel="stylesheet" href="../media-embed.css?v=1"></head>
 <body>
   <div class="shell">
@@ -108,11 +108,19 @@
             <div id="qaTools" class="qa-tools" hidden><button id="addQuestion" type="button">＋ 新增問答</button><span>新增後請儲存草稿，再確認發布。</span></div>
             <p id="contentSafetyStatus" class="content-safety-status" role="status"></p>
             <details id="blockPanel" hidden open></details>
-            <button id="previewSize" type="button" class="secondary">手機預覽</button>
-            <iframe id="visualEditor" title="頁面內容編輯器"></iframe>
+            <div class="preview-controls">
+              <button id="previewSize" type="button" class="secondary">手機預覽</button>
+              <div class="preview-zoom-controls" role="group" aria-label="調整預覽縮放比例">
+                <span>預覽縮放</span>
+                <button id="previewZoomOut" type="button" class="secondary" aria-label="縮小預覽">−</button>
+                <output id="previewZoomValue" aria-live="polite">100%</output>
+                <button id="previewZoomIn" type="button" class="secondary" aria-label="放大預覽">＋</button>
+              </div>
+            </div>
+            <div id="visualEditorStage" class="preview-stage"><iframe id="visualEditor" title="頁面內容編輯器"></iframe></div>
             <section id="caseListPreviewView" class="case-list-preview-view" hidden>
               <div class="case-list-preview-toolbar"><strong id="caseListPreviewTitle"></strong><button id="closeCaseListPreview" type="button" class="secondary">返回個案詳情預覽</button></div>
-              <iframe id="caseListPreviewFrame" title="個案列表前台預覽"></iframe>
+              <div id="caseListPreviewStage" class="preview-stage"><iframe id="caseListPreviewFrame" title="個案列表前台預覽"></iframe></div>
             </section>
             <p class="hint">直接點選文字可修改；點選圖片後可裁切或縮放。後台會在發布前再次比對正式版本，若其他管理員已更新便會自動停止。</p>
             <p id="appMessage" class="message"></p>
@@ -280,6 +288,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js?v=22"></script><script type="module" src="admin.js?v=82"></script>
+  <script src="../project-blocks.js?v=22"></script><script type="module" src="admin.js?v=83"></script>
 </body>
 </html>
