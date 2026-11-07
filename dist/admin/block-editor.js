@@ -37,7 +37,7 @@ export function bindBlocks(main,panel,changed){
     el.onclick=action;target.append(el);return el;
   }
   const dragKey='application/x-yuanjie-project-block';
-  const insertTypes=Object.entries(api.types).slice(2).filter(([type])=>!['features','journal'].includes(type));
+  const insertTypes=Object.entries(api.types).slice(2).filter(([type])=>!['features','journal','metrics','team'].includes(type));
   let pending=null;
   const blocks=()=>[...main.children].filter(el=>el.dataset.block);
   const nextBlock=block=>blocks()[blocks().indexOf(block)+1]||null;
@@ -81,20 +81,59 @@ export function bindBlocks(main,panel,changed){
     const block=e.target.closest('[data-block]');if(block&&active!==block)select(block);
   });
   main.addEventListener('input',()=>{api.refresh(main);changed()});
+  function editCoverPartners(cover){
+    const dialog=doc.createElement('dialog');dialog.className='cover-partners-dialog';dialog.dataset.editorUi='';
+    const heading=doc.createElement('h2');heading.textContent='編輯封面團隊';
+    const hint=doc.createElement('p');hint.textContent='最多四組。職稱與名稱都填寫才會顯示；留空的組別不顯示。';
+    const form=doc.createElement('form');form.noValidate=true;
+    const existing=[...cover.querySelectorAll('.cover-partners .cover-partner')].slice(0,4);
+    const rows=[];
+    for(let index=0;index<4;index++){
+      const row=doc.createElement('div');row.className='cover-partners-dialog-row';
+      const number=doc.createElement('strong');number.textContent=String(index+1).padStart(2,'0');
+      const roleLabel=doc.createElement('label');roleLabel.textContent='職稱';
+      const role=doc.createElement('input');role.maxLength=40;role.placeholder='例如：實施者';role.value=existing[index]?.querySelector('small')?.textContent.trim()||'';roleLabel.append(role);
+      const nameLabel=doc.createElement('label');nameLabel.textContent='團隊名稱';
+      const name=doc.createElement('input');name.maxLength=100;name.placeholder='例如：○○建設';name.value=existing[index]?.querySelector('strong')?.textContent.trim()||'';nameLabel.append(name);
+      row.append(number,roleLabel,nameLabel);form.append(row);rows.push({role,name});
+    }
+    const error=doc.createElement('p');error.className='cover-partners-dialog-error';error.setAttribute('role','alert');
+    const actions=doc.createElement('div');actions.className='cover-partners-dialog-actions';
+    const cancel=doc.createElement('button');cancel.type='button';cancel.textContent='取消';cancel.onclick=()=>dialog.close();
+    const save=doc.createElement('button');save.type='submit';save.textContent='套用團隊';actions.append(cancel,save);form.append(error,actions);
+    form.onsubmit=event=>{event.preventDefault();const entries=rows.map(({role,name})=>({role:role.value.trim(),name:name.value.trim()}));if(entries.some(entry=>Boolean(entry.role)!==Boolean(entry.name))){error.textContent='每組請同時填寫職稱與團隊名稱，或兩欄都留空。';return}api.setCoverPartners(cover,entries);dialog.close();select(cover);changed()};
+    dialog.append(heading,hint,form);dialog.addEventListener('close',()=>dialog.remove(),{once:true});doc.body.append(dialog);dialog.showModal();rows[0].role.focus();
+  }
   function decorate(block){
     for(const node of block.querySelectorAll('h1,h2,h3,p,dt,dd,li,figcaption,small,time,strong,em,label,span,a,.eyebrow,.case-amount')){
       if(node.closest('[data-editor-ui],[data-metric-ref],.cover-explore')||node.querySelector('img,button,p,h3'))continue;
       node.setAttribute('contenteditable','true');
     }
-    if(block.dataset.block==='cover'||block.dataset.block==='footer'||block.querySelector(':scope > [data-editor-ui]'))return;
+    if(block.dataset.block==='cover'){
+      if(!block.querySelector('.cover-team-editor-slot')){
+        const slot=doc.createElement('div');slot.className='cover-team-editor-slot';slot.dataset.editorUi='';
+        const edit=doc.createElement('button');edit.type='button';edit.className='cover-team-editor-button';edit.textContent='編輯封面團隊';edit.onclick=event=>{event.stopPropagation();editCoverPartners(block)};
+        slot.append(edit);const copy=block.querySelector(':scope > .page-head');(copy?.querySelector('.cover-partners')||copy?.querySelector('.cover-narrative')||copy?.querySelector('h1'))?.after(slot);
+      }
+      return;
+    }
+    if(block.dataset.block==='footer'||block.querySelector(':scope > [data-editor-ui]'))return;
+    const actions=doc.createElement('div');actions.className='block-editor-actions';actions.dataset.editorUi='';
     const grip=doc.createElement('button');grip.type='button';grip.dataset.editorUi='';
     grip.textContent=fixed(block)?'編輯'+api.types[block.dataset.block]:'⠿ '+api.types[block.dataset.block];grip.draggable=!fixed(block);
     grip.onclick=()=>{select(block);const rect=grip.getBoundingClientRect();main.dispatchEvent(new CustomEvent('yuanjie:select-block',{detail:{block,x:rect.right,y:rect.top}}))};
     grip.ondragstart=e=>{pending={block};e.dataTransfer.setData(dragKey,'move');e.dataTransfer.effectAllowed='move'};
     grip.ondragend=()=>{pending=null;clearDrop()};
-    block.prepend(grip);
+    actions.append(grip);
+    if(!fixed(block)){
+      const remove=doc.createElement('button');remove.type='button';remove.className='block-delete-button';remove.textContent='刪除區塊';remove.setAttribute('aria-label',`刪除${api.types[block.dataset.block]||'此'}區塊`);
+      remove.onclick=event=>{event.stopPropagation();if(confirm(`刪除「${api.types[block.dataset.block]||'此區塊'}」及其內容？`)){block.remove();select(blocks()[0]);changed()}};
+      actions.append(remove);
+    }
+    block.prepend(actions);
   }
-  const style=doc.createElement('style');style.textContent='[data-block]{position:relative}[data-selected-block]{outline:2px solid #a68b65;outline-offset:3px}[data-drop=before]{box-shadow:inset 0 5px #49728c}[data-drop=after]{box-shadow:inset 0 -5px #49728c}[data-editor-ui]:not(.block-insert-slot){display:block;border:0;background:#ece6dc;color:#574531;padding:6px 12px;cursor:grab;margin-bottom:12px}[data-block="specs"]>[data-editor-ui]{cursor:pointer}[contenteditable]:focus{outline:1px solid #ad9370}.block-insert-slot{position:relative;display:flex;justify-content:center;align-items:center;height:48px;margin:-24px 0;z-index:3;pointer-events:none}.block-insert-slot:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed #b9b5ab;opacity:.7}.block-insert-toggle{position:relative;width:34px;height:34px;border:1px solid #a88a61;border-radius:50%;background:#fff;color:#6f5634;font:600 24px/1 sans-serif;cursor:pointer;box-shadow:0 3px 12px #0002;pointer-events:auto}.block-insert-toggle:hover,.block-insert-toggle[aria-expanded=true]{background:#4a6984;color:#fff;border-color:#4a6984}.block-insert-menu{position:absolute;left:50%;top:calc(50% + 22px);transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(340px,calc(100vw - 38px));padding:12px;border:1px solid #c9c5bc;border-radius:12px;background:#fff;box-shadow:0 12px 32px #0003;pointer-events:auto}.block-insert-menu[hidden]{display:none}.block-insert-menu strong{grid-column:1/-1;font:600 14px/1.4 sans-serif;color:#344d60;margin-bottom:3px}.block-insert-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:9px 7px;font:14px/1.3 sans-serif;cursor:pointer}.block-insert-menu button:hover,.block-insert-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}@media(max-width:600px){.block-insert-slot{height:42px;margin:-21px 0}.block-insert-menu{grid-template-columns:1fr 1fr}}';doc.head.append(style);
+  const style=doc.createElement('style');style.textContent='[data-block]{position:relative}[data-selected-block]{outline:2px solid #a68b65;outline-offset:3px}[data-drop=before]{box-shadow:inset 0 5px #49728c}[data-drop=after]{box-shadow:inset 0 -5px #49728c}.block-editor-actions[data-editor-ui]{background:#ece6dc;color:#574531;margin-bottom:12px}[data-block="specs"]>[data-editor-ui]{cursor:pointer}[contenteditable]:focus{outline:1px solid #ad9370}.block-insert-slot{position:relative;display:flex;justify-content:center;align-items:center;height:48px;margin:-24px 0;z-index:3;pointer-events:none}.block-insert-slot:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed #b9b5ab;opacity:.7}.block-insert-toggle{position:relative;width:34px;height:34px;border:1px solid #a88a61;border-radius:50%;background:#fff;color:#6f5634;font:600 24px/1 sans-serif;cursor:pointer;box-shadow:0 3px 12px #0002;pointer-events:auto}.block-insert-toggle:hover,.block-insert-toggle[aria-expanded=true]{background:#4a6984;color:#fff;border-color:#4a6984}.block-insert-menu{position:absolute;left:50%;top:calc(50% + 22px);transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(340px,calc(100vw - 38px));padding:12px;border:1px solid #c9c5bc;border-radius:12px;background:#fff;box-shadow:0 12px 32px #0003;pointer-events:auto}.block-insert-menu[hidden]{display:none}.block-insert-menu strong{grid-column:1/-1;font:600 14px/1.4 sans-serif;color:#344d60;margin-bottom:3px}.block-insert-menu button{border:0;border-radius:6px;background:#f1efeb;color:#303b43;padding:9px 7px;font:14px/1.3 sans-serif;cursor:pointer}.block-insert-menu button:hover,.block-insert-menu button:focus-visible{background:#dce7ed;outline:2px solid #4a6984}@media(max-width:600px){.block-insert-slot{height:42px;margin:-21px 0}.block-insert-menu{grid-template-columns:1fr 1fr}}';doc.head.append(style);
+  style.textContent+='.block-editor-actions[data-editor-ui]{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;padding:5px 8px;border-radius:7px;cursor:auto}.block-editor-actions button{border:0;border-radius:5px;padding:7px 10px;background:#fff;color:#354957;font:600 12px/1.3 system-ui;cursor:pointer}.block-editor-actions .block-delete-button{background:#fff1ef;color:#a43f36}.cover-team-editor-slot[data-editor-ui]{display:flex;justify-content:flex-end;margin:12px 0 0;padding:0;background:transparent;cursor:auto}.cover-team-editor-button{border:1px solid #b5c4cd;border-radius:999px;background:#fff;color:#4a6984;padding:8px 13px;font:600 13px/1.3 system-ui;cursor:pointer}.cover-partners-dialog{width:min(650px,calc(100vw - 24px));max-height:min(760px,calc(100vh - 24px));padding:24px;border:1px solid #d9d6ce;border-radius:14px;background:#fff;color:#26353d;box-shadow:0 18px 56px #0004;font:14px/1.5 system-ui;overflow:auto}.cover-partners-dialog::backdrop{background:#19252dc2}.cover-partners-dialog h2{margin:0 0 6px;font:600 22px/1.4 system-ui}.cover-partners-dialog>p{margin:0 0 18px;color:#62727a}.cover-partners-dialog-row{display:grid;grid-template-columns:32px minmax(0,1fr) minmax(0,1.5fr);align-items:end;gap:10px;padding:10px 0;border-top:1px solid #e4e7e9}.cover-partners-dialog-row>strong{align-self:center;color:#9b8060}.cover-partners-dialog-row label{display:grid;gap:5px;color:#5d6d75;font:12px/1.4 system-ui}.cover-partners-dialog-row input{min-width:0;width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #cbd2d4;border-radius:6px;font:14px/1.4 system-ui}.cover-partners-dialog-error{min-height:20px;color:#a43f36}.cover-partners-dialog-actions{display:flex;justify-content:flex-end;gap:8px}.cover-partners-dialog-actions button{border:1px solid #c5ced2;border-radius:7px;padding:9px 16px;background:#fff;color:#34444d;font:600 13px system-ui;cursor:pointer}.cover-partners-dialog-actions button[type=submit]{background:#4a6984;color:#fff;border-color:#4a6984}@media(max-width:600px){.cover-partners-dialog-row{grid-template-columns:24px 1fr}.cover-partners-dialog-row label:last-child{grid-column:2}}';
   const heading=document.createElement('summary');heading.textContent='拖曳元件到預覽頁面，或點選元件加入';panel.append(heading,tools,list,fields);
   let active,dragged;
   const itemRows=el=>el.querySelector('.specs,.pb-items,.case-highlights,.meeting-gallery,.gallery,.heping-gallery,.taian-journal-grid,.features,.feature-story-grid,.heping-highlights,.team,.metrics,ul');
@@ -154,24 +193,7 @@ export function bindBlocks(main,panel,changed){
       i.oninput=()=>{write(i.value);api.refresh(main);changed()};l.append(i);target.append(l);
     }
     if(el.dataset.block==='cover'){
-      const partners=el.querySelector('.cover-partners');
-      if(partners?.children.length){
-        const pick=document.createElement('select');pick.setAttribute('aria-label','選擇主視覺合作單位');
-        [...partners.children].forEach((item,i)=>option(pick,String(i),`${i+1}　${item.querySelector('small')?.textContent||'參與團隊'}：${item.querySelector('strong')?.textContent||''}`));
-        fields.append(pick);
-        const partner=()=>partners.children[pick.selectedIndex];
-        const partnerFields=document.createElement('div');fields.append(partnerFields);
-        const renderPartnerFields=()=>{
-          partnerFields.replaceChildren();
-          input('職稱',partner().querySelector('small')?.textContent||'',value=>{partner().querySelector('small').textContent=value;pick.options[pick.selectedIndex].text=`${pick.selectedIndex+1}　${value}：${partner().querySelector('strong')?.textContent||''}`},partnerFields);
-          input('單位名稱',partner().querySelector('strong')?.textContent||'',value=>{partner().querySelector('strong').textContent=value;pick.options[pick.selectedIndex].text=`${pick.selectedIndex+1}　${partner().querySelector('small')?.textContent||''}：${value}`},partnerFields);
-        };
-        pick.onchange=renderPartnerFields;renderPartnerFields();
-        button(fields,'新增合作單位',()=>{const item=partner().cloneNode(true);item.querySelector('small').textContent='參與團隊';item.querySelector('strong').textContent='單位名稱';partners.append(item);select(el);changed()});
-        button(fields,'單位左移',()=>{const item=partner();if(item.previousElementSibling){item.previousElementSibling.before(item);select(el);changed()}}).disabled=pick.selectedIndex===0;
-        button(fields,'單位右移',()=>{const item=partner();if(item.nextElementSibling){item.nextElementSibling.after(item);select(el);changed()}}).disabled=pick.selectedIndex===partners.children.length-1;
-        button(fields,'移除合作單位',()=>{if(partners.children.length>1&&confirm('移除此合作單位？')){partner().remove();select(el);changed()}}).disabled=partners.children.length===1;
-      }
+      button(fields,'編輯封面團隊',()=>editCoverPartners(el));
     }
     if(['story','journal'].includes(el.dataset.block)){
       button(fields,'加入圖片',()=>{

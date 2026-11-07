@@ -1,4 +1,4 @@
-import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=16';
+import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=17';
 import {createFloatingEditor} from './floating-editor.js?v=28';
 import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
@@ -1421,7 +1421,7 @@ function renderProjectOrder(){
   });
   row('將元件放在這裡').dataset.index=projectLayout.length;
 }
-for(const [type,name] of Object.entries(ProjectBlocks.types).slice(2)){
+for(const [type,name] of Object.entries(ProjectBlocks.types).slice(2).filter(([type])=>!["features","journal","metrics","team"].includes(type))){
   const tile=document.createElement('button');tile.type='button';tile.textContent=name;tile.draggable=true;
   tile.onclick=()=>placeComponent(projectLayout.length,{type});
   tile.ondragstart=e=>{layoutDrag={type};e.dataTransfer.setData('text/plain',type)};

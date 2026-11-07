@@ -272,7 +272,16 @@ window.ProjectBlocks = (() => {
   }
   function normalizeHeroPartners(main){
     const cover=main.querySelector(':scope > [data-block="cover"]'),copy=cover?.querySelector(':scope > .page-head');
-    if(!cover||!copy||copy.querySelector('.cover-partners'))return;
+    if(!cover||!copy)return;
+    const existing=copy.querySelector('.cover-partners');
+    if(existing){
+      [...existing.querySelectorAll(':scope > .cover-partner')].forEach((item,index)=>{
+        if(index>=4||!item.querySelector('small')?.textContent.trim()||!item.querySelector('strong')?.textContent.trim())item.remove();
+      });
+      if(!existing.children.length)existing.remove();
+      return;
+    }
+    if(cover.dataset.partnersManual==='true')return;
     const source=main.querySelector(':scope > [data-block="team"]');
     const rows=[];
     if(source){
@@ -293,7 +302,7 @@ window.ProjectBlocks = (() => {
     }
     if(!rows.length)return;
     const grid=main.ownerDocument.createElement('div');grid.className='cover-partners';grid.dataset.coverPartners='';grid.setAttribute('aria-label','參與團隊');
-    for(const [role,rawName] of rows){
+    for(const [role,rawName] of rows.slice(0,4)){
       const item=main.ownerDocument.createElement('article');item.className='cover-partner';item.dataset.partnerItem='';
       item.innerHTML=`${partnerIcon(role)}<small></small><strong></strong>`;
       item.querySelector('small').textContent=role;
@@ -301,6 +310,21 @@ window.ProjectBlocks = (() => {
       grid.append(item);
     }
     copy.querySelector('.cover-narrative')?.after(grid);
+  }
+  function setCoverPartners(cover,entries){
+    const copy=cover?.querySelector(':scope > .page-head');if(!copy)return;
+    copy.querySelector('.cover-partners')?.remove();
+    cover.dataset.partnersManual='true';
+    const filled=entries.slice(0,4).map(entry=>({role:String(entry.role||'').trim(),name:String(entry.name||'').trim()})).filter(entry=>entry.role&&entry.name);
+    if(!filled.length)return;
+    const grid=cover.ownerDocument.createElement('div');grid.className='cover-partners';grid.dataset.coverPartners='';grid.setAttribute('aria-label','參與團隊');
+    for(const {role,name} of filled){
+      const item=cover.ownerDocument.createElement('article');item.className='cover-partner';item.dataset.partnerItem='';
+      item.innerHTML=`${partnerIcon(role)}<small></small><strong></strong>`;
+      item.querySelector('small').textContent=role;item.querySelector('strong').textContent=name;
+      grid.append(item);
+    }
+    (copy.querySelector('.cover-narrative')||copy.querySelector('.project-location')||copy.querySelector('h1'))?.after(grid);
   }
   function albumFromFigure(doc,source,index){
     const article=doc.createElement('article');article.className='project-album';
@@ -506,7 +530,7 @@ window.ProjectBlocks = (() => {
     }
   }
   document.addEventListener('DOMContentLoaded',()=>{const main=document.querySelector('main');if(main&&applies(location.pathname.split('/').pop()+location.search)){prepare(main);upgradeAlbums(main);enhanceAlbumRails(main);cleanupAlbumZoom();new MutationObserver(()=>{enhanceAlbumRails(main);cleanupAlbumZoom()}).observe(main,{childList:true,subtree:true})}});
-  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,enhanceAlbumRails,cleanupAlbumZoom,normalizeCover,updateCard,syncCardStatus,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
+  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,enhanceAlbumRails,cleanupAlbumZoom,normalizeCover,setCoverPartners,updateCard,syncCardStatus,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();
 document.addEventListener('click',event=>{
   const note=event.target.closest?.('.case-card-inline-note');
