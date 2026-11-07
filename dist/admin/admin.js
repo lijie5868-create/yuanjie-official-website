@@ -324,10 +324,7 @@ async function editorDocument(page,html){
 }
 
 function publishedProjectsForCategory(category){
-  return [...publishedPages.values()].filter(project=>{
-    const main=new DOMParser().parseFromString(project.main_html||'','text/html').querySelector('main');
-    return main?.dataset.projectCategory||main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"],a[href="urban.html"],a.project-return[href="urban.html"]')||/^project(?:-|\.html)/.test(project.file_name||'');
-  }).filter(project=>pageProjectCategory(project)===category).sort((a,b)=>(a.sort_order??0)-(b.sort_order??0));
+  return [...publishedPages.values()].filter(project=>pageProjectCategory(project)===category).sort((a,b)=>(a.sort_order??0)-(b.sort_order??0));
 }
 
 async function loadEditor(page){
@@ -527,11 +524,17 @@ async function persistCaseOrder(category,ordered){
 
 function pageProjectCategory(page){
   const main=new DOMParser().parseFromString(page.main_html||'','text/html').querySelector('main');
-  if(main?.dataset.projectCategory)return main.dataset.projectCategory;
+  const file=ProjectBlocks.canonicalProjectFile(page.file_name||'');
+  const isProjectFile=/^project-\d+\.html$/i.test(file)||/^project\.html\?case=/i.test(file);
+  const declared=main?.dataset.projectCategory;
+  if(!isProjectFile&&declared!=='urban'&&declared!=='renewal')return null;
+  if(declared==='urban'||declared==='renewal')return declared;
   if(main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"]'))return 'renewal';
   if(main?.querySelector('a[href="urban.html"],a.project-return[href="urban.html"]'))return 'urban';
   const text=`${page.title||''} ${main?.querySelector('.eyebrow')?.textContent||''}`;
-  return /危老|RECONSTRUCTION/i.test(text)?'renewal':'urban';
+  if(/危老|RECONSTRUCTION/i.test(text))return 'renewal';
+  if(/都更|URBAN RENEWAL/i.test(text))return 'urban';
+  return isProjectFile?'urban':null;
 }
 
 function orderedCasePages(category,items=pages){

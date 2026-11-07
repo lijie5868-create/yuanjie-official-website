@@ -57,6 +57,20 @@
     if(!response.ok)throw new Error(`Published content unavailable: ${response.status}`);
     return response.json();
   };
+  const publishedProjectCategory=project=>{
+    const main=new DOMParser().parseFromString(project.main_html||'','text/html').querySelector('main');
+    const canonical=window.ProjectBlocks?.canonicalProjectFile(project.file_name||'')||project.file_name||'';
+    const isProjectFile=/^project-\d+\.html$/i.test(canonical)||/^project\.html\?case=/i.test(canonical);
+    const declared=main?.dataset.projectCategory;
+    if(!isProjectFile&&declared!=='urban'&&declared!=='renewal')return null;
+    if(declared==='urban'||declared==='renewal')return declared;
+    if(main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"]'))return 'renewal';
+    if(main?.querySelector('a[href="urban.html"],a.project-return[href="urban.html"]'))return 'urban';
+    const text=`${project.title||''} ${main?.querySelector('.eyebrow')?.textContent||''} ${main?.querySelector('.page-title')?.textContent||''}`;
+    if(/危老|RECONSTRUCTION/i.test(text))return 'renewal';
+    if(/都更|URBAN RENEWAL/i.test(text))return 'urban';
+    return isProjectFile?'urban':null;
+  };
   try{
     const [pages,navigation,managedProjects]=await Promise.all([
       read(caseSlug
@@ -130,16 +144,12 @@
       const category=fileName==='urban.html'?'urban':'renewal';
       const grid=document.querySelector('.case-grid');
       for(const project of managedProjects){
+        if(publishedProjectCategory(project)!==category)continue;
         const canonical=window.ProjectBlocks?.canonicalProjectFile(project.file_name)||project.file_name;
         const existingCard=[...grid?.querySelectorAll('a.case-card')||[]].find(card=>card.getAttribute('href')===canonical);
         if(existingCard){window.ProjectBlocks?.updateCard(existingCard,project.main_html);continue}
         if(!grid)continue;
         const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
-        const projectCategory=main?.dataset.projectCategory||
-          (main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"]')?'renewal':
-          main?.querySelector('a[href="urban.html"],a.project-return[href="urban.html"]')?'urban':
-          /危老|RECONSTRUCTION/i.test(`${project.title||''} ${main?.querySelector('.eyebrow')?.textContent||''}`)?'renewal':'urban');
-        if(projectCategory!==category)continue;
         const title=main.querySelector('.page-title')?.textContent?.trim()||project.title;
         const city=main.dataset.projectCity||'';
         const district=main.dataset.projectDistrict||'';
@@ -171,17 +181,7 @@
         card.append(image,copy);
         grid.append(card);
       }
-      const orderedProjects=managedProjects.filter(project=>{
-        const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
-        return main?.dataset.projectCategory||main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"],a[href="urban.html"],a.project-return[href="urban.html"]')||/^project(?:-|\.html)/.test(project.file_name||'');
-      }).filter(project=>{
-        const main=new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main');
-        const categoryForPage=main?.dataset.projectCategory||
-          (main?.querySelector('a[href="renewal.html"],a.project-return[href="renewal.html"]')?'renewal':
-          main?.querySelector('a[href="urban.html"],a.project-return[href="urban.html"]')?'urban':
-          /危老|RECONSTRUCTION/i.test(`${project.title||''} ${main?.querySelector('.eyebrow')?.textContent||''}`)?'renewal':'urban');
-        return categoryForPage===category;
-      });
+      const orderedProjects=managedProjects.filter(project=>publishedProjectCategory(project)===category);
       const order=new Map(orderedProjects.map((project,index)=>[window.ProjectBlocks?.canonicalProjectFile(project.file_name)||project.file_name,index]));
       [...grid.querySelectorAll(':scope > a.case-card')].sort((a,b)=>(order.get(a.getAttribute('href'))??Number.MAX_SAFE_INTEGER)-(order.get(b.getAttribute('href'))??Number.MAX_SAFE_INTEGER)).forEach(card=>grid.append(card));
     }
