@@ -92,6 +92,12 @@ window.ProjectBlocks = (() => {
       if(label?.tagName==='P')amount.after(label);
     }
   }
+  function orderCaseProfile(main){
+    const cover=main.querySelector(':scope > [data-block="cover"]'),specs=main.querySelector(':scope > [data-block="specs"]');
+    if(!cover||!specs)return;
+    if(main.firstElementChild!==cover)main.prepend(cover);
+    if(cover.nextElementSibling!==specs)cover.after(specs);
+  }
   function formatProjectLocation(main,city='',district=''){
     const location=main.querySelector('[data-block="cover"] .project-location,.page-head .project-location,.hero .project-location');
     if(!location)return;
@@ -154,15 +160,66 @@ window.ProjectBlocks = (() => {
       narrative=main.ownerDocument.createElement('div');narrative.className='cover-narrative';
       const existingHeading=copy.querySelector(':scope > h2'),existingLead=copy.querySelector(':scope > .lead');
       const existingBody=existingHeading?.nextElementSibling?.matches('p:not(.project-location)')?existingHeading.nextElementSibling:null;
-      const heading=existingHeading||main.ownerDocument.createElement('h2');heading.classList.add('cover-motto');heading.dataset.placeholder='補充個案標語';
-      if(!existingHeading&&existingLead){heading.textContent=existingLead.textContent;existingLead.remove()}
       const body=existingBody||main.ownerDocument.createElement('p');body.classList.add('cover-description');body.dataset.placeholder='補充個案說明文字';
-      narrative.append(heading,body);const location=copy.querySelector('.project-location');(location||copy.querySelector('h1'))?.after(narrative);
+      if(existingHeading){existingHeading.classList.add('cover-motto');existingHeading.dataset.placeholder='補充個案標語';narrative.append(existingHeading)}
+      if(existingLead){body.textContent=existingLead.textContent;existingLead.remove()}
+      if(existingBody)existingBody.remove();
+      narrative.append(body);const location=copy.querySelector('.project-location');(location||copy.querySelector('h1'))?.after(narrative);
     }
     let explore=copy.querySelector('.cover-explore,.explore');
     if(!explore){explore=main.ownerDocument.createElement('a');explore.href='#project';copy.append(explore)}
     explore.classList.add('cover-explore');explore.innerHTML='<span>探索本案</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13m-5-5 5 5 5-5"/></svg>';
+    let end=copy.querySelector(':scope > .cover-hero-end');
+    if(!end){end=main.ownerDocument.createElement('div');end.className='cover-hero-end';copy.append(end)}
+    end.append(explore);
+    if(!end.querySelector('.cover-rule')){const rule=main.ownerDocument.createElement('span');rule.className='cover-rule';rule.setAttribute('aria-hidden','true');end.append(rule)}
     const specs=main.querySelector('[data-block="specs"]');if(specs&&!main.querySelector('#project'))specs.id='project';
+  }
+  function stripChineseFullStops(root){
+    const doc=root.ownerDocument,walker=doc.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
+    while(walker.nextNode())nodes.push(walker.currentNode);
+    for(const node of nodes)if(!node.parentElement?.closest('script,style,template'))node.nodeValue=node.nodeValue.replace(/。/g,'');
+    for(const el of root.querySelectorAll('[alt],[title],[aria-label]'))for(const attr of ['alt','title','aria-label'])if(el.hasAttribute(attr))el.setAttribute(attr,el.getAttribute(attr).replace(/。/g,''));
+    if(doc.title)doc.title=doc.title.replace(/。/g,'');
+    const description=doc.querySelector('meta[name="description"]');if(description)description.content=description.content.replace(/。/g,'');
+  }
+  function partnerIcon(role){
+    if(/實施/.test(role))return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9 12 4l9 5v11H3V9Z"/><path d="M8 20v-6h8v6"/></svg>';
+    if(/設計/.test(role))return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V5h11v15M15 9h5v11M2 20h20"/><path d="M7 8h2m3 0h.01M7 12h2m3 0h.01"/></svg>';
+    if(/顧問/.test(role))return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 3V5Z"/><path d="M8 9h8m-8 4h5"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12M2 20h20M8 10h2m4 0h2m-8 4h2m4 0h2m-5 6v-3h2v3"/></svg>';
+  }
+  function normalizeHeroPartners(main){
+    const cover=main.querySelector(':scope > [data-block="cover"]'),copy=cover?.querySelector(':scope > .page-head');
+    if(!cover||!copy||copy.querySelector('.cover-partners'))return;
+    const source=main.querySelector(':scope > [data-block="team"]');
+    const rows=[];
+    if(source){
+      const items=source.querySelectorAll('.team>div,.pb-items>article');
+      for(const item of items){
+        const role=item.querySelector('small')?.textContent.trim()||'參與團隊';
+        const name=item.querySelector('h3,strong')?.textContent.trim()||'';
+        if(name)rows.push([role,name]);
+      }
+      source.remove();
+    }
+    if(!rows.length){
+      const facts=main.querySelectorAll(':scope > [data-block="specs"] dl.specs>div');
+      for(const row of facts){
+        const role=row.querySelector('dt')?.textContent.trim()||'',name=row.querySelector('dd')?.textContent.trim()||'';
+        if(/^(整合開發|全案管理|實施者|建築設計|都更顧問)$/.test(role)&&name)rows.push([role,name]);
+      }
+    }
+    if(!rows.length)return;
+    const grid=main.ownerDocument.createElement('div');grid.className='cover-partners';grid.dataset.coverPartners='';grid.setAttribute('aria-label','參與團隊');
+    for(const [role,rawName] of rows){
+      const item=main.ownerDocument.createElement('article');item.className='cover-partner';item.dataset.partnerItem='';
+      item.innerHTML=`${partnerIcon(role)}<small></small><strong></strong>`;
+      item.querySelector('small').textContent=role;
+      item.querySelector('strong').textContent=rawName.replace(/股份有限公司|有限公司|事務所/g,'').replace(/\s+/g,' ').trim();
+      grid.append(item);
+    }
+    copy.querySelector('.cover-narrative')?.after(grid);
   }
   function albumFromFigure(doc,source,index){
     const article=doc.createElement('article');article.className='project-album';
@@ -186,7 +243,8 @@ window.ProjectBlocks = (() => {
       const candidates=[...block.querySelectorAll('figure')].filter(figure=>figure.querySelector('img'));
       const loose=[...block.querySelectorAll('button > img')].filter(img=>!img.closest('figure')).map(img=>img.parentElement);
       const media=[...candidates,...loose];
-      if(media.length<3)continue;
+      const sectionTitle=block.querySelector('h2,h3')?.textContent.trim()||'';
+      if(!media.length||/建築外觀|空間構想|建築構想|單圖/.test(sectionTitle))continue;
       const grid=main.ownerDocument.createElement('div');grid.className='project-album-grid';
       const album=albumFromFigure(main.ownerDocument,media[0],0);
       const items=album.querySelector('.project-album-items');
@@ -196,7 +254,11 @@ window.ProjectBlocks = (() => {
       if(container)container.replaceWith(grid);else block.append(grid);
       block.dataset.block='albums';
     }
+    const caseTitle=main.querySelector('[data-block="cover"] h1')?.textContent||'';
     for(const block of main.querySelectorAll('[data-block="albums"]')){
+      // The Renai draft defines these four legacy singleton cards as one
+      // landlord briefing album; keep separate albums for every other case.
+      if(!caseTitle.includes('仁愛路'))continue;
       const grid=block.querySelector('.project-album-grid');if(!grid||grid.children.length<2)continue;
       const first=grid.querySelector('.project-album'),items=first?.querySelector('.project-album-items');if(!items)continue;
       for(const album of [...grid.children].slice(1)){
@@ -209,7 +271,10 @@ window.ProjectBlocks = (() => {
   }
   function prepare(main){
     if(!main)return false;
-    if(main.dataset.blockVersion){if(main.dataset.blockVersion==='1'){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);layoutProfiles(main);upgradeAlbums(main);enhanceAmounts(main)}return main.dataset.blockVersion==='1'}
+    if(main.dataset.caseLayout==='unified-v1'){
+      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
+    }
+    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -250,9 +315,14 @@ window.ProjectBlocks = (() => {
     main.dataset.blockVersion='1';
     formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);
     normalizeCover(main);
+    normalizeHeroPartners(main);
     layoutProfiles(main);
+    orderCaseProfile(main);
     upgradeAlbums(main);
+    stripChineseFullStops(main.ownerDocument.body||main);
     enhanceAmounts(main);
+    main.dataset.caseLayout='unified-v1';
+    enhanceAlbumRails(main);
     return true;
   }
   const templates={
@@ -280,7 +350,7 @@ window.ProjectBlocks = (() => {
     enhanceAlbumRails(main);
   }
   function updateCard(card,html){
-    const main=new DOMParser().parseFromString(html,'text/html').querySelector('main[data-block-version="1"]');
+    const main=new DOMParser().parseFromString(html,'text/html').querySelector('main[data-block-version]');
     if(!main)return;
     const cover=main.querySelector('[data-block="cover"]');
     const title=cover?.querySelector('h1')?.textContent;
@@ -297,26 +367,30 @@ window.ProjectBlocks = (() => {
   function openAlbum(article,startIndex=0){
     const doc=article.ownerDocument;
     let dialog=doc.querySelector('.project-album-dialog');
-    if(!dialog){dialog=doc.createElement('dialog');dialog.className='project-album-dialog';dialog.innerHTML='<button type="button" class="project-album-close" aria-label="關閉相簿">×</button><div class="project-album-viewer"><img alt=""><button type="button" class="project-album-prev" aria-label="上一張">‹</button><button type="button" class="project-album-next" aria-label="下一張">›</button><p></p></div><div class="project-album-thumbs"></div>';doc.body.append(dialog);dialog.querySelector('.project-album-close').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()})}
+    if(!dialog){
+      dialog=doc.createElement('dialog');dialog.className='project-album-dialog';dialog.setAttribute('aria-label','相簿照片瀏覽器');
+      dialog.innerHTML='<div class="project-album-toolbar" aria-label="照片縮放工具"><button type="button" data-album-zoom-out aria-label="縮小照片">−</button><output data-album-zoom-level>100%</output><button type="button" data-album-zoom-in aria-label="放大照片">＋</button><button type="button" class="project-album-close" aria-label="關閉相簿">×</button></div><div class="project-album-viewer"><button type="button" class="project-album-prev" aria-label="上一張照片">‹</button><img alt=""><button type="button" class="project-album-next" aria-label="下一張照片">›</button></div><div class="project-album-thumbs" aria-label="相簿照片縮圖"></div><div class="project-album-info"><p></p><span data-album-counter></span></div>';
+      doc.body.append(dialog);dialog.querySelector('.project-album-close').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
+      dialog.addEventListener('keydown',e=>{if(!dialog.open)return;if(e.key==='ArrowLeft'){e.preventDefault();dialog.querySelector('.project-album-prev').click()}if(e.key==='ArrowRight'){e.preventDefault();dialog.querySelector('.project-album-next').click()}});
+    }
     const figures=[article.querySelector('.project-album-cover figure'),...article.querySelectorAll('.project-album-items figure')].filter(Boolean);
-    let index=0;const image=dialog.querySelector('.project-album-viewer img'),caption=dialog.querySelector('.project-album-viewer p'),thumbs=dialog.querySelector('.project-album-thumbs');
-    const show=i=>{index=(i+figures.length)%figures.length;const img=figures[index].querySelector('img');image.src=img.src;image.alt=img.alt;caption.textContent=figures[index].querySelector('figcaption strong')?.textContent.trim()||figures[index].querySelector('figcaption')?.textContent.trim()||img.alt;[...thumbs.children].forEach((b,n)=>b.toggleAttribute('aria-current',n===index))};
-    thumbs.replaceChildren(...figures.map((figure,i)=>{const b=document.createElement('button');b.type='button';const img=figure.querySelector('img').cloneNode(true);b.append(img);b.onclick=()=>show(i);return b}));
-    dialog.querySelector('.project-album-prev').onclick=()=>show(index-1);dialog.querySelector('.project-album-next').onclick=()=>show(index+1);show(startIndex);dialog.showModal();
+    if(!figures.length)return;
+    let index=0,zoom=1,fitWidth=0,fitHeight=0;
+    const viewer=dialog.querySelector('.project-album-viewer'),image=viewer.querySelector('img'),caption=dialog.querySelector('.project-album-info p'),counter=dialog.querySelector('[data-album-counter]'),thumbs=dialog.querySelector('.project-album-thumbs'),zoomOut=dialog.querySelector('[data-album-zoom-out]'),zoomIn=dialog.querySelector('[data-album-zoom-in]'),zoomLevel=dialog.querySelector('[data-album-zoom-level]');
+    const applyZoom=()=>{if(!fitWidth||!fitHeight)return;image.style.setProperty('width',`${Math.round(fitWidth*zoom)}px`,'important');image.style.setProperty('height',`${Math.round(fitHeight*zoom)}px`,'important');zoomLevel.value=`${Math.round(zoom*100)}%`;zoomLevel.textContent=zoomLevel.value;zoomOut.disabled=zoom<=1;zoomIn.disabled=zoom>=3};
+    const fit=()=>{if(!image.naturalWidth)return;const maxW=Math.max(1,viewer.clientWidth-56),maxH=Math.max(1,viewer.clientHeight-48),scale=Math.min(1,maxW/image.naturalWidth,maxH/image.naturalHeight);fitWidth=Math.round(image.naturalWidth*scale);fitHeight=Math.round(image.naturalHeight*scale);applyZoom()};
+    const show=i=>{index=(i+figures.length)%figures.length;zoom=1;const img=figures[index].querySelector('img');image.onload=()=>requestAnimationFrame(fit);image.src=img.currentSrc||img.src;image.alt=img.alt;caption.textContent=figures[index].querySelector('figcaption strong')?.textContent.trim()||figures[index].querySelector('figcaption')?.textContent.trim()||img.alt;counter.textContent=`${index+1} / ${figures.length} 張`;[...thumbs.children].forEach((b,n)=>b.toggleAttribute('aria-current',n===index));const active=thumbs.children[index];if(active)thumbs.scrollTo({left:Math.max(0,active.offsetLeft-(thumbs.clientWidth-active.clientWidth)/2),behavior:'smooth'});if(image.complete)requestAnimationFrame(fit)};
+    thumbs.replaceChildren(...figures.map((figure,i)=>{const b=doc.createElement('button');b.type='button';b.setAttribute('aria-label',`查看第 ${i+1} 張照片`);const img=figure.querySelector('img').cloneNode(true);b.append(img);b.onclick=()=>show(i);return b}));
+    zoomOut.onclick=()=>{zoom=Math.max(1,zoom-.25);applyZoom()};zoomIn.onclick=()=>{zoom=Math.min(3,zoom+.25);applyZoom()};
+    dialog.querySelector('.project-album-prev').onclick=()=>show(index-1);dialog.querySelector('.project-album-next').onclick=()=>show(index+1);dialog.showModal();show(startIndex);
+    const resize=()=>requestAnimationFrame(fit);window.addEventListener('resize',resize);dialog.addEventListener('close',()=>window.removeEventListener('resize',resize),{once:true});
   }
   function enhanceAlbumRails(root=document){
     for(const rail of root.querySelectorAll('[data-block="albums"] .project-album')){
       if(enhancedAlbumRails.has(rail))continue;
-      enhancedAlbumRails.add(rail);rail.__yuanjieAlbumRail=true;rail.tabIndex=0;rail.setAttribute('role','region');rail.setAttribute('aria-label','相簿照片，可左右拖移或使用方向鍵瀏覽');
-      let drag=null,suppressClick=false;
-      const finish=event=>{if(!drag)return;const {moved,pointerId}=drag;rail.classList.remove('is-dragging');if(rail.hasPointerCapture?.(pointerId))rail.releasePointerCapture(pointerId);suppressClick=moved;drag=null;if(moved)event.preventDefault()};
-      rail.addEventListener('pointerdown',event=>{if(event.button!==0)return;drag={pointerId:event.pointerId,startX:event.clientX,startScrollLeft:rail.scrollLeft,moved:false};rail.setPointerCapture?.(event.pointerId)});
-      rail.addEventListener('pointermove',event=>{if(!drag||event.pointerId!==drag.pointerId)return;const distance=event.clientX-drag.startX;if(Math.abs(distance)>6){drag.moved=true;rail.classList.add('is-dragging')}if(!drag.moved)return;rail.scrollLeft=drag.startScrollLeft-distance;event.preventDefault()});
-      rail.addEventListener('pointerup',finish);rail.addEventListener('pointercancel',finish);
-      rail.addEventListener('click',event=>{if(!suppressClick)return;suppressClick=false;event.preventDefault();event.stopImmediatePropagation()},true);
-      rail.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;rail.scrollBy({left:(event.key==='ArrowRight'?1:-1)*rail.clientWidth*.82,behavior:'smooth'});event.preventDefault()});
-      const figures=[rail.querySelector('.project-album-cover figure'),...rail.querySelectorAll('.project-album-items figure')].filter(Boolean);
-      figures.forEach((figure,index)=>{figure.tabIndex=0;figure.setAttribute('role','button');figure.setAttribute('aria-label',`放大第 ${index+1} 張相簿照片`);figure.onclick=event=>{if(rail.closest('[contenteditable]'))return;event.preventDefault();openAlbum(rail,index)};figure.onkeydown=event=>{if(!['Enter',' '].includes(event.key)||rail.closest('[contenteditable]'))return;event.preventDefault();openAlbum(rail,index)}});
+      enhancedAlbumRails.add(rail);rail.removeAttribute('tabindex');rail.removeAttribute('role');rail.setAttribute('aria-label','相簿');
+      const cover=rail.querySelector('.project-album-cover');
+      if(cover){cover.type='button';cover.onclick=event=>{if(rail.closest('[contenteditable]'))return;event.preventDefault();openAlbum(rail,0)};cover.onkeydown=event=>{if(!['Enter',' '].includes(event.key)||rail.closest('[contenteditable]'))return;event.preventDefault();openAlbum(rail,0)}}
     }
   }
   function cleanupAlbumZoom(root=document){

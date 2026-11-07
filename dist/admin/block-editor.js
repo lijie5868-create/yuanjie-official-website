@@ -148,9 +148,29 @@ export function bindBlocks(main,panel,changed){
       button(fields,'複製區塊',()=>{const clone=el.cloneNode(true);for(const n of [clone,...clone.querySelectorAll('[id]')])n.removeAttribute('id');clone.querySelector('[data-editor-ui]')?.remove();el.after(clone);select(clone);changed()});
       button(fields,'刪除區塊',()=>{if(confirm('刪除此區塊及其內容？')){el.remove();select(blocks()[0]);changed()}});
     }
-    function input(label,value,write){
+    function input(label,value,write,target=fields){
       const l=document.createElement('label'),i=document.createElement('textarea');l.textContent=label;i.rows=1;i.value=value;
-      i.oninput=()=>{write(i.value);api.refresh(main);changed()};l.append(i);fields.append(l);
+      i.oninput=()=>{write(i.value);api.refresh(main);changed()};l.append(i);target.append(l);
+    }
+    if(el.dataset.block==='cover'){
+      const partners=el.querySelector('.cover-partners');
+      if(partners?.children.length){
+        const pick=document.createElement('select');pick.setAttribute('aria-label','選擇主視覺合作單位');
+        [...partners.children].forEach((item,i)=>option(pick,String(i),`${i+1}　${item.querySelector('small')?.textContent||'參與團隊'}：${item.querySelector('strong')?.textContent||''}`));
+        fields.append(pick);
+        const partner=()=>partners.children[pick.selectedIndex];
+        const partnerFields=document.createElement('div');fields.append(partnerFields);
+        const renderPartnerFields=()=>{
+          partnerFields.replaceChildren();
+          input('職稱',partner().querySelector('small')?.textContent||'',value=>{partner().querySelector('small').textContent=value;pick.options[pick.selectedIndex].text=`${pick.selectedIndex+1}　${value}：${partner().querySelector('strong')?.textContent||''}`},partnerFields);
+          input('單位名稱',partner().querySelector('strong')?.textContent||'',value=>{partner().querySelector('strong').textContent=value;pick.options[pick.selectedIndex].text=`${pick.selectedIndex+1}　${partner().querySelector('small')?.textContent||''}：${value}`},partnerFields);
+        };
+        pick.onchange=renderPartnerFields;renderPartnerFields();
+        button(fields,'新增合作單位',()=>{const item=partner().cloneNode(true);item.querySelector('small').textContent='參與團隊';item.querySelector('strong').textContent='單位名稱';partners.append(item);select(el);changed()});
+        button(fields,'單位左移',()=>{const item=partner();if(item.previousElementSibling){item.previousElementSibling.before(item);select(el);changed()}}).disabled=pick.selectedIndex===0;
+        button(fields,'單位右移',()=>{const item=partner();if(item.nextElementSibling){item.nextElementSibling.after(item);select(el);changed()}}).disabled=pick.selectedIndex===partners.children.length-1;
+        button(fields,'移除合作單位',()=>{if(partners.children.length>1&&confirm('移除此合作單位？')){partner().remove();select(el);changed()}}).disabled=partners.children.length===1;
+      }
     }
     if(['story','journal'].includes(el.dataset.block)){
       button(fields,'加入圖片',()=>{

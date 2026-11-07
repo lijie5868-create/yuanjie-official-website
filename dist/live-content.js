@@ -1,46 +1,5 @@
 /* Show the latest published content immediately; checked-in HTML remains the fallback and crawler copy. */
 (async()=>{
-  function enhancePublishedAlbums(root){
-    for(const rail of root?.querySelectorAll('[data-block="albums"] .project-album')||[]){
-      if(rail.__yuanjieAlbumRail)continue;
-      rail.__yuanjieAlbumRail=true;
-      rail.tabIndex=0;
-      rail.setAttribute('role','region');
-      rail.setAttribute('aria-label','相簿照片，可左右拖移或使用方向鍵瀏覽');
-      let drag=null,suppressClick=false;
-      const figures=()=>[rail.querySelector('.project-album-cover figure'),...rail.querySelectorAll('.project-album-items figure')].filter(Boolean);
-      const open=start=>{
-        let dialog=document.querySelector('.project-album-dialog');
-        if(!dialog){
-          dialog=document.createElement('dialog');
-          dialog.className='project-album-dialog';
-          dialog.innerHTML='<button type="button" class="project-album-close" aria-label="關閉相簿">×</button><div class="project-album-viewer"><img alt=""><button type="button" class="project-album-prev" aria-label="上一張">‹</button><button type="button" class="project-album-next" aria-label="下一張">›</button><p></p></div><div class="project-album-thumbs"></div>';
-          document.body.append(dialog);
-          dialog.querySelector('.project-album-close').onclick=()=>dialog.close();
-          dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
-        }
-        const list=figures();let index=start;
-        const image=dialog.querySelector('.project-album-viewer img'),caption=dialog.querySelector('.project-album-viewer p'),thumbs=dialog.querySelector('.project-album-thumbs');
-        const show=value=>{index=(value+list.length)%list.length;const source=list[index].querySelector('img');image.src=source.src;image.alt=source.alt;caption.textContent=list[index].querySelector('figcaption strong')?.textContent.trim()||list[index].querySelector('figcaption')?.textContent.trim()||source.alt;[...thumbs.children].forEach((button,n)=>button.toggleAttribute('aria-current',n===index))};
-        thumbs.replaceChildren(...list.map((figure,n)=>{const button=document.createElement('button');button.type='button';button.append(figure.querySelector('img').cloneNode(true));button.onclick=()=>show(n);return button}));
-        dialog.querySelector('.project-album-prev').onclick=()=>show(index-1);
-        dialog.querySelector('.project-album-next').onclick=()=>show(index+1);
-        show(start);dialog.showModal();
-      };
-      const finish=event=>{if(!drag)return;const {moved,pointerId}=drag;rail.classList.remove('is-dragging');if(rail.hasPointerCapture?.(pointerId))rail.releasePointerCapture(pointerId);suppressClick=moved;drag=null;if(moved)event.preventDefault()};
-      rail.addEventListener('pointerdown',event=>{if(event.button!==0)return;drag={pointerId:event.pointerId,startX:event.clientX,startScrollLeft:rail.scrollLeft,moved:false};rail.setPointerCapture?.(event.pointerId)});
-      rail.addEventListener('pointermove',event=>{if(!drag||event.pointerId!==drag.pointerId)return;const distance=event.clientX-drag.startX;if(Math.abs(distance)>6){drag.moved=true;rail.classList.add('is-dragging')}if(!drag.moved)return;rail.scrollLeft=drag.startScrollLeft-distance;event.preventDefault()});
-      rail.addEventListener('pointerup',finish);
-      rail.addEventListener('pointercancel',finish);
-      rail.addEventListener('click',event=>{if(suppressClick){suppressClick=false;event.preventDefault();event.stopImmediatePropagation()}},true);
-      rail.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;rail.scrollBy({left:(event.key==='ArrowRight'?1:-1)*rail.clientWidth*.82,behavior:'smooth'});event.preventDefault()});
-      figures().forEach((figure,index)=>{
-        figure.tabIndex=0;figure.setAttribute('role','button');figure.setAttribute('aria-label',`放大第 ${index+1} 張相簿照片`);
-        figure.onclick=event=>{event.preventDefault();open(index)};
-        figure.onkeydown=event=>{if(!['Enter',' '].includes(event.key))return;event.preventDefault();open(index)};
-      });
-    }
-  }
   const config=window.YUANJIE_CONFIG;
   const fileName=location.pathname.split('/').pop()||'index.html';
   const caseSlug=fileName==='project.html'?new URLSearchParams(location.search).get('case'):null;
@@ -237,7 +196,6 @@
     }
     window.ProjectBlocks?.cleanupAlbumZoom(document.querySelector('main'));
     window.ProjectBlocks?.enhanceAlbumRails(document.querySelector('main'));
-    enhancePublishedAlbums(document.querySelector('main'));
     window.enhanceLinkMotion?.(document.querySelector('main'));
   }
 })();
