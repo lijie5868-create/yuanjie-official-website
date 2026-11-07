@@ -270,6 +270,7 @@ window.ProjectBlocks = (() => {
     if(/顧問/.test(role))return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 3V5Z"/><path d="M8 9h8m-8 4h5"/></svg>';
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12M2 20h20M8 10h2m4 0h2m-8 4h2m4 0h2m-5 6v-3h2v3"/></svg>';
   }
+  function sizePartnerGrid(grid){grid.style.setProperty('--partner-count',String(Math.min(4,Math.max(1,grid.children.length))))}
   function normalizeHeroPartners(main){
     const cover=main.querySelector(':scope > [data-block="cover"]'),copy=cover?.querySelector(':scope > .page-head');
     if(!cover||!copy)return;
@@ -278,7 +279,7 @@ window.ProjectBlocks = (() => {
       [...existing.querySelectorAll(':scope > .cover-partner')].forEach((item,index)=>{
         if(index>=4||!item.querySelector('small')?.textContent.trim()||!item.querySelector('strong')?.textContent.trim())item.remove();
       });
-      if(!existing.children.length)existing.remove();
+      if(!existing.children.length)existing.remove();else sizePartnerGrid(existing);
       return;
     }
     if(cover.dataset.partnersManual==='true')return;
@@ -309,6 +310,7 @@ window.ProjectBlocks = (() => {
       item.querySelector('strong').textContent=rawName.replace(/股份有限公司|有限公司|事務所/g,'').replace(/\s+/g,' ').trim();
       grid.append(item);
     }
+    sizePartnerGrid(grid);
     copy.querySelector('.cover-narrative')?.after(grid);
   }
   function setCoverPartners(cover,entries){
@@ -329,6 +331,7 @@ window.ProjectBlocks = (() => {
       }
       grid.append(item);
     }
+    sizePartnerGrid(grid);
     (copy.querySelector('.cover-narrative')||copy.querySelector('.project-location')||copy.querySelector('h1'))?.after(grid);
   }
   function albumFromFigure(doc,source,index){
