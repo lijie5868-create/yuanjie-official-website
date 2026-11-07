@@ -426,7 +426,7 @@ function mainHtml(){
   return copy.outerHTML;
 }
 
-function pageButton(page){
+function pageButton(page,caseOrder=[]){
   const button=document.createElement('button');
   button.type='button';
   button.dataset.slug=page.slug;
@@ -437,7 +437,7 @@ function pageButton(page){
     button.classList.add('case-page-item');
     button.dataset.caseCategory=pageProjectCategory(page);
     button.draggable=true;
-    const position=orderedCasePages(button.dataset.caseCategory).findIndex(item=>item.slug===page.slug)+1;
+    const position=caseOrder.findIndex(item=>item.slug===page.slug)+1;
     const order=button.querySelector('.case-page-order');
     order.textContent=`#${position}`;order.setAttribute('aria-label',`排序第 ${position} 位`);order.title=`${button.dataset.caseCategory==='urban'?'都更':'危老'}個案排序第 ${position} 位`;
   }
@@ -495,6 +495,7 @@ async function persistCaseOrder(category,ordered){
     updates.forEach(({page,sort_order})=>{page.sort_order=sort_order;const published=publishedPages.get(page.slug);if(published)published.sort_order=sort_order});
     pages.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
     renderPageList($('pageSearch').value);
+    refreshCaseListPreview(category);
     message('個案順序已儲存，前台列表將依新順序顯示。');
   }catch(error){
     await Promise.all(prior.map(({page,sort_order})=>supabase.from('cms_pages').update({sort_order}).eq('id',page.id)));
@@ -513,7 +514,7 @@ function pageProjectCategory(page){
 }
 
 function orderedCasePages(category,items=pages){
-  return items.filter(item=>pageProjectCategory(item)===category).slice().sort((a,b)=>{
+  return items.filter(item=>!primaryPages.has(item.slug)&&!isCompanyPage(item)&&pageProjectCategory(item)===category).slice().sort((a,b)=>{
     const publishedA=publishedPages.get(a.slug),publishedB=publishedPages.get(b.slug);
     if(publishedA&&publishedB)return (publishedA.sort_order??a.sort_order??0)-(publishedB.sort_order??b.sort_order??0);
     if(publishedA)return -1;
@@ -522,12 +523,31 @@ function orderedCasePages(category,items=pages){
   });
 }
 
-function appendProjectSubgroup(group,label,items){
+function appendProjectSubgroup(group,label,items,category){
   if(!items.length)return;
+  const categoryOrder=orderedCasePages(category);
+  const visibleSlugs=new Set(items.map(item=>item.slug));
+  const ordered=categoryOrder.filter(item=>visibleSlugs.has(item.slug));
   const section=document.createElement('section');section.className='page-project-subgroup';
-  const heading=document.createElement('h3');heading.textContent=label;
-  const count=document.createElement('span');count.textContent=items.length;count.setAttribute('aria-label',`${items.length} 件`);
-  heading.append(count);section.append(heading,...items.map(pageButton));group.append(section);
+  const heading=document.createElement('h3');
+  const title=document.createElement('span');title.className='page-project-subgroup-title';title.textContent=label;
+  const tools=document.createElement('span');tools.className='page-project-subgroup-tools';
+  const count=document.createElement('span');count.className='page-project-subgroup-count';count.textContent=ordered.length;count.setAttribute('aria-label',`${ordered.length} 件`);
+  const preview=document.createElement('button');preview.type='button';preview.className='case-list-preview';preview.textContent='預覽前台 ↗';preview.title=`開啟${label}前台列表`;
+  preview.addEventListener('click',()=>openCaseListPreview(category));
+  tools.append(count,preview);heading.append(title,tools);
+  section.append(heading,...ordered.map(page=>pageButton(page,categoryOrder)));group.append(section);
+}
+
+const casePreviewWindows=new Map();
+function openCaseListPreview(category){
+  const fileName=category==='urban'?'urban.html':'renewal.html';
+  const preview=window.open(`${basePath}${fileName}`,`yuanjie-case-preview-${category}`);
+  if(preview){casePreviewWindows.set(category,preview);preview.focus()}
+}
+function refreshCaseListPreview(category){
+  const preview=casePreviewWindows.get(category);
+  if(preview&&!preview.closed)preview.location.reload();
 }
 
 function renderPageList(filter=''){
@@ -554,8 +574,8 @@ function renderPageList(filter=''){
     if(heading==='個案頁面'){
       title.textContent=`個案頁面（${grouped.length}）`;
       group.append(newProjectButton);
-      appendProjectSubgroup(group,'都更個案',orderedCasePages('urban',grouped));
-      appendProjectSubgroup(group,'危老個案',orderedCasePages('renewal',grouped));
+      appendProjectSubgroup(group,'都更個案',grouped.filter(page=>pageProjectCategory(page)==='urban'),'urban');
+      appendProjectSubgroup(group,'危老個案',grouped.filter(page=>pageProjectCategory(page)==='renewal'),'renewal');
     }else if(heading==='公司詳情頁'){
       title.textContent=`公司詳情頁（${grouped.length}）`;
       group.append(newCompanyButton,...grouped.map(pageButton));
