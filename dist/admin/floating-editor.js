@@ -42,6 +42,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     style.textContent+='.inline-edit-action[hidden],.inline-style-tool[hidden]{display:none!important}';
     style.textContent+='[data-block="albums"] .project-album-grid{display:block!important}[data-block="albums"] .project-album-items[hidden]{display:contents!important}';
     style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu,.inline-edit-ui[data-level="team"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="album"] .inline-edit-menu{width:min(420px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
+    style.textContent+='.inline-edit-ui [data-tooltip]{position:relative}.inline-edit-ui [data-tooltip]::after{content:attr(data-tooltip);position:absolute;z-index:30;top:calc(100% + 8px);left:50%;padding:5px 8px;border:1px solid #34434b;border-radius:6px;background:#263238;color:#fff;box-shadow:0 4px 12px #18232b30;font:11px/1.2 system-ui,sans-serif;white-space:nowrap;pointer-events:none;visibility:hidden;opacity:0;transform:translate(-50%,4px);transition:opacity .12s ease,transform .12s ease,visibility .12s}.inline-edit-ui [data-tooltip]:hover::after,.inline-edit-ui [data-tooltip]:focus-visible::after{visibility:visible;opacity:1;transform:translate(-50%,0)}.inline-edit-ui.open-up [data-tooltip]::after{top:auto;bottom:calc(100% + 8px);transform:translate(-50%,-4px)}.inline-edit-ui.open-up [data-tooltip]:hover::after,.inline-edit-ui.open-up [data-tooltip]:focus-visible::after{transform:translate(-50%,0)}';
     const root=doc.createElement('div');root.className='inline-edit-ui';root.hidden=true;root.dataset.editorUi='';
     let albumDrag=null,suppressAlbumClick=false;
     const finishAlbumDrag=event=>{
@@ -98,14 +99,14 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       textColor:icon('<path d="m4 19 6-14 6 14M6.5 14h7M18 15v4m-2-2h4"/>'),
       highlight:icon('<path d="m9 5 7 7-5 5-7-7 5-5Z"/><path d="m14 10 4-4 3 3-4 4M3 21h18"/>')
     };
-    const toggle=doc.createElement('button');toggle.type='button';toggle.className='inline-edit-toggle';toggle.innerHTML=`${icons.edit}<span>編輯</span>`;toggle.title='編輯工具';toggle.setAttribute('aria-label','開啟編輯工具');toggle.setAttribute('aria-expanded','false');
+    const toggle=doc.createElement('button');toggle.type='button';toggle.className='inline-edit-toggle';toggle.innerHTML=`${icons.edit}<span>編輯</span>`;toggle.title='編輯工具';toggle.dataset.tooltip='編輯工具';toggle.setAttribute('aria-label','開啟編輯工具');toggle.setAttribute('aria-expanded','false');
     const menu=doc.createElement('div');menu.className='inline-edit-menu';menu.hidden=true;
-    const action=(label,shortLabel,iconName,run)=>{const b=doc.createElement('button');b.type='button';b.className='inline-edit-action';b.innerHTML=`${icons[iconName]}<span>${shortLabel}</span>`;b.setAttribute('aria-label',label);b.title=label;b.onclick=run;menu.append(b);return b};
+    const action=(label,shortLabel,iconName,run)=>{const b=doc.createElement('button');b.type='button';b.className='inline-edit-action';b.innerHTML=`${icons[iconName]}<span>${shortLabel}</span>`;b.setAttribute('aria-label',label);b.title=label;b.dataset.tooltip=label;b.onclick=run;menu.append(b);return b};
     const styleAction=(label,iconName,property,colors)=>{
       const wrap=doc.createElement('div');wrap.className='inline-edit-action inline-style-tool';
-      const button=doc.createElement('button');button.type='button';button.className='inline-edit-action';button.innerHTML=`${icons[iconName]}${property==='color'?'<i class="color-mark"></i>':''}`;button.setAttribute('aria-label',label);button.title=label;
+      const button=doc.createElement('button');button.type='button';button.className='inline-edit-action';button.innerHTML=`${icons[iconName]}${property==='color'?'<i class="color-mark"></i>':''}`;button.setAttribute('aria-label',label);button.title=label;button.dataset.tooltip=label;
       const palette=doc.createElement('div');palette.className='inline-style-palette';palette.hidden=true;palette.setAttribute('role','group');palette.setAttribute('aria-label',label+'色彩');
-      colors.forEach(({name,value,remove})=>{const swatch=doc.createElement('button');swatch.type='button';swatch.setAttribute('aria-label',name);swatch.title=name;if(remove){swatch.textContent='×'}else{swatch.style.backgroundColor=value;swatch.style.setProperty('--swatch-color',value)}swatch.onclick=()=>{applyTextStyle(property,remove?null:value);palette.hidden=true;wrap.classList.remove('open-up')};palette.append(swatch)});
+      colors.forEach(({name,value,remove})=>{const swatch=doc.createElement('button');swatch.type='button';swatch.setAttribute('aria-label',name);swatch.title=name;swatch.dataset.tooltip=name;if(remove){swatch.textContent='×'}else{swatch.style.backgroundColor=value;swatch.style.setProperty('--swatch-color',value)}swatch.onclick=()=>{applyTextStyle(property,remove?null:value);palette.hidden=true;wrap.classList.remove('open-up')};palette.append(swatch)});
       button.onclick=()=>{palette.hidden=!palette.hidden;wrap.classList.toggle('open-up',root.getBoundingClientRect().bottom+180>win.innerHeight)};
       wrap.append(button,palette);menu.append(wrap);return wrap;
     };
@@ -181,10 +182,11 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       {name:'移除螢光筆',remove:true},{name:'淡黃',value:'#fff0a8'},{name:'淡綠',value:'#d9f2cf'},{name:'淡藍',value:'#d4eff4'},
       {name:'淡紅',value:'#f9d9d4'},{name:'淡紫',value:'#eadcf4'}
     ]));
+    const fontSizeTool=doc.createElement('div');fontSizeTool.className='inline-edit-action inline-size-tool';fontSizeTool.dataset.tooltip='字體大小';
     const fontSize=doc.createElement('select');fontSize.className='inline-font-size';fontSize.title='字體大小';fontSize.setAttribute('aria-label','字體大小');
     [['字級',''],['14 px','14px'],['16 px','16px'],['18 px','18px'],['20 px','20px'],['24 px','24px'],['30 px','30px']].forEach(([label,value])=>{const option=doc.createElement('option');option.value=value;option.textContent=label;fontSize.append(option)});
     fontSize.onchange=()=>{if(fontSize.value)applyTextStyle('fontSize',fontSize.value);fontSize.value=''};
-    menu.append(fontSize);textActions.push(fontSize);
+    fontSizeTool.append(fontSize);menu.append(fontSizeTool);textActions.push(fontSizeTool);
     textActions.push(action('上傳圖片','上傳圖片','image',()=>{restore();document.getElementById('imageUploadButton').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')}));
     const editButton=action('編輯選取圖片','編輯圖片','crop',()=>{document.getElementById('editImage').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
     textActions.push(editButton);
