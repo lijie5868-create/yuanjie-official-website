@@ -202,6 +202,8 @@ main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-items[h
 
 /* Unified editorial feature cards for every case page. */
 [data-block="featureStory"] .feature-story-head,[data-block="albums"] .album-section-head{display:flex;justify-content:space-between;gap:28px;align-items:end;margin-bottom:28px}
+[data-block="featureStory"] .feature-story-head{display:block}
+[data-block="featureStory"] .feature-story-eyebrow{margin:0 0 14px;color:#49687d;font-size:14px;letter-spacing:.22em}
 [data-block="featureStory"] .feature-story-head h2,[data-block="albums"] .album-section-head h2{margin:0;font-size:clamp(30px,4vw,52px);line-height:1.3}
 [data-block="featureStory"] .feature-story-head p,[data-block="albums"] .album-section-head p{margin:0;color:#6b746e}
 [data-block="featureStory"] .feature-story-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}

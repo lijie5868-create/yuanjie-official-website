@@ -37,7 +37,7 @@ export function bindBlocks(main,panel,changed){
     el.onclick=action;target.append(el);return el;
   }
   const dragKey='application/x-yuanjie-project-block';
-  const insertTypes=Object.entries(api.types).slice(2).filter(([type])=>type!=='features');
+  const insertTypes=Object.entries(api.types).slice(2).filter(([type])=>!['features','journal'].includes(type));
   let pending=null;
   const blocks=()=>[...main.children].filter(el=>el.dataset.block);
   const nextBlock=block=>blocks()[blocks().indexOf(block)+1]||null;
