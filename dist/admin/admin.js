@@ -510,8 +510,8 @@ async function persistCaseOrder(category,ordered){
     updates.forEach(({page,sort_order})=>{page.sort_order=sort_order;const published=publishedPages.get(page.slug);if(published)published.sort_order=sort_order});
     pages.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
     renderPageList($('pageSearch').value);
-    await refreshCaseListPreview(category);
-    message('個案順序已儲存，前台列表將依新順序顯示。');
+    await openCaseListPreview(category);
+    message('個案順序已儲存，已切換至該分類的後台前台列表預覽。');
   }catch(error){
     await Promise.all(prior.map(({page,sort_order})=>supabase.from('cms_pages').update({sort_order}).eq('id',page.id)));
     await Promise.all(prior.filter(({page})=>publishedPages.has(page.slug)).map(({page,sort_order})=>supabase.from('published_pages').update({sort_order}).eq('slug',page.slug)));
@@ -567,11 +567,6 @@ async function openCaseListPreview(category){
   $('previewSize').textContent='手機預覽';
   try{$('caseListPreviewFrame').srcdoc=await editorDocument(page,page.main_html)}
   catch(error){message(`無法載入前台列表預覽：${error.message||error}`,true)}
-}
-async function refreshCaseListPreview(category){
-  if(activeCaseListPreview!==category)return;
-  const page=publishedPages.get(category)||pages.find(item=>item.file_name===(category==='urban'?'urban.html':'renewal.html'));
-  if(page)$('caseListPreviewFrame').srcdoc=await editorDocument(page,page.main_html);
 }
 function closeCaseListPreview(){
   activeCaseListPreview=null;
