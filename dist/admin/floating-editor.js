@@ -84,6 +84,26 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       if(!rail||!['ArrowLeft','ArrowRight'].includes(event.key))return;
       rail.scrollBy({left:(event.key==='ArrowRight'?1:-1)*rail.clientWidth*.82,behavior:'smooth'});event.preventDefault();
     });
+    doc.addEventListener('keydown',event=>{
+      if(!(event.ctrlKey||event.metaKey)||event.altKey)return;
+      const editable=event.target.closest?.('[contenteditable="true"]');
+      if(!editable||!main.contains(editable))return;
+      const key=event.key.toLowerCase();let command=null;
+      if(key==='z')command=event.shiftKey?'redo':'undo';
+      else if(key==='y')command='redo';
+      else if(key==='c'||key==='x'){
+        const selection=win.getSelection();if(!selection||selection.isCollapsed)return;
+        command=key==='c'?'copy':'cut';
+      }
+      if(!command)return;
+      try{if(doc.execCommand(command))event.preventDefault()}catch{}
+    });
+    main.addEventListener('paste',event=>{
+      const editable=event.target.closest?.('[contenteditable="true"]');
+      if(!editable||!main.contains(editable))return;
+      const text=event.clipboardData?.getData('text/plain');if(text==null)return;
+      event.preventDefault();doc.execCommand('insertText',false,text);
+    });
     const icon=paths=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
     const icons={
       edit:icon('<path d="M4 20h4l11-11-4-4L4 16v4Z"/><path d="m13 7 4 4"/>'),

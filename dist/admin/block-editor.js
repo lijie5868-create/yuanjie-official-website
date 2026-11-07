@@ -80,10 +80,6 @@ export function bindBlocks(main,panel,changed){
     const block=e.target.closest('[data-block]');if(block&&active!==block)select(block);
   });
   main.addEventListener('input',()=>{api.refresh(main);changed()});
-  main.addEventListener('paste',e=>{
-    if(!e.target.closest('[contenteditable]'))return;
-    e.preventDefault();doc.execCommand('insertText',false,e.clipboardData.getData('text/plain'));
-  });
   function decorate(block){
     for(const node of block.querySelectorAll('h1,h2,h3,p,dt,dd,li,figcaption,small,time,strong,em,label,span,a,.eyebrow,.case-amount')){
       if(node.closest('[data-editor-ui],[data-metric-ref],.cover-explore')||node.querySelector('img,button,p,h3'))continue;
