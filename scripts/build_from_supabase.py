@@ -68,6 +68,17 @@ def reorder_case_cards(source,category,project_pages):
         result+=source[end:match.start()];end=match.end()
         if cards:result+=cards.pop(0)
     return result+source[end:]
+def mark_selecting_implementer(source,project_pages):
+    active={canonical_file(page['file_name']) for page in project_pages
+            if project_category(page)=='urban' and re.search(r'data-selecting-implementer=["\']true["\']',page.get('main_html',''),re.I)}
+    def mark(match):
+        card=match.group(0)
+        link=re.search(r'href=["\']([^"\']+)',card)
+        card=re.sub(r'<span class="case-card-selection-status".*?</span></span>','',card,flags=re.S)
+        if not link or link.group(1) not in active:return card
+        badge='<span class="case-card-selection-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M6 20V9l6-4 6 4v11M9 13h6M12 10v6"/></svg><span>遴選實施者</span></span>'
+        return card.replace('</a>',badge+'</a>')
+    return re.sub(r'<a class="case-card".*?</a>',mark,source,flags=re.S)
 if not URL or not KEY:
     print('Supabase variables not configured; keeping checked-in published site unchanged.'); raise SystemExit(0)
 pages=fetch('published_pages')
@@ -93,7 +104,10 @@ for page in pages:
     path.write_text(canonicalize_links(source),encoding='utf-8')
 for listing,category in [('urban.html','urban'),('renewal.html','renewal')]:
     path=DIST/listing
-    if path.is_file(): path.write_text(reorder_case_cards(path.read_text(encoding='utf-8'),category,pages),encoding='utf-8')
+    if path.is_file():
+        content=reorder_case_cards(path.read_text(encoding='utf-8'),category,pages)
+        if category=='urban':content=mark_selecting_implementer(content,pages)
+        path.write_text(content,encoding='utf-8')
 published_project_files={canonical_file(page['file_name']) for page in pages if re.fullmatch(r'project-\d+\.html',canonical_file(page['file_name']))}
 for path in DIST.glob('project-*.html'):
     if path.name in published_project_files: continue

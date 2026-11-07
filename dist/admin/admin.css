@@ -70,6 +70,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .new-project-location,.project-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .project-fields{margin:16px 0;padding:16px;border:1px solid #deddd6;border-radius:9px;background:#faf9f6}
 .project-fields label:first-child{grid-column:1/-1}
+.project-fields .project-stage-field,.new-project-dialog .project-stage-field{display:flex;align-items:center;gap:8px;grid-column:1/-1}.project-stage-field input{width:17px;height:17px;accent-color:#4a6984}
 .new-project-actions{display:flex;justify-content:flex-end;gap:8px}
 .qa-tools{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:0 0 16px}
 .qa-tools span{color:#70716c;font-size:13px}

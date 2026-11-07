@@ -1,5 +1,5 @@
 import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=16';
-import {createFloatingEditor} from './floating-editor.js?v=27';
+import {createFloatingEditor} from './floating-editor.js?v=28';
 import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
 import {createImageEditor} from "./image-editor.js?v=9";
@@ -184,12 +184,13 @@ function snapshotPage(page){
 
 const isManagedProject=page=>Boolean(page?.file_name?.startsWith('project.html?case=')||/<main\b[^>]*data-project-category=/.test(page?.main_html||''));
 
-function newProjectHtml({name,category,city,district,summary,layout=[]}){
+function newProjectHtml({name,category,city,district,summary,selectingImplementer=false,layout=[]}){
   const main=document.createElement('main');
   main.dataset.projectCategory=category;
   main.dataset.projectCity=city;
   main.dataset.projectDistrict=district;
-  main.innerHTML='<section class="page-head"><div class="crumb"><a href="index.html">首頁</a> ／ <a class="project-return" href="urban.html"></a> ／ <span class="project-name"></span></div><div class="eyebrow"></div><h1 class="page-title"></h1><p class="project-location"></p><p class="lead"></p></section><section class="wrap case-overview"><figure class="case-main"><img alt="建築規劃中" width="1200" height="900"><figcaption class="photo-note">建築規劃中</figcaption></figure><div><div class="eyebrow">PROJECT PROFILE / 個案資料</div><h2></h2><dl class="specs"><div><dt>所在地區</dt><dd></dd></div><div><dt>個案類型</dt><dd class="project-type"></dd></div><div><dt>建築規劃</dt><dd>請補充個案資料</dd></div></dl></div></section><section class="wrap case-bottom"><p class="note">個案資料依最新規劃內容更新，實際以核定圖說及相關文件為準。</p><a class="text-link project-return" href="urban.html"></a></section>';
+  if(category==='urban'&&selectingImplementer)main.dataset.selectingImplementer='true';
+  main.innerHTML='<section class="page-head"><div class="crumb"><a href="index.html">首頁</a> ／ <a class="project-return" href="urban.html"></a> ／ <span class="project-name"></span></div><div class="eyebrow"></div><h1 class="page-title"></h1><p class="project-location"></p><p class="lead"></p></section><section class="wrap case-overview"><figure class="case-main"><img alt="建築規劃中" width="1200" height="900"><figcaption class="photo-note">建築規劃中</figcaption></figure><div><div class="eyebrow">PROJECT PROFILE / 個案資料</div><h2></h2><dl class="specs"><div><dt>所在地區</dt><dd></dd></div><div><dt>個案類型</dt><dd class="project-type"></dd></div><div><dt>整合開發</dt><dd></dd></div><div><dt>實施者</dt><dd></dd></div><div><dt>建築設計</dt><dd></dd></div><div><dt>都更顧問</dt><dd></dd></div><div><dt>基地面積</dt><dd></dd></div><div><dt>使用分區</dt><dd></dd></div><div><dt>規劃戶數</dt><dd></dd></div><div><dt>建築樓層</dt><dd></dd></div><div><dt>建築結構</dt><dd></dd></div><div><dt>實施方式</dt><dd></dd></div><div><dt>預估總銷</dt><dd></dd></div></dl></div></section><section class="wrap case-bottom"><p class="note">個案資料依最新規劃內容更新，實際以核定圖說及相關文件為準。</p><a class="text-link project-return" href="urban.html"></a></section>';
   main.querySelector('.case-main img').setAttribute('src','assets/project-placeholder.svg');
   const type=category==='urban'?'進行個案（都更）':'在建工程（危老）';
   const destination=category==='urban'?'urban.html':'renewal.html';
@@ -245,6 +246,7 @@ function managedProjectCard(project,category){
   copy.append(eyebrow,heading,location,summary);
   ProjectBlocks.appendProjectCardFacts(copy,main);
   card.append(image,copy);
+  ProjectBlocks.syncCardStatus(card,main);
   return card;
 }
 
@@ -349,6 +351,7 @@ async function loadEditor(page){
     $('projectCategory').value=projectMain?.dataset.projectCategory||'urban';
     $('projectCity').value=projectMain?.dataset.projectCity||'';
     $('projectDistrict').value=projectMain?.dataset.projectDistrict||'';
+    $('projectSelectingImplementer').checked=projectMain?.dataset.selectingImplementer==='true';
   }
   $('visitPage').href=`${basePath}${ProjectBlocks.canonicalProjectFile(page.file_name)}`;
   const frame=$('visualEditor');
@@ -418,6 +421,8 @@ function mainHtml(){
     copy.dataset.projectCategory=category;
     copy.dataset.projectCity=city;
     copy.dataset.projectDistrict=district;
+    if(category==='urban'&&$('projectSelectingImplementer').checked)copy.dataset.selectingImplementer='true';
+    else delete copy.dataset.selectingImplementer;
     const type=category==='urban'?'進行個案（都更）':'在建工程（危老）';
     const destination=category==='urban'?'urban.html':'renewal.html';
     ProjectBlocks.formatProjectLocation(copy,city,district);
@@ -1386,7 +1391,7 @@ $('passwordRecoveryForm').onsubmit=async event=>{
 };
 $('save').onclick=()=>saveDraft().catch(error=>message(error.message,true));
 $('publish').onclick=()=>publish().catch(error=>message(error.message,true));
-document.querySelectorAll('#title,#description,#projectCategory,#projectCity,#projectDistrict').forEach(input=>input.addEventListener('input',()=>{pageDirty=true}));
+document.querySelectorAll('#title,#description,#projectCategory,#projectCity,#projectDistrict,#projectSelectingImplementer').forEach(input=>input.addEventListener('input',()=>{pageDirty=true}));
 const projectLayout=[];
 let layoutDrag=null;
 function placeComponent(index,source){
@@ -1451,7 +1456,7 @@ $('newProjectForm').onsubmit=async event=>{
     const slug=`custom-${crypto.randomUUID()}`;
     const usedNumbers=pages.map(page=>Number(ProjectBlocks.canonicalProjectFile(page.file_name).match(/^project-(\d+)\.html$/)?.[1]||0));
     let nextNumber=Math.max(23,...usedNumbers)+1;
-    const payload={slug,file_name:`project-${nextNumber}.html`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary,layout:projectLayout}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
+    const payload={slug,file_name:`project-${nextNumber}.html`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary,selectingImplementer:$('newProjectSelectingImplementer').checked,layout:projectLayout}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
     let data,error;
     for(let attempt=0;attempt<5;attempt++){
       payload.file_name=`project-${nextNumber++}.html`;

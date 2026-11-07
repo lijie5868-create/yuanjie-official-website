@@ -353,9 +353,9 @@ window.ProjectBlocks = (() => {
   function prepare(main){
     if(!main)return false;
     if(main.dataset.caseLayout==='unified-v1'){
-      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);normalizeFeatureSections(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
+      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
     }
-    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);normalizeFeatureSections(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
+    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -399,6 +399,7 @@ window.ProjectBlocks = (() => {
     normalizeHeroPartners(main);
     layoutProfiles(main);
     orderCaseProfile(main);
+    ensureDraftSpecs(main);
     normalizeFeatureSections(main);
     upgradeAlbums(main);
     stripChineseFullStops(main.ownerDocument.body||main);
@@ -406,6 +407,19 @@ window.ProjectBlocks = (() => {
     main.dataset.caseLayout='unified-v1';
     enhanceAlbumRails(main);
     return true;
+  }
+  function ensureDraftSpecs(main){
+    if(!main.dataset.projectCategory)return;
+    const specs=main.querySelector('[data-block="specs"] dl.specs');
+    if(!specs||specs.children.length>3)return;
+    const placeholder=[...specs.children].find(row=>row.querySelector('dt')?.textContent.trim()==='建築規劃'&&row.querySelector('dd')?.textContent.trim()==='請補充個案資料');
+    placeholder?.remove();
+    const current=new Set([...specs.querySelectorAll('dt')].map(node=>node.textContent.trim()));
+    for(const name of ['整合開發','實施者','建築設計','都更顧問','基地面積','使用分區','規劃戶數','建築樓層','建築結構','實施方式','預估總銷']){
+      if(current.has(name))continue;
+      const row=main.ownerDocument.createElement('div'),label=main.ownerDocument.createElement('dt'),value=main.ownerDocument.createElement('dd');
+      label.textContent=name;row.append(label,value);specs.append(row);
+    }
   }
   const templates={
     story:'<h2>段落標題</h2><p>段落內容</p>',
@@ -444,6 +458,17 @@ window.ProjectBlocks = (() => {
       card.dataset.city=address[1];card.dataset.district=address[2];
       const loc=card.querySelector('.project-location');if(loc)loc.textContent=address[0];
     }
+    syncCardStatus(card,main);
+  }
+  function syncCardStatus(card,main){
+    const active=main?.dataset.projectCategory==='urban'&&main.dataset.selectingImplementer==='true';
+    card.querySelector('.case-card-selection-status')?.remove();
+    card.toggleAttribute('data-selecting-implementer',active);
+    if(!active)return;
+    const badge=card.ownerDocument.createElement('span');
+    badge.className='case-card-selection-status';
+    badge.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M6 20V9l6-4 6 4v11M9 13h6M12 10v6"/></svg><span>遴選實施者</span>';
+    card.append(badge);
   }
   const enhancedAlbumRails=new WeakSet();
   function openAlbum(article,startIndex=0){
@@ -481,7 +506,7 @@ window.ProjectBlocks = (() => {
     }
   }
   document.addEventListener('DOMContentLoaded',()=>{const main=document.querySelector('main');if(main&&applies(location.pathname.split('/').pop()+location.search)){prepare(main);upgradeAlbums(main);enhanceAlbumRails(main);cleanupAlbumZoom();new MutationObserver(()=>{enhanceAlbumRails(main);cleanupAlbumZoom()}).observe(main,{childList:true,subtree:true})}});
-  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,enhanceAlbumRails,cleanupAlbumZoom,normalizeCover,updateCard,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
+  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,enhanceAlbumRails,cleanupAlbumZoom,normalizeCover,updateCard,syncCardStatus,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();
 document.addEventListener('click',event=>{
   const note=event.target.closest?.('.case-card-inline-note');

@@ -357,6 +357,7 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .case-card .project-location .case-card-inline-note::before{content:'i';position:absolute;color:#4A6984;font:600 14px/1 serif}
 .case-card .project-location .case-card-inline-note:hover{position:absolute;z-index:5;right:0;top:0;display:block;width:min(300px,75vw);height:auto;min-height:48px;padding:12px 14px;border-radius:8px;background:#26343c;color:#fff;font-size:12px;white-space:normal;text-align:left;box-shadow:0 8px 24px #0003}
 .case-card .project-location .case-card-inline-note:hover::before{display:none}
+.case-card{position:relative}.case-card-selection-status{position:absolute;z-index:2;top:12px;left:12px;display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;background:#26343ce8;color:#fff;font:600 12px/1.2 system-ui,sans-serif;box-shadow:0 3px 10px #0003}.case-card-selection-status svg{width:16px;height:16px;flex:none}
 :is(.urban-page,.renewal-page) .case-grid .case-card{align-self:start}
 :is(.urban-page,.renewal-page) .case-grid .case-card-copy{flex:0 0 auto;padding-bottom:10px}
 :is(.urban-page,.renewal-page) .case-card .eyebrow{line-height:1.4}

@@ -144,6 +144,7 @@
         copy.append(eyebrow,heading,location,summary);
         window.ProjectBlocks?.appendProjectCardFacts(copy,main);
         card.append(image,copy);
+        window.ProjectBlocks?.syncCardStatus(card,main);
         grid.append(card);
       }
       const orderedProjects=managedProjects.filter(project=>publishedProjectCategory(project)===category);

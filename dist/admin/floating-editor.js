@@ -41,6 +41,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     doc.head.append(style);
     style.textContent+='.inline-edit-action[hidden],.inline-style-tool[hidden]{display:none!important}';
     style.textContent+='[data-block="albums"] .project-album-grid{display:block!important}[data-block="albums"] .project-album-items[hidden]{display:contents!important}';
+    style.textContent+='[data-block="specs"] .specs>div:has(>dd:empty){display:grid!important}[data-block="specs"] .specs dd:empty::before{content:"點此填寫";color:#98a3a8;pointer-events:none}';
     style.textContent+='.inline-edit-ui[data-level="feature"] .inline-edit-menu,.inline-edit-ui[data-level="team"] .inline-edit-menu{width:min(360px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="album"] .inline-edit-menu{width:min(420px,calc(100vw - 24px));grid-template-columns:repeat(4,minmax(0,1fr))}.inline-edit-ui[data-level="block"] .inline-edit-menu{width:110px;grid-template-columns:1fr}';
     style.textContent+='.inline-edit-ui [data-tooltip]{position:relative}.inline-edit-ui [data-tooltip]::after{content:attr(data-tooltip);position:absolute;z-index:30;top:calc(100% + 8px);left:50%;padding:5px 8px;border:1px solid #34434b;border-radius:6px;background:#263238;color:#fff;box-shadow:0 4px 12px #18232b30;font:11px/1.2 system-ui,sans-serif;white-space:nowrap;pointer-events:none;visibility:hidden;opacity:0;transform:translate(-50%,4px);transition:opacity .12s ease,transform .12s ease,visibility .12s}.inline-edit-ui [data-tooltip]:hover::after,.inline-edit-ui [data-tooltip]:focus-visible::after{visibility:visible;opacity:1;transform:translate(-50%,0)}.inline-edit-ui.open-up [data-tooltip]::after{top:auto;bottom:calc(100% + 8px);transform:translate(-50%,-4px)}.inline-edit-ui.open-up [data-tooltip]:hover::after,.inline-edit-ui.open-up [data-tooltip]:focus-visible::after{transform:translate(-50%,0)}';
     style.textContent+='.inline-edit-ui[data-level="image"] .inline-edit-toggle{display:none}.inline-edit-ui[data-level="image"] .inline-edit-menu{position:relative;top:auto;left:auto;bottom:auto}';
@@ -219,6 +220,17 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     const editButton=action('編輯選取圖片','編輯圖片','crop',()=>{document.getElementById('editImage').click();menu.hidden=true;toggle.setAttribute('aria-expanded','false')});
     imageActions.push(editButton);
     textActions.push(action('插入媒體','媒體','video',()=>{media.hidden=!media.hidden;if(!media.hidden)urlInput.focus()}));
+    const addFieldButton=action('在此欄位下方新增資料欄位','新增欄位','add',()=>{
+      const row=lastTarget?.closest('[data-block="specs"] dl.specs > div');
+      if(!row||!main.contains(row))return;
+      const next=doc.createElement('div');
+      const label=doc.createElement('dt'),value=doc.createElement('dd');
+      label.textContent='新欄位';value.textContent='';
+      label.contentEditable='true';value.contentEditable='true';
+      next.append(label,value);row.after(next);
+      notifyBlock(row.closest('[data-block="specs"]'));
+      label.focus();root.hidden=true;
+    });
     const deleteButton=action('刪除所選資料欄位','刪除欄位','delete',()=>{
       const row=lastTarget?.closest('[data-block="specs"] dl.specs > div');
       if(!row||!main.contains(row))return;
@@ -266,6 +278,7 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       albumActions.forEach(button=>button.hidden=!isAlbum);
       if(isAlbum){albumActions[0].disabled=1+(albumItem()?.querySelectorAll('.project-album-items figure').length||0)>=40;removePhoto.disabled=false}
       removeBlock.hidden=!isBlock;
+      addFieldButton.hidden=!isRow;
       deleteButton.hidden=!isRow;
     }
     toggle.onclick=()=>{
