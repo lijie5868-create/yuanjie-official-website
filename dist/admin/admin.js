@@ -593,6 +593,13 @@ function renderPageList(filter=''){
   const listScrollTop=list.scrollTop;
   const documentScrollTop=window.scrollY;
   const focusedSlug=document.activeElement?.closest?.('#pageList button[data-slug]')?.dataset.slug||'';
+  const sidebarRect=sidebar.getBoundingClientRect();
+  const scrollAnchor=[...list.querySelectorAll('.case-page-item')].find(item=>{
+    const rect=item.getBoundingClientRect();
+    return rect.bottom>sidebarRect.top&&rect.top<sidebarRect.bottom;
+  });
+  const scrollAnchorSlug=scrollAnchor?.dataset.slug||'';
+  const scrollAnchorTop=scrollAnchor?.getBoundingClientRect().top;
   const newProjectButton=$('newProject'),newCompanyButton=$('newCompanyPage');
   const query=filter.trim().toLocaleLowerCase('zh-Hant');
   const matches=pages.filter(page=>`${page.title} ${page.file_name} ${ProjectBlocks.canonicalProjectFile(page.file_name)}`.toLocaleLowerCase('zh-Hant').includes(query));
@@ -632,10 +639,16 @@ function renderPageList(filter=''){
   if(current)document.querySelector(`#pageList button[data-slug="${CSS.escape(current.slug)}"]`)?.classList.add('active');
   requestAnimationFrame(()=>{
     if(!sidebar.isConnected)return;
+    if(focusedSlug)list.querySelector(`button[data-slug="${CSS.escape(focusedSlug)}"]`)?.focus({preventScroll:true});
     sidebar.scrollTop=sidebarScrollTop;
     list.scrollTop=listScrollTop;
     window.scrollTo(0,documentScrollTop);
-    if(focusedSlug)list.querySelector(`button[data-slug="${CSS.escape(focusedSlug)}"]`)?.focus({preventScroll:true});
+    requestAnimationFrame(()=>{
+      const anchor=scrollAnchorSlug&&list.querySelector(`button[data-slug="${CSS.escape(scrollAnchorSlug)}"]`);
+      if(anchor&&scrollAnchorTop!==undefined)sidebar.scrollTop+=anchor.getBoundingClientRect().top-scrollAnchorTop;
+      list.scrollTop=listScrollTop;
+      window.scrollTo(0,documentScrollTop);
+    });
   });
 }
 
