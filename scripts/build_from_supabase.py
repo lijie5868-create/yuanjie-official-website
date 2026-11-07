@@ -60,11 +60,13 @@ def project_category(page):
 def reorder_case_cards(source,category,project_pages):
     ranks={canonical_file(page['file_name']):index for index,page in enumerate(page for page in project_pages if project_category(page)==category)}
     matches=list(re.finditer(r'<a class="case-card".*?</a>',source,re.S))
-    if len(matches)<2:return source
-    cards=sorted((match.group(0) for match in matches),key=lambda card:ranks.get(re.search(r'href=["\']([^"\']+)',card).group(1),10**9) if re.search(r'href=["\']([^"\']+)',card) else 10**9)
+    if not matches:return source
+    cards=[card for card in (match.group(0) for match in matches) if (link:=re.search(r'href=["\']([^"\']+)',card)) and link.group(1) in ranks]
+    cards.sort(key=lambda card:ranks[re.search(r'href=["\']([^"\']+)',card).group(1)])
     result=source[:matches[0].start()];end=matches[0].start()
-    for match,card in zip(matches,cards):
-        result+=source[end:match.start()]+card;end=match.end()
+    for match in matches:
+        result+=source[end:match.start()];end=match.end()
+        if cards:result+=cards.pop(0)
     return result+source[end:]
 if not URL or not KEY:
     print('Supabase variables not configured; keeping checked-in published site unchanged.'); raise SystemExit(0)
@@ -92,6 +94,13 @@ for page in pages:
 for listing,category in [('urban.html','urban'),('renewal.html','renewal')]:
     path=DIST/listing
     if path.is_file(): path.write_text(reorder_case_cards(path.read_text(encoding='utf-8'),category,pages),encoding='utf-8')
+published_project_files={canonical_file(page['file_name']) for page in pages if re.fullmatch(r'project-\d+\.html',canonical_file(page['file_name']))}
+for path in DIST.glob('project-*.html'):
+    if path.name in published_project_files: continue
+    source=path.read_text(encoding='utf-8')
+    source=replace(r'<title>.*?</title>','<title>個案尚未上線｜元捷建設</title>',source)
+    source=replace(r'<main\b.*?</main>','<main><section class="container page-head"><p class="eyebrow">PROJECT</p><h1 class="page-title">個案尚未上線</h1><p class="lead">請從個案列表選擇目前展示的建案。</p><a href="urban.html">查看進行個案</a></section></main>',source)
+    path.write_text(source,encoding='utf-8')
 for old,new in PROJECT_ALIASES.items():
     if '?' in old: continue
     destination=html.escape(new,quote=True)

@@ -84,9 +84,11 @@
           existing.replaceWith(incoming);
         }
       }
-    }else if(fileName==='project.html'){
-      document.querySelector('main .page-title').textContent='找不到已發布的個案';
-      document.querySelector('main .lead').textContent='請從個案列表重新選擇，或稍後再試。';
+    }else if(fileName==='project.html'||/^project-\d+\.html$/i.test(fileName)){
+      document.title='個案尚未上線｜元捷建設';
+      document.querySelector('meta[name="robots"]')?.setAttribute('content','noindex');
+      const main=document.querySelector('main');
+      if(main)main.innerHTML='<section class="container page-head"><p class="eyebrow">PROJECT</p><h1 class="page-title">個案尚未上線</h1><p class="lead">請從個案列表選擇目前展示的建案。</p><a href="urban.html">查看進行個案</a></section>';
     }
     const nav=document.querySelector('header nav[aria-label="主要導覽"]');
     if(nav){
@@ -102,6 +104,10 @@
     if(fileName==='urban.html'||fileName==='renewal.html'){
       const category=fileName==='urban.html'?'urban':'renewal';
       const grid=document.querySelector('.case-grid');
+      const publishedFiles=new Set(managedProjects.filter(project=>publishedProjectCategory(project)===category).map(project=>window.ProjectBlocks?.canonicalProjectFile(project.file_name)||project.file_name));
+      for(const card of grid?.querySelectorAll(':scope > a.case-card')||[]){
+        if(!publishedFiles.has(window.ProjectBlocks?.canonicalProjectFile(card.getAttribute('href'))||card.getAttribute('href')))card.remove();
+      }
       for(const project of managedProjects){
         if(publishedProjectCategory(project)!==category)continue;
         const canonical=window.ProjectBlocks?.canonicalProjectFile(project.file_name)||project.file_name;

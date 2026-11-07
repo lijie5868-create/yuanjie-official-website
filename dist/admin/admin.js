@@ -329,6 +329,7 @@ function publishedProjectsForCategory(category){
 
 async function loadEditor(page){
   if(pageDirty&&!confirm('目前頁面有尚未儲存的修改。要放棄修改並切換頁面嗎？'))return;
+  $('pageEditor').hidden=false;
   activeCaseListPreview=null;
   $('pageEditor').classList.remove('case-list-preview-active');
   $('caseListPreviewView').hidden=true;
@@ -448,19 +449,70 @@ function pageButton(page,caseOrder=[]){
   const button=document.createElement('button');
   button.type='button';
   button.dataset.slug=page.slug;
-  button.innerHTML='<span class="case-page-order"></span><strong></strong><small></small>';
+  button.innerHTML='<strong></strong><small></small>';
   button.querySelector('strong').textContent=page.title;
   button.querySelector('small').textContent=ProjectBlocks.canonicalProjectFile(page.file_name);
   if(!primaryPages.has(page.slug)&&!isCompanyPage(page)){
-    button.classList.add('case-page-item');
-    button.dataset.caseCategory=pageProjectCategory(page);
-    button.draggable=true;
+    const item=document.createElement('div');
+    item.className='case-page-item';
+    item.dataset.slug=page.slug;
+    item.dataset.caseCategory=pageProjectCategory(page);
+    item.draggable=true;
     const position=caseOrder.findIndex(item=>item.slug===page.slug)+1;
-    const order=button.querySelector('.case-page-order');
-    order.textContent=`#${position}`;order.setAttribute('aria-label',`排序第 ${position} 位`);order.title=`${button.dataset.caseCategory==='urban'?'都更':'危老'}個案排序第 ${position} 位`;
+    const order=document.createElement('span');order.className='case-page-order';
+    order.textContent=`#${position}`;order.setAttribute('aria-label',`排序第 ${position} 位`);order.title=`${item.dataset.caseCategory==='urban'?'都更':'危老'}個案排序第 ${position} 位`;
+    const published=publishedPages.has(page.slug);
+    const status=document.createElement('span');status.className=`case-page-status ${published?'is-published':'is-draft'}`;status.textContent=published?'上線':'草稿';
+    const actions=document.createElement('div');actions.className='case-page-actions';
+    const toggle=document.createElement('button');toggle.type='button';toggle.textContent=published?'下架':'上線';toggle.setAttribute('aria-label',`${published?'下架':'上線'} ${page.title}`);
+    toggle.addEventListener('click',()=>toggleCasePublication(page).catch(error=>message(error.message,true)));
+    const remove=document.createElement('button');remove.type='button';remove.textContent='刪除';remove.className='case-delete';remove.disabled=published;remove.title=published?'請先下架，再刪除草稿':'刪除這份草稿';
+    remove.addEventListener('click',()=>deleteCaseDraft(page).catch(error=>message(error.message,true)));
+    actions.append(toggle,remove);item.append(button,order,status,actions);
+    button.onclick=()=>loadEditor(page).catch(error=>message(error.message,true));
+    return item;
   }
   button.onclick=()=>loadEditor(page).catch(error=>message(error.message,true));
   return button;
+}
+
+async function toggleCasePublication(page){
+  if(pageDirty&&current?.slug===page.slug)throw new Error('這份個案有未儲存的編輯，請先儲存草稿。');
+  const published=publishedPages.get(page.slug);
+  const action=published?'下架':'上線';
+  if(!window.confirm(`確定要將「${page.title}」${action}嗎？${published?'下架後前台列表會移除，草稿仍保留。':'將目前已儲存的草稿發布到正式網站。'}`))return;
+  if(published){
+    const {data,error}=await supabase.from('published_pages').delete().eq('slug',page.slug).eq('published_at',published.published_at).select('slug').maybeSingle();
+    if(error)throw error;
+    if(!data)throw new Error('這份個案的上線版本已由其他管理員更新，請重新整理後再操作。');
+    publishedPages.delete(page.slug);
+    if(current?.slug===page.slug)publishedSnapshot=null;
+  }else{
+    const {data:serverDraft,error:readError}=await supabase.from('cms_pages').select('*').eq('id',page.id).maybeSingle();
+    if(readError)throw readError;
+    if(!serverDraft||serverDraft.updated_at!==page.updated_at)throw new Error('這份草稿已由其他管理員更新，請重新整理後再發布。');
+    const payload={slug:page.slug,file_name:page.file_name,title:page.title,meta_description:page.meta_description,main_html:page.main_html,sort_order:page.sort_order,published_at:new Date().toISOString()};
+    const {data,error}=await supabase.from('published_pages').insert(payload).select().maybeSingle();
+    if(error)throw error;
+    publishedPages.set(page.slug,data);
+    if(current?.slug===page.slug)publishedSnapshot=snapshotPage(data);
+  }
+  activityLoaded=false;
+  renderPageList($('pageSearch').value);
+  message(`「${page.title}」已${action}。`);
+}
+
+async function deleteCaseDraft(page){
+  if(publishedPages.has(page.slug))throw new Error('請先下架個案，再刪除草稿。');
+  if(!window.confirm(`確定永久刪除「${page.title}」的草稿嗎？此操作無法復原。`))return;
+  const {data,error}=await supabase.from('cms_pages').delete().eq('id',page.id).eq('updated_at',page.updated_at).select('id').maybeSingle();
+  if(error)throw error;
+  if(!data)throw new Error('草稿已由其他管理員更新，請重新整理後再操作。');
+  pages=pages.filter(item=>item.id!==page.id);
+  if(current?.id===page.id){current=null;closeCaseListPreview();$('pageEditor').hidden=true;}
+  activityLoaded=false;
+  renderPageList($('pageSearch').value);
+  message(`「${page.title}」草稿已刪除。`);
 }
 
 let draggedCasePage=null;
@@ -473,6 +525,7 @@ projectList.addEventListener('click',event=>{
 projectList.addEventListener('dragstart',event=>{
   const item=event.target.closest('.case-page-item');
   if(!item)return;
+  if(event.target.closest('.case-page-actions')){event.preventDefault();return}
   draggedCasePage=item;item.classList.add('is-dragging');
   event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',item.dataset.slug);
 });
@@ -1180,6 +1233,7 @@ async function publish(){
   if(!data)throw new Error('正式網站剛剛已有其他更新，本次發布已停止；請重新整理後再確認。');
   publishedSnapshot=snapshotPage(data);
   publishedPages.set(current.slug,data);
+  renderPageList($('pageSearch').value);
   activityLoaded=false;
   $('contentSafetyStatus').classList.remove('warning');
   $('contentSafetyStatus').textContent='發布完成，後台草稿與正式網站已同步；本次發布前後版本已保留在管理員操作紀錄。';
