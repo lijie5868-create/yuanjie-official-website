@@ -246,7 +246,9 @@ window.ProjectBlocks = (() => {
     let end=copy.querySelector(':scope > .cover-hero-end');
     if(!end){end=main.ownerDocument.createElement('div');end.className='cover-hero-end';copy.append(end)}
     end.append(explore);
-    if(!end.querySelector('.cover-rule')){const rule=main.ownerDocument.createElement('span');rule.className='cover-rule';rule.setAttribute('aria-hidden','true');end.append(rule)}
+    let rule=end.querySelector('.cover-rule');
+    if(!rule){rule=main.ownerDocument.createElement('span');rule.className='cover-rule';rule.setAttribute('aria-hidden','true')}
+    end.append(rule);
     const specs=main.querySelector('[data-block="specs"]');if(specs&&!main.querySelector('#project'))specs.id='project';
   }
   function stripChineseFullStops(root){
