@@ -437,7 +437,7 @@ function pageButton(page){
     button.classList.add('case-page-item');
     button.dataset.caseCategory=pageProjectCategory(page);
     button.draggable=true;
-    const position=pages.filter(item=>pageProjectCategory(item)===button.dataset.caseCategory).findIndex(item=>item.slug===page.slug)+1;
+    const position=orderedCasePages(button.dataset.caseCategory).findIndex(item=>item.slug===page.slug)+1;
     const order=button.querySelector('.case-page-order');
     order.textContent=`#${position}`;order.setAttribute('aria-label',`排序第 ${position} 位`);order.title=`${button.dataset.caseCategory==='urban'?'都更':'危老'}個案排序第 ${position} 位`;
   }
@@ -512,6 +512,16 @@ function pageProjectCategory(page){
   return /危老|RECONSTRUCTION/i.test(text)?'renewal':'urban';
 }
 
+function orderedCasePages(category,items=pages){
+  return items.filter(item=>pageProjectCategory(item)===category).slice().sort((a,b)=>{
+    const publishedA=publishedPages.get(a.slug),publishedB=publishedPages.get(b.slug);
+    if(publishedA&&publishedB)return (publishedA.sort_order??a.sort_order??0)-(publishedB.sort_order??b.sort_order??0);
+    if(publishedA)return -1;
+    if(publishedB)return 1;
+    return (a.sort_order??0)-(b.sort_order??0);
+  });
+}
+
 function appendProjectSubgroup(group,label,items){
   if(!items.length)return;
   const section=document.createElement('section');section.className='page-project-subgroup';
@@ -544,8 +554,8 @@ function renderPageList(filter=''){
     if(heading==='個案頁面'){
       title.textContent=`個案頁面（${grouped.length}）`;
       group.append(newProjectButton);
-      appendProjectSubgroup(group,'都更個案',grouped.filter(page=>pageProjectCategory(page)==='urban'));
-      appendProjectSubgroup(group,'危老個案',grouped.filter(page=>pageProjectCategory(page)==='renewal'));
+      appendProjectSubgroup(group,'都更個案',orderedCasePages('urban',grouped));
+      appendProjectSubgroup(group,'危老個案',orderedCasePages('renewal',grouped));
     }else if(heading==='公司詳情頁'){
       title.textContent=`公司詳情頁（${grouped.length}）`;
       group.append(newCompanyButton,...grouped.map(pageButton));
@@ -564,7 +574,7 @@ function renderPageList(filter=''){
 async function fetchPages(){
   const [draftResult,publishedResult]=await Promise.all([
     supabase.from('cms_pages').select('*').order('sort_order'),
-    supabase.from('published_pages').select('slug,file_name,title,meta_description,main_html,published_at')
+    supabase.from('published_pages').select('slug,file_name,title,meta_description,main_html,published_at,sort_order')
   ]);
   if(draftResult.error)throw draftResult.error;
   if(publishedResult.error)throw publishedResult.error;
