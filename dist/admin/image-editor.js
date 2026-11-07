@@ -39,6 +39,17 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       const img=event.detail?.image;
       if(img?.tagName==='IMG'&&doc.contains(img))setSelection(img);
     });
+    const homeCover=doc.querySelector('.home-hero > img');
+    if(homeCover){
+      const button=doc.createElement('button');
+      button.type='button';
+      button.dataset.editorUi='';
+      button.textContent='更換封面';
+      button.setAttribute('aria-label','更換首頁封面照片');
+      button.style.cssText='position:absolute;z-index:10;top:16px;right:16px;padding:9px 15px;border:1px solid #c5a880;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:600 13px system-ui;cursor:pointer';
+      button.onclick=event=>{event.preventDefault();event.stopPropagation();setSelection(homeCover);$('imageUpload').click()};
+      homeCover.parentElement.append(button);
+    }
     if(doc.querySelector('.case-grid')){
       for(const card of doc.querySelectorAll('a.case-card')){
         const target=card.querySelector('img, .case-placeholder');
