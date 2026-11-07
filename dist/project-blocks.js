@@ -1,6 +1,6 @@
 // Versioned semantic HTML is both the block document and the deployable fallback.
 window.ProjectBlocks = (() => {
-  const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色（條列卡片）', featureStory:'個案特色（敘事卡片）', gallery:'圖片集（單層）', albums:'圖片集（相簿）', journal:'工程與活動紀錄', team:'參與團隊'};
+  const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色（條列卡片）', featureStory:'個案特色（敘事卡片）', gallery:'圖片集（單層）', albums:'圖片集（相簿）', journal:'工程與活動紀錄', team:'參與團隊', customHtml:'自訂 HTML 區塊'};
   const files = new Set(['shidong','heping','project-xinguang-urban','project-wuxing',...Array.from({length:19},(_,i)=>'project-'+(i+2)).filter(name=>name!=='project-11')].map(name=>name+'.html'));
   const aliases={
     'shidong.html':'project-1.html',
@@ -263,7 +263,8 @@ window.ProjectBlocks = (() => {
     gallery:'<h2>圖片集</h2><div class="pb-items"><figure><img alt="個案照片"><figcaption>照片說明</figcaption></figure></div>',
     albums:'<div class="album-section-head"><h2>工程與活動紀錄</h2><p>點選相簿查看更多照片</p></div><div class="project-album-grid"><article class="project-album"><button type="button" class="project-album-cover"><figure><img alt="相簿封面"><figcaption><strong>相簿名稱</strong><small>點選查看相簿</small></figcaption></figure></button><div class="project-album-items" hidden></div></article></div>',
     journal:'<h2>工程與活動紀錄</h2><div class="pb-items"><article><time>日期</time><h3>事件名稱</h3><p>事件說明</p></article></div>',
-    team:'<h2>參與團隊</h2><div class="pb-items"><article><small>角色</small><h3>單位名稱</h3><p>人員與說明</p></article></div>'
+    team:'<h2>參與團隊</h2><div class="pb-items"><article><small>角色</small><h3>單位名稱</h3><p>人員與說明</p></article></div>',
+    customHtml:'<div class="custom-html-content"><section class="custom-html-example" style="padding:32px;border:1px solid #d8d5cd;border-radius:12px;background-color:#f7f5f1"><p style="color:#4a6984;letter-spacing:.12em">CUSTOM SECTION</p><h2>自訂區塊標題</h2><p>可貼上 ChatGPT 產生的 HTML，再於右側預覽。</p></section></div>'
   };
   function newBlock(doc,type){
     const el=doc.createElement('section');el.dataset.block=type;el.innerHTML=templates[type];

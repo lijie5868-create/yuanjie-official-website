@@ -317,6 +317,10 @@ iframe { display: block; width: 100%; height: max(960px, calc(100dvh - 90px)); b
 #blockPanel button[aria-pressed=true]{background:#4a6984;color:white}
 #blockPanel label{display:grid;gap:3px;width:100%;font-size:13px}
 #blockPanel>div:last-child{max-height:360px;overflow:auto}
+.custom-html-note{width:100%;margin:2px 0;color:#66727a;font-size:12px;line-height:1.6}
+.custom-html-copy{background:#4a6984!important;color:#fff!important}
+.custom-html-editor-label{margin-top:6px}
+.custom-html-source{min-height:240px;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2;white-space:pre;overflow:auto}
 
 #newProjectLayout{min-width:0;margin:0;padding:14px;border:1px solid #d6cec4;border-radius:8px}
 #newProjectPalette{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}

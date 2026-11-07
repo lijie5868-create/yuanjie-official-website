@@ -1,4 +1,4 @@
-import {bindBlocks} from './block-editor.js?v=12';
+import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=13';
 import {createFloatingEditor} from './floating-editor.js?v=19';
 import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
@@ -301,6 +301,11 @@ async function editorDocument(page,html){
         html=previewMain.outerHTML;
       }
     }
+    if(ProjectBlocks.applies(page.file_name)){
+      const previewMain=new DOMParser().parseFromString(html,'text/html').querySelector('main');
+      for(const content of previewMain?.querySelectorAll('[data-block="customHtml"] > .custom-html-content')||[])content.innerHTML=sanitizeCustomHtml(content.innerHTML);
+      if(previewMain)html=previewMain.outerHTML;
+    }
     previewScripts=[...template.querySelectorAll('script[src]')]
       .map(script=>script.getAttribute('src'))
       .filter(src=>src&&(src.split(/[?#]/)[0].endsWith('/about-layout.js')||src.split(/[?#]/)[0]==='about-layout.js'))
@@ -393,6 +398,7 @@ function mainHtml(){
   if(isCompanyPage(current) && main.dataset.companyBlocks!=='1')
     throw new Error('公司頁面區塊尚未載入，已保留原稿。');
   const copy=main.cloneNode(true);
+  for(const content of copy.querySelectorAll('[data-block="customHtml"] > .custom-html-content'))content.innerHTML=sanitizeCustomHtml(content.innerHTML);
   copy.removeAttribute('contenteditable');
   copy.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());
   copy.querySelectorAll('[data-admin-card-upload]').forEach(node=>node.remove());

@@ -1,3 +1,29 @@
+const customHtmlTemplate='<section class="custom-html-example" style="padding:32px;border:1px solid #d8d5cd;border-radius:12px;background-color:#f7f5f1"><p style="color:#4a6984;letter-spacing:.12em">CUSTOM SECTION</p><h2>自訂區塊標題</h2><p>可貼上 ChatGPT 產生的 HTML，再於右側預覽。</p></section>';
+const customHtmlTags=new Set('a article aside b blockquote br caption dd div dl dt em figcaption figure footer h1 h2 h3 h4 h5 h6 header hr i img li ol p section small span strong sub sup table tbody td th thead tr ul'.split(' '));
+const customHtmlAttrs=new Set('alt aria-hidden aria-label class colspan decoding height href loading rel role rowspan scope src style target title width'.split(' '));
+const customStyleProps=new Set('align-items aspect-ratio background-color border border-bottom border-color border-radius border-style border-top border-width box-shadow color column-gap display flex-direction flex-wrap font-size font-style font-weight gap grid-template-columns height justify-content letter-spacing line-height margin margin-bottom margin-left margin-right margin-top max-height max-width min-height min-width object-fit padding padding-bottom padding-left padding-right padding-top row-gap text-align width'.split(' '));
+export function sanitizeCustomHtml(source=''){
+  source=String(source).trim().replace(/^```(?:html)?\s*/i,'').replace(/\s*```\s*$/,'');
+  const doc=new DOMParser().parseFromString(source,'text/html');
+  const forbidden=new Set('script style iframe object embed form input button textarea select option link meta base svg math template'.split(' '));
+  for(const node of [...doc.body.querySelectorAll('*')].reverse()){
+    if(forbidden.has(node.tagName.toLowerCase())){node.remove();continue}
+    if(!customHtmlTags.has(node.tagName.toLowerCase())){node.replaceWith(...node.childNodes);continue}
+    for(const attr of [...node.attributes]){
+      const name=attr.name.toLowerCase(),value=attr.value.trim();
+      if(!customHtmlAttrs.has(name)||name.startsWith('on')){node.removeAttribute(attr.name);continue}
+      if(['href','src'].includes(name)&&value&&!/^(https?:\/\/|mailto:|tel:|#|\.?\.?\/|assets\/|[\w.-]+\.html(?:[?#]|$))/i.test(value)){node.removeAttribute(attr.name);continue}
+      if(name==='style'){
+        const safe=value.split(';').map(part=>{const split=part.indexOf(':');if(split<1)return '';const property=part.slice(0,split).trim().toLowerCase(),styleValue=part.slice(split+1).trim();if(!customStyleProps.has(property)||!styleValue||/[<>\\{}]|url\s*\(|expression|javascript|@import/i.test(styleValue))return '';return `${property}:${styleValue}`}).filter(Boolean).join(';');
+        if(safe)node.setAttribute('style',safe);else node.removeAttribute('style');
+      }
+      if(name==='target'&&value==='_blank')node.setAttribute('rel','noopener noreferrer');
+    }
+  }
+  const walker=doc.createTreeWalker(doc.body,NodeFilter.SHOW_COMMENT);const comments=[];while(walker.nextNode())comments.push(walker.currentNode);comments.forEach(node=>node.remove());
+  return doc.body.innerHTML;
+}
+
 export function bindBlocks(main,panel,changed){
   const doc=main.ownerDocument;
   const api=window.ProjectBlocks;
@@ -164,6 +190,24 @@ export function bindBlocks(main,panel,changed){
         button(fields,'照片下移',()=>{const p=photo();if(p.nextElementSibling){p.nextElementSibling.after(p);select(el);changed()}});
         button(fields,'刪除這張照片',()=>{if(confirm('刪除這張相簿內頁照片？')){photo().remove();album().dataset.activePhoto=String(Math.max(0,photoPick.selectedIndex-1));select(el);changed()}});
       }
+      return;
+    }
+    if(el.dataset.block==='customHtml'){
+      const content=el.querySelector(':scope > .custom-html-content');
+      const note=document.createElement('p');note.className='custom-html-note';note.textContent='請貼上 HTML 原始碼（可含 ChatGPT 的 ```html 程式碼圍欄），右側頁面會即時預覽。只接受安全的 inline 樣式；程式碼、樣式表與嵌入式框架會移除。影片請用「插入媒體」。';fields.append(note);
+      const copy=button(fields,'複製預設 HTML 範本',async event=>{
+        const target=event.currentTarget;
+        try{
+          if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(customHtmlTemplate);
+          else{const temp=document.createElement('textarea');temp.value=customHtmlTemplate;document.body.append(temp);temp.select();document.execCommand('copy');temp.remove()}
+          const original=target.textContent;target.textContent='已複製範本';setTimeout(()=>{target.textContent=original},1400);
+        }catch{window.prompt('複製以下預設 HTML 範本：',customHtmlTemplate)}
+      });copy.classList.add('custom-html-copy');
+      const label=document.createElement('label');label.className='custom-html-editor-label';label.textContent='HTML 原始碼';
+      const textarea=document.createElement('textarea');textarea.className='custom-html-source';textarea.rows=14;textarea.spellcheck=false;textarea.value=content?.innerHTML||'';textarea.setAttribute('aria-label','自訂 HTML 原始碼');
+      textarea.addEventListener('input',()=>{if(!content)return;content.innerHTML=sanitizeCustomHtml(textarea.value);api.refresh(main);changed()});
+      label.append(textarea);fields.append(label);
+      button(fields,'在右側預覽此區塊',()=>{el.scrollIntoView({behavior:'smooth',block:'center'})});
       return;
     }
     for(const link of el.querySelectorAll('a[href]'))input('連結網址',link.getAttribute('href'),v=>{if(/^(https?:|mailto:|tel:|#|[\w.-]+\.html)/i.test(v))link.setAttribute('href',v)});
