@@ -1,6 +1,6 @@
 // Versioned semantic HTML is both the block document and the deployable fallback.
 window.ProjectBlocks = (() => {
-  const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色（條列卡片）', featureStory:'個案特色（敘事卡片）', gallery:'圖片集（單層）', albums:'圖片集（相簿）', journal:'工程與活動紀錄', team:'參與團隊', customHtml:'自訂 HTML 區塊'};
+  const types = {cover:'個案封面', specs:'基本資料表', metrics:'重點數據', story:'段落圖文', features:'個案特色（舊版）', featureStory:'個案特色（敘事卡片）', gallery:'圖片集（單層）', albums:'圖片集（相簿）', journal:'工程與活動紀錄', team:'參與團隊', customHtml:'自訂 HTML 區塊'};
   const files = new Set(['shidong','heping','project-xinguang-urban','project-wuxing',...Array.from({length:19},(_,i)=>'project-'+(i+2)).filter(name=>name!=='project-11')].map(name=>name+'.html'));
   const aliases={
     'shidong.html':'project-1.html',
@@ -97,6 +97,76 @@ window.ProjectBlocks = (() => {
     if(!cover||!specs)return;
     if(main.firstElementChild!==cover)main.prepend(cover);
     if(cover.nextElementSibling!==specs)cover.after(specs);
+  }
+  function featureCategory(text){
+    if(/鄰近|街區|人文|生活|學區|交通|林蔭|環境|公園|天母|仁愛路/.test(text))return 'NEIGHBORHOOD';
+    if(/建築|規劃|設計|外觀|空間|景觀|樓層|大師|建築師/.test(text))return 'ARCHITECTURE';
+    if(/權利|更新|同意|整合|分回|稅|獎勵|危老|都更/.test(text))return 'REGENERATION';
+    return 'PROJECT HIGHLIGHT';
+  }
+  function normalizeFeatureSections(main){
+    for(const section of main.querySelectorAll(':scope > [data-block="features"],:scope > [data-block="featureStory"]')){
+      const oldGrid=section.querySelector('.feature-story-grid');
+      const list=oldGrid||section.querySelector('.features,.heping-highlights,.case-highlights,.pb-items,ul');
+      const entries=list?[...list.querySelectorAll(':scope > article,:scope > li,:scope > div')]:[];
+      if(!entries.length)continue;
+      let head=section.querySelector('.feature-story-head');
+      if(!head){
+        head=main.ownerDocument.createElement('div');head.className='feature-story-head';
+        const heading=[...section.querySelectorAll('h2,h3')].find(item=>!item.closest('.feature-story-grid,.features,.heping-highlights,.case-highlights,.pb-items,ul'));
+        const title=main.ownerDocument.createElement('h2');title.textContent=heading?.textContent.trim()||'個案特色';
+        const candidate=[...section.querySelectorAll('p,.section-head p')].find(item=>!item.closest('.feature-story-grid,.features,.heping-highlights,.case-highlights,.pb-items,ul'));
+        const tagline=candidate?.cloneNode(true)||null;
+        head.append(title);if(tagline)head.append(tagline);
+        const oldHeader=heading?.closest('.section-head');
+        if(oldHeader&&!oldHeader.closest('.feature-story-grid,.features,.heping-highlights,.case-highlights,.pb-items,ul'))oldHeader.replaceWith(head);
+        else if(heading)heading.remove();
+        if(candidate?.isConnected)candidate.remove();
+        for(const eyebrow of [...section.querySelectorAll(':scope .eyebrow')])if(!eyebrow.closest('.feature-story-grid,.features,.heping-highlights,.case-highlights,.pb-items,ul'))eyebrow.remove();
+        if(!head.isConnected)section.prepend(head);
+      }
+      let grid=oldGrid;
+      if(!grid){grid=main.ownerDocument.createElement('div');grid.className='feature-story-grid';list.replaceWith(grid)}
+      else grid.replaceChildren();
+      for(const [index,item] of entries.entries()){
+        let small=item.querySelector(':scope > small,:scope > .number,:scope > .eyebrow');
+        let label=small?.textContent.trim()||'';
+        label=label.replace(/^\d+\s*(?:[-—–－−·]\s*)?/,'').trim();
+        const existingHeading=item.querySelector(':scope > h3,:scope > h4,:scope > strong');
+        const paragraphs=[...item.querySelectorAll(':scope > p')];
+        let title=existingHeading?.textContent.trim()||'';
+        if(!title){
+          const plain=item.cloneNode(true);
+          plain.querySelectorAll('small,.number,.eyebrow,p,time,img,svg,figure').forEach(node=>node.remove());
+          title=plain.textContent.replace(/\s+/g,' ').trim();
+        }
+        if(!title&&paragraphs.length){title=paragraphs[0].textContent.trim();paragraphs.shift()}
+        const description=paragraphs.map(p=>p.textContent.trim()).filter(Boolean).join('\n');
+        const descriptor=`${title} ${description}`;
+        const card=main.ownerDocument.createElement('article');
+        const category=label&&!/^\d+$/.test(label)?label:featureCategory(descriptor);
+        const eyebrow=main.ownerDocument.createElement('small');
+        const number=main.ownerDocument.createElement('span');number.className='feature-index';number.textContent=String(index+1).padStart(2,'0');
+        eyebrow.append(number,main.ownerDocument.createTextNode(`  -  ${category}`));
+        const h3=main.ownerDocument.createElement('h3');h3.textContent=title||'特色標題';
+        card.append(eyebrow,h3);if(description){const p=main.ownerDocument.createElement('p');p.textContent=description;card.append(p)}
+        grid.append(card);
+      }
+      if(!grid.isConnected){const wrapper=list?.parentElement;if(wrapper&&wrapper!==section)wrapper.append(grid);else section.append(grid)}
+      section.dataset.block='featureStory';
+      head.querySelector('h2')?.classList.add('feature-story-title');
+    }
+    const seen=new Set();
+    for(const section of main.querySelectorAll(':scope > [data-block="featureStory"]')){
+      const grid=section.querySelector('.feature-story-grid');
+      for(const card of [...(grid?.querySelectorAll(':scope > article')||[])]){
+        const title=card.querySelector('h3')?.textContent.replace(/\s+/g,'').trim()||'';
+        const description=card.querySelector('p')?.textContent.replace(/\s+/g,'').trim()||'';
+        const key=`${title}|${description}`;
+        if(title&&seen.has(key))card.remove();else if(title)seen.add(key);
+      }
+      if(grid&&!grid.children.length&&section.querySelector('.feature-story-head h2')?.textContent.trim()==='個案特色')section.remove();
+    }
   }
   function formatProjectLocation(main,city='',district=''){
     const location=main.querySelector('[data-block="cover"] .project-location,.page-head .project-location,.hero .project-location');
@@ -272,9 +342,9 @@ window.ProjectBlocks = (() => {
   function prepare(main){
     if(!main)return false;
     if(main.dataset.caseLayout==='unified-v1'){
-      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
+      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);normalizeFeatureSections(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
     }
-    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
+    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);normalizeFeatureSections(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -318,6 +388,7 @@ window.ProjectBlocks = (() => {
     normalizeHeroPartners(main);
     layoutProfiles(main);
     orderCaseProfile(main);
+    normalizeFeatureSections(main);
     upgradeAlbums(main);
     stripChineseFullStops(main.ownerDocument.body||main);
     enhanceAmounts(main);
@@ -328,7 +399,7 @@ window.ProjectBlocks = (() => {
   const templates={
     story:'<h2>段落標題</h2><p>段落內容</p>',
     features:'<h2>個案特色</h2><ul><li>特色說明</li></ul>',
-    featureStory:'<div class="feature-story-head"><h2>在熟悉的街區，想像新的日常</h2><p>生活底蘊 × 建築美學 × 更新願景</p></div><div class="feature-story-grid"><article><small>NEIGHBORHOOD</small><h3>特色主標題</h3><p>完整說明這項特色帶來的生活價值。</p></article><article><small>ARCHITECTURE</small><h3>特色主標題</h3><p>完整說明建築規劃與設計想法。</p></article></div>',
+    featureStory:'<div class="feature-story-head"><h2>個案特色</h2></div><div class="feature-story-grid"><article><small>NEIGHBORHOOD</small><h3>街區特色標題</h3><p>補充這項特色與生活環境的關係</p></article><article><small>ARCHITECTURE</small><h3>建築特色標題</h3><p>補充建築規劃或設計亮點</p></article><article><small>REGENERATION</small><h3>更新特色標題</h3><p>補充更新方式或本案規劃特色</p></article></div>',
     metrics:'<h2>重點數據</h2><div class="pb-items"><p data-metric-ref=""></p></div>',
     gallery:'<h2>圖片集</h2><div class="pb-items"><figure><img alt="個案照片"><figcaption>照片說明</figcaption></figure></div>',
     albums:'<div class="album-section-head"><h2>工程與活動紀錄</h2><p>點選相簿查看更多照片</p></div><div class="project-album-grid"><article class="project-album"><button type="button" class="project-album-cover"><figure><img alt="相簿封面"><figcaption><strong>相簿名稱</strong><small>點選查看相簿</small></figcaption></figure></button><div class="project-album-items" hidden></div></article></div>',

@@ -37,6 +37,7 @@ export function bindBlocks(main,panel,changed){
     el.onclick=action;target.append(el);return el;
   }
   const dragKey='application/x-yuanjie-project-block';
+  const insertTypes=Object.entries(api.types).slice(2).filter(([type])=>type!=='features');
   let pending=null;
   const blocks=()=>[...main.children].filter(el=>el.dataset.block);
   const nextBlock=block=>blocks()[blocks().indexOf(block)+1]||null;
@@ -46,7 +47,7 @@ export function bindBlocks(main,panel,changed){
     main.insertBefore(block,before);
     select(block);changed();block.scrollIntoView({block:'center'});
   }
-  for(const [type,label] of Object.entries(api.types).slice(2)){
+  for(const [type,label] of insertTypes){
     const tile=button(tools,label,()=>insert(type,active&&active.dataset.block!=='footer'?nextBlock(active):main.querySelector('[data-block="footer"]')));
     tile.draggable=true;
     tile.ondragstart=e=>{pending={type};e.dataTransfer.setData(dragKey,type);e.dataTransfer.effectAllowed='copy'};
@@ -107,7 +108,7 @@ export function bindBlocks(main,panel,changed){
       toggle.setAttribute('aria-expanded','false');
       const menu=doc.createElement('div');menu.className='block-insert-menu';menu.hidden=true;
       const title=doc.createElement('strong');title.textContent='在此處新增區塊';menu.append(title);
-      for(const [type,label] of Object.entries(api.types).slice(2))button(menu,label,()=>insert(type,nextBlock(block)));
+      for(const [type,label] of insertTypes)button(menu,label,()=>insert(type,nextBlock(block)));
       toggle.onclick=()=>{
         const open=menu.hidden;
         main.querySelectorAll('.block-insert-menu').forEach(other=>{other.hidden=true;other.previousElementSibling?.setAttribute('aria-expanded','false')});
@@ -134,7 +135,7 @@ export function bindBlocks(main,panel,changed){
       b.ondragend=()=>{dragged=null};
     }
     if(!el)return;
-    if(['gallery','albums','journal','features','featureStory','team'].includes(el.dataset.block)){
+    if(['gallery','albums','journal','featureStory','team'].includes(el.dataset.block)){
       const layout=document.createElement('select');layout.ariaLabel='區塊排列';
       option(layout,'auto','自動分欄');option(layout,'wide','單欄展開');
       layout.value=el.dataset.layout||'auto';
@@ -240,8 +241,6 @@ export function bindBlocks(main,panel,changed){
     }
     const rows=itemRows(el);
     if(rows?.children.length){
-      const featureItems=el.dataset.block==='features';
-      if(featureItems)return;
       const pick=document.createElement('select');pick.ariaLabel='選擇項目';
       [...rows.children].forEach((r,i)=>option(pick,String(i),`項目 ${i+1}　${r.textContent.trim().slice(0,20)}`));
       fields.append(pick);
