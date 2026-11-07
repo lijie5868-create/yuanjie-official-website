@@ -430,13 +430,16 @@ function pageButton(page){
   const button=document.createElement('button');
   button.type='button';
   button.dataset.slug=page.slug;
-  button.innerHTML='<strong></strong><small></small>';
+  button.innerHTML='<span class="case-page-order"></span><strong></strong><small></small>';
   button.querySelector('strong').textContent=page.title;
   button.querySelector('small').textContent=ProjectBlocks.canonicalProjectFile(page.file_name);
   if(!primaryPages.has(page.slug)&&!isCompanyPage(page)){
     button.classList.add('case-page-item');
     button.dataset.caseCategory=pageProjectCategory(page);
     button.draggable=true;
+    const position=pages.filter(item=>pageProjectCategory(item)===button.dataset.caseCategory).findIndex(item=>item.slug===page.slug)+1;
+    const order=button.querySelector('.case-page-order');
+    order.textContent=`#${position}`;order.setAttribute('aria-label',`排序第 ${position} 位`);order.title=`${button.dataset.caseCategory==='urban'?'都更':'危老'}個案排序第 ${position} 位`;
   }
   button.onclick=()=>loadEditor(page).catch(error=>message(error.message,true));
   return button;
