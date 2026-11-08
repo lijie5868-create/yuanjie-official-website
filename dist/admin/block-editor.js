@@ -163,6 +163,20 @@ export function bindBlocks(main,panel,changed){
     }
     dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);render();dialog.showModal();
   }
+  function addAlbum(block){
+    const grid=block.querySelector('.project-album-grid');
+    if(!grid)return;
+    const album=doc.createElement('article');album.className='project-album';
+    const cover=doc.createElement('button');cover.type='button';cover.className='project-album-cover';
+    const figure=doc.createElement('figure'),image=doc.createElement('img'),caption=doc.createElement('figcaption');
+    image.src='assets/project-placeholder.svg';image.alt='新相簿封面';
+    const name=doc.createElement('strong');name.textContent=`新相簿 ${grid.querySelectorAll(':scope > .project-album').length+1}`;
+    const hint=doc.createElement('small');hint.textContent='點選查看相簿';
+    caption.append(name,hint);figure.append(image,caption);cover.append(figure);
+    const items=doc.createElement('div');items.className='project-album-items';items.hidden=true;
+    album.append(cover,items);grid.dataset.albumCollection='managed';grid.append(album);
+    api.refresh(main);changed();select(block);editAlbum(album);
+  }
   main.addEventListener('click',event=>{
     const cover=event.target.closest('.project-album-cover');if(!cover||!main.contains(cover))return;
     event.preventDefault();event.stopImmediatePropagation();
@@ -223,6 +237,15 @@ export function bindBlocks(main,panel,changed){
         salesRow?.remove();
       }
     }
+    if(block.dataset.block==='albums'&&!block.querySelector('.album-add-control')){
+      const grid=block.querySelector('.project-album-grid');
+      if(grid){
+        const control=doc.createElement('div');control.className='album-add-control';control.dataset.editorUi='';
+        const add=doc.createElement('button');add.type='button';add.textContent='＋ 新增相簿';
+        add.onclick=event=>{event.preventDefault();event.stopPropagation();addAlbum(block)};
+        control.append(add);grid.after(control);
+      }
+    }
     if(block.dataset.block==='footer'||block.querySelector(':scope > [data-editor-ui]'))return;
     const actions=doc.createElement('div');actions.className='block-editor-actions';actions.dataset.editorUi='';
     const grip=doc.createElement('button');grip.type='button';grip.dataset.editorUi='';
@@ -242,6 +265,7 @@ export function bindBlocks(main,panel,changed){
   style.textContent+='.block-editor-actions[data-editor-ui]{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;padding:5px 8px;border-radius:7px;cursor:auto}.block-editor-actions button{border:0;border-radius:5px;padding:7px 10px;background:#fff;color:#354957;font:600 12px/1.3 system-ui;cursor:pointer}.block-editor-actions .block-delete-button{background:#fff1ef;color:#a43f36}.cover-team-editor-slot[data-editor-ui]{display:flex;justify-content:flex-end;margin:12px 0 0;padding:0;background:transparent;cursor:auto}.cover-team-editor-button{border:1px solid #b5c4cd;border-radius:999px;background:#fff;color:#4a6984;padding:8px 13px;font:600 13px/1.3 system-ui;cursor:pointer}';
   style.textContent+='.specs > div:has(>.implementer-stage-control){position:relative;padding-right:120px!important}.implementer-stage-control[data-editor-ui]{position:absolute;right:0;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:5px;white-space:nowrap;padding:5px 8px;border:1px solid #b5c4cd;border-radius:999px;background:#fff;color:#4a6984;font:600 11px/1.2 system-ui;cursor:pointer}.implementer-stage-control input{width:14px;height:14px;margin:0;accent-color:#4a6984}@media(max-width:600px){.specs > div:has(>.implementer-stage-control){padding-right:0!important;padding-bottom:32px!important}.implementer-stage-control[data-editor-ui]{top:auto;bottom:3px;right:0;transform:none}}';
   style.textContent+='.admin-sales-field[data-editor-ui]{display:grid;gap:6px;width:min(100%,340px);margin:18px 0 8px;color:#526574;font:600 13px/1.4 system-ui;cursor:auto}.admin-sales-field input{box-sizing:border-box;width:100%;padding:10px 12px;border:1px solid #b8c7ce;border-radius:8px;background:#fff;color:#25333a;font:16px/1.4 system-ui}.admin-sales-field input:focus{outline:2px solid #4a6984;outline-offset:1px}';
+  style.textContent+='.album-add-control[data-editor-ui]{display:flex;justify-content:center;margin:20px 0 8px}.album-add-control button{padding:10px 20px;border:1px solid #b8c8d1;border-radius:999px;background:#fff;color:#4a6984;font:600 14px/1.3 system-ui;cursor:pointer}.album-add-control button:hover,.album-add-control button:focus-visible{background:#e8eff3;outline:2px solid #4a6984}';
   style.textContent+='.block-insert-slot{gap:7px}.block-slot-action{position:relative;display:grid;place-items:center;width:32px;height:32px;flex:none;border:1px solid #c5cbd0;border-radius:50%;background:#fff;color:#4a6984;font:600 18px/1 system-ui;cursor:pointer;pointer-events:auto;box-shadow:0 2px 8px #0001}.block-slot-action:hover,.block-slot-action:focus-visible{background:#e8eff3;outline:2px solid #4a6984}.block-slot-delete{color:#a43f36}.block-slot-delete:hover{background:#fff1ef}.block-slot-action svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}';
   const heading=document.createElement('summary');heading.textContent='進階區塊設定';panel.append(heading,tools,list,fields);
   let active,dragged;

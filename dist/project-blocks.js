@@ -429,7 +429,8 @@ window.ProjectBlocks = (() => {
     for(const block of main.querySelectorAll('[data-block="albums"]')){
       // Briefing photos for these cases belong to one album.
       if(!/仁愛路|士東路/.test(caseTitle))continue;
-      const grid=block.querySelector('.project-album-grid');if(!grid||grid.children.length<2)continue;
+      const grid=block.querySelector('.project-album-grid');if(!grid||grid.dataset.albumCollection==='managed')continue;
+      if(grid.children.length<2){grid.dataset.albumCollection='managed';continue}
       const first=grid.querySelector('.project-album'),items=first?.querySelector('.project-album-items');if(!items)continue;
       for(const album of [...grid.children].slice(1)){
         const cover=album.querySelector('.project-album-cover figure');
@@ -437,6 +438,7 @@ window.ProjectBlocks = (() => {
         for(const figure of album.querySelectorAll('.project-album-items figure'))items.append(figure);
         album.remove();
       }
+      grid.dataset.albumCollection='managed';
     }
   }
   function prepare(main){
