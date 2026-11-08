@@ -205,6 +205,7 @@ window.ProjectBlocks = (() => {
         const description=paragraphs.map(p=>p.textContent.trim()).filter(Boolean).join('\n');
         const descriptor=`${title} ${description}`;
         const card=main.ownerDocument.createElement('article');
+        card.dataset.featureMode=description&&item.dataset.featureMode!=='title-only'?'title-body':'title-only';
         const category=label&&!/^\d+$/.test(label)?label:featureCategory(descriptor);
         const eyebrow=main.ownerDocument.createElement('small');
         const number=main.ownerDocument.createElement('span');number.className='feature-index';number.textContent=String(index+1).padStart(2,'0');

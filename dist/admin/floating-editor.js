@@ -203,6 +203,18 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
     const featureList=()=>featureBlock()?.querySelector('.case-highlights,.heping-highlights,.features,.feature-story-grid,ul');
     const featureItem=()=>lastTarget?.closest('[data-block="features"] li,[data-block="features"] article,[data-block="featureStory"] article');
     const notifyBlock=block=>main.dispatchEvent(new CustomEvent('yuanjie:block-changed',{detail:{block}}));
+    const setFeatureMode=mode=>{
+      const item=featureItem(),block=featureBlock();if(!item)return;
+      if(mode==='title-body'&&!item.querySelector(':scope > p')){
+        const description=win.prompt('請輸入這張特色卡的內文');
+        if(!description?.trim())return;
+        const paragraph=doc.createElement('p');paragraph.textContent=description.trim();item.append(paragraph);
+      }
+      item.dataset.featureMode=mode;notifyBlock(block);root.hidden=true;
+    };
+    const titleBodyAction=action('顯示大標與內文','大標＋內文','add',()=>setFeatureMode('title-body'));
+    const titleOnlyAction=action('只顯示大標','只有大標','bold',()=>setFeatureMode('title-only'));
+    featureActions.push(titleBodyAction,titleOnlyAction);
     featureActions.push(action('新增特色','新增特色','add',()=>{const block=featureBlock(),list=featureList();if(!list)return;const item=featureItem()||list.lastElementChild;if(!item)return;const clone=item.cloneNode(true);clone.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());item.after(clone);notifyBlock(block);root.hidden=true}));
     featureActions.push(action('特色上移','上移','up',()=>{const item=featureItem(),block=featureBlock();if(item?.previousElementSibling){item.previousElementSibling.before(item);notifyBlock(block)}root.hidden=true}));
     featureActions.push(action('特色下移','下移','down',()=>{const item=featureItem(),block=featureBlock();if(item?.nextElementSibling){item.nextElementSibling.after(item);notifyBlock(block)}root.hidden=true}));
@@ -233,6 +245,11 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
       textActions.forEach(button=>button.hidden=isBlock||isFeature||isTeam||isAlbum||selectedLevel==='image');
       imageActions.forEach(button=>button.hidden=selectedLevel!=='image');
       featureActions.forEach(button=>button.hidden=!isFeature);
+      if(isFeature){
+        const item=featureItem();
+        const mode=item?.dataset.featureMode==='title-only'||!item?.querySelector(':scope > p')?'title-only':'title-body';
+        titleBodyAction.disabled=mode==='title-body';titleOnlyAction.disabled=mode==='title-only';
+      }
       teamActions.forEach(button=>button.hidden=!isTeam);
       albumActions.forEach(button=>button.hidden=!isAlbum);
       if(isAlbum){albumActions[0].disabled=1+(albumItem()?.querySelectorAll('.project-album-items figure').length||0)>=40;removePhoto.disabled=false}
