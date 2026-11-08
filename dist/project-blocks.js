@@ -497,17 +497,44 @@ window.ProjectBlocks = (() => {
     return true;
   }
   function ensureDraftSpecs(main){
-    if(!main.dataset.projectCategory)return;
-    const specs=main.querySelector('[data-block="specs"] dl.specs');
-    if(!specs||specs.children.length>3)return;
+    const fields=['所在地區','個案類型','整合開發','全案管理','實施者','建築設計','都更顧問','基地面積','使用分區','規劃戶數','建築樓層','建築結構','實施方式','獎勵申請方向','獎勵爭取目標','預估總銷'];
+    let block=main.querySelector(':scope > [data-block="specs"]');
+    if(!block){
+      block=main.ownerDocument.createElement('section');block.dataset.block='specs';block.id='project';
+      block.innerHTML='<section class="wrap case-overview"><div><div class="case-profile-summary"><div class="eyebrow">PROJECT PROFILE / 個案資料</div><h2></h2></div><dl class="specs"></dl></div></section>';
+      const cover=main.querySelector(':scope > [data-block="cover"]');
+      if(cover)cover.after(block);else main.prepend(block);
+    }
+    let specs=block.querySelector('dl.specs');
+    if(!specs)return;
+    const title=main.querySelector('[data-block="cover"] h1')?.textContent.trim()||'';
+    const summary=block.querySelector('.case-profile-summary');
+    if(summary&&!summary.querySelector('h2')?.textContent.trim())summary.querySelector('h2').textContent=title;
     const placeholder=[...specs.children].find(row=>row.querySelector('dt')?.textContent.trim()==='建築規劃'&&row.querySelector('dd')?.textContent.trim()==='請補充個案資料');
     placeholder?.remove();
-    const current=new Set([...specs.querySelectorAll('dt')].map(node=>node.textContent.trim()));
-    for(const name of ['整合開發','實施者','建築設計','都更顧問','基地面積','使用分區','規劃戶數','建築樓層','建築結構','實施方式','預估總銷']){
-      if(current.has(name))continue;
-      const row=main.ownerDocument.createElement('div'),label=main.ownerDocument.createElement('dt'),value=main.ownerDocument.createElement('dd');
-      label.textContent=name;row.append(label,value);specs.append(row);
+    const aliases={'樓層規劃':'建築樓層','預估總銷售額':'預估總銷'};
+    const rows=[...specs.children].filter(row=>row.querySelector('dt,dd'));
+    const byName=new Map();
+    for(const row of rows){
+      const label=row.querySelector('dt');if(!label)continue;
+      const name=aliases[label.textContent.trim()]||label.textContent.trim();
+      if(name!==label.textContent.trim())label.textContent=name;
+      const existing=byName.get(name);
+      if(existing){
+        const value=row.querySelector('dd')?.textContent.trim();
+        if(value&&!existing.querySelector('dd')?.textContent.trim())existing.querySelector('dd').textContent=value;
+        row.remove();
+      }else byName.set(name,row);
     }
+    for(const name of fields){
+      if(byName.has(name))continue;
+      const row=main.ownerDocument.createElement('div'),label=main.ownerDocument.createElement('dt'),value=main.ownerDocument.createElement('dd');
+      label.textContent=name;row.append(label,value);byName.set(name,row);
+    }
+    const location=byName.get('所在地區')?.querySelector('dd');
+    if(location&&!location.textContent.trim())location.textContent=main.querySelector('[data-block="cover"] .project-location')?.getAttribute('aria-label')||main.querySelector('[data-block="cover"] .project-location')?.textContent.trim()||'';
+    for(const name of fields)specs.append(byName.get(name));
+    for(const row of rows)if(row.isConnected&&!fields.includes(row.querySelector('dt')?.textContent.trim()))specs.append(row);
   }
   const templates={
     story:'<h2>段落標題</h2><p>段落內容</p>',
