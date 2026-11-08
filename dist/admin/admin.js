@@ -83,7 +83,7 @@ function recordCaseCardPhoto(img){
 
 function installProjectLocationControl(main){
   if(!main||!isManagedProject(current))return;
-  const location=main.querySelector('[data-block="cover"] .project-location');
+  const location=main.querySelector('.project-location');
   if(!location||location.querySelector('[data-editor-ui="project-location"]'))return;
   const button=main.ownerDocument.createElement('button');
   button.type='button';
