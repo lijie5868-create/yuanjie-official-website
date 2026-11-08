@@ -148,6 +148,19 @@
         </form>
       </dialog>
 
+      <dialog id="projectLocationDialog" class="new-project-dialog project-location-dialog" aria-labelledby="projectLocationTitle">
+        <form id="projectLocationForm" method="dialog">
+          <h2 id="projectLocationTitle">編輯個案地區</h2>
+          <p>修改後會同步更新封面標籤與基本資料的所在地區，儲存草稿或發布後才會套用到網站。</p>
+          <div class="new-project-location">
+            <label>縣市<input id="locationCity" required></label>
+            <label>行政區<input id="locationDistrict" required></label>
+          </div>
+          <p id="projectLocationError" class="message error" role="alert"></p>
+          <div class="new-project-actions"><button id="cancelProjectLocation" type="button" class="secondary">取消</button><button id="applyProjectLocation" type="submit">套用</button></div>
+        </form>
+      </dialog>
+
       <dialog id="newCompanyDialog" class="new-project-dialog" aria-labelledby="newCompanyTitle">
         <form id="newCompanyForm">
           <h2 id="newCompanyTitle">新增公司詳情頁</h2>
@@ -279,6 +292,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js?v=45"></script><script type="module" src="admin.js?v=122"></script>
+  <script src="../project-blocks.js?v=45"></script><script type="module" src="admin.js?v=123"></script>
 </body>
 </html>

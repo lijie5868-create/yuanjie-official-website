@@ -81,6 +81,39 @@ function recordCaseCardPhoto(img){
   record.dataset.height=img.getAttribute('height')||'';
 }
 
+function installProjectLocationControl(main){
+  if(!main||!isManagedProject(current))return;
+  const location=main.querySelector('[data-block="cover"] .project-location');
+  if(!location||location.querySelector('[data-editor-ui="project-location"]'))return;
+  const button=main.ownerDocument.createElement('button');
+  button.type='button';
+  button.dataset.editorUi='project-location';
+  button.textContent='編輯地區';
+  button.setAttribute('aria-label','編輯個案縣市與行政區');
+  button.style.cssText='display:inline-flex;align-items:center;justify-content:center;margin-left:12px;padding:7px 13px;border:1px solid #b8c8d1;border-radius:99px;background:#fff;color:#4a6984;font:600 13px/1.4 system-ui;letter-spacing:0;cursor:pointer;white-space:nowrap;vertical-align:middle';
+  button.addEventListener('click',event=>{
+    event.preventDefault();event.stopPropagation();
+    $('locationCity').value=$('projectCity').value;
+    $('locationDistrict').value=$('projectDistrict').value;
+    $('projectLocationError').textContent='';
+    $('projectLocationDialog').showModal();
+    $('locationDistrict').focus();
+  });
+  location.append(button);
+}
+
+function syncProjectLocationPreview(){
+  if(!isManagedProject(current))return;
+  const main=$('visualEditor').contentDocument?.querySelector('main');
+  const city=$('projectCity').value.trim();
+  const district=$('projectDistrict').value.trim();
+  if(!main||!city||!district)return;
+  ProjectBlocks.formatProjectLocation(main,city,district);
+  installProjectLocationControl(main);
+  const locationRow=[...main.querySelectorAll('.specs div')].find(row=>row.querySelector('dt')?.textContent==='所在地區');
+  if(locationRow)locationRow.querySelector('dd').textContent=`${city}${district}`;
+}
+
 try{
   const savedWidth=Number(localStorage.getItem(sidebarWidthKey));
   if(Number.isFinite(savedWidth)&&savedWidth>0)preferredSidebarWidth=savedWidth;
@@ -376,9 +409,13 @@ async function loadEditor(page){
   $('projectFields').hidden=!isManagedProject(page);
   if(isManagedProject(page)){
     const projectMain=new DOMParser().parseFromString(source.main_html,'text/html').querySelector('main');
+    const location=projectMain?.querySelector('[data-block="cover"] .project-location,.page-head .project-location,.hero .project-location');
+    const locationTags=[...(location?.querySelectorAll('.project-location-tag')||[])].map(tag=>tag.textContent.trim());
+    const locationText=(location?.getAttribute('aria-label')||location?.textContent||'').replace(/\s+/g,'').trim();
+    const locationMatch=locationText.match(/^(.+?[市縣])[｜|/·・]?(.+)$/);
     $('projectCategory').value=projectMain?.dataset.projectCategory||pageProjectCategory(page)||'urban';
-    $('projectCity').value=projectMain?.dataset.projectCity||'';
-    $('projectDistrict').value=projectMain?.dataset.projectDistrict||'';
+    $('projectCity').value=projectMain?.dataset.projectCity||locationTags[0]||locationMatch?.[1]||'';
+    $('projectDistrict').value=projectMain?.dataset.projectDistrict||locationTags[1]||locationMatch?.[2]||'';
     $('projectSelectingImplementer').checked=projectMain?.dataset.selectingImplementer==='true';
   }
   $('visitPage').href=`${basePath}${ProjectBlocks.canonicalProjectFile(page.file_name)}`;
@@ -402,6 +439,7 @@ async function loadEditor(page){
     }else if(main && isCompanyPage(page)){
       bindCompanyBlocks(main,$('blockPanel'),()=>{pageDirty=true});
     }else if(main)main.contentEditable='true';
+    installProjectLocationControl(main);
     imageEditor.bindFrame();
     floatingEditor.bindFrame();
     if(page.file_name==='qa.html')installQuestionControls();
@@ -1424,6 +1462,20 @@ $('passwordRecoveryForm').onsubmit=async event=>{
 $('save').onclick=()=>saveDraft().catch(error=>message(error.message,true));
 $('publish').onclick=()=>publish().catch(error=>message(error.message,true));
 document.querySelectorAll('#title,#description,#projectCategory,#projectCity,#projectDistrict,#projectSelectingImplementer').forEach(input=>input.addEventListener('input',()=>{pageDirty=true}));
+$('projectCity').addEventListener('input',syncProjectLocationPreview);
+$('projectDistrict').addEventListener('input',syncProjectLocationPreview);
+$('cancelProjectLocation').addEventListener('click',()=>$('projectLocationDialog').close());
+$('projectLocationForm').addEventListener('submit',event=>{
+  event.preventDefault();
+  const city=$('locationCity').value.trim();
+  const district=$('locationDistrict').value.trim();
+  if(!city||!district){$('projectLocationError').textContent='請填寫縣市與行政區';return;}
+  $('projectCity').value=city;
+  $('projectDistrict').value=district;
+  syncProjectLocationPreview();
+  pageDirty=true;
+  $('projectLocationDialog').close();
+});
 const projectLayout=[];
 let layoutDrag=null;
 function placeComponent(index,source){
