@@ -523,6 +523,8 @@ window.ProjectBlocks = (() => {
     const byName=new Map();
     for(const row of rows){
       const label=row.querySelector('dt');if(!label)continue;
+      const cell=row.querySelector('dd');
+      if(cell&&!cell.textContent.trim())cell.replaceChildren();
       const name=aliases[label.textContent.trim()]||label.textContent.trim();
       if(name!==label.textContent.trim())label.textContent=name;
       const existing=byName.get(name);
