@@ -497,7 +497,7 @@ window.ProjectBlocks = (() => {
     return true;
   }
   function ensureDraftSpecs(main){
-    const fields=['所在地區','個案類型','整合開發','全案管理','實施者','建築設計','都更顧問','基地面積','使用分區','規劃戶數','建築樓層','建築結構','實施方式','獎勵申請方向','獎勵爭取目標','預估總銷'];
+    const fields=['所在地區','個案類型','整合開發','全案管理','實施者','建築設計','都更顧問','基地面積','使用分區','規劃戶數','建築樓層','建築結構','實施方式','獎勵申請方向','獎勵爭取目標','備註','預估總銷'];
     let block=main.querySelector(':scope > [data-block="specs"]');
     if(!block){
       block=main.ownerDocument.createElement('section');block.dataset.block='specs';block.id='project';
@@ -530,6 +530,15 @@ window.ProjectBlocks = (() => {
       if(byName.has(name))continue;
       const row=main.ownerDocument.createElement('div'),label=main.ownerDocument.createElement('dt'),value=main.ownerDocument.createElement('dd');
       label.textContent=name;row.append(label,value);byName.set(name,row);
+    }
+    const note=byName.get('備註')?.querySelector('dd');
+    for(const status of block.querySelectorAll('.case-status')){
+      const value=status.textContent.trim().replace(/。+$/,'');
+      if(value==='自主更新會成立後再行簽約'){
+        if(note&&!note.textContent.trim())note.textContent=value;
+        else if(note&&!note.textContent.includes(value))note.textContent=`${note.textContent.trim()}；${value}`;
+        status.remove();
+      }
     }
     const location=byName.get('所在地區')?.querySelector('dd');
     if(location&&!location.textContent.trim())location.textContent=main.querySelector('[data-block="cover"] .project-location')?.getAttribute('aria-label')||main.querySelector('[data-block="cover"] .project-location')?.textContent.trim()||'';
