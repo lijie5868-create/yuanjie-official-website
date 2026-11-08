@@ -138,12 +138,10 @@
         const location=document.createElement('p');
         location.className='project-location';
         location.textContent=`${city}${district}`;
-        const summary=document.createElement('p');
-        summary.className='case-card-note';
-        summary.textContent=main.querySelector('.page-head .lead')?.textContent?.trim()||'';
-        copy.append(eyebrow,heading,location,summary);
+        copy.append(eyebrow,heading,location);
         window.ProjectBlocks?.appendProjectCardFacts(copy,main);
         card.append(image,copy);
+        window.ProjectBlocks?.syncCardNote(card,main);
         window.ProjectBlocks?.syncCardStatus(card,main);
         grid.append(card);
       }

@@ -242,10 +242,10 @@ function managedProjectCard(project,category){
   eyebrow.textContent=category==='urban'?'都市更新':'危老重建';
   const heading=document.createElement('h2');heading.textContent=title;
   const location=document.createElement('p');location.className='project-location';location.textContent=`${card.dataset.city}${card.dataset.district}`;
-  const summary=document.createElement('p');summary.className='case-card-note';summary.textContent=main.querySelector('.page-head .lead')?.textContent?.trim()||'';
-  copy.append(eyebrow,heading,location,summary);
+  copy.append(eyebrow,heading,location);
   ProjectBlocks.appendProjectCardFacts(copy,main);
   card.append(image,copy);
+  ProjectBlocks.syncCardNote(card,main);
   ProjectBlocks.syncCardStatus(card,main);
   return card;
 }
@@ -290,7 +290,7 @@ async function editorDocument(page,html){
             if(project.main_html.includes('data-block-version')){
               existing.dataset.originalCard=existing.outerHTML;
               ProjectBlocks.updateCard(existing,project.main_html);
-            }
+            }else ProjectBlocks.syncCardNote(existing,new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main'));
             continue;
           }
           const card=managedProjectCard(project,category);

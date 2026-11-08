@@ -583,7 +583,22 @@ window.ProjectBlocks = (() => {
       card.dataset.city=address[1];card.dataset.district=address[2];
       const loc=card.querySelector('.project-location');if(loc)loc.textContent=address[0];
     }
+    syncCardNote(card,main);
     syncCardStatus(card,main);
+  }
+  function syncCardNote(card,main){
+    if(!main)return;
+    ensureDraftSpecs(main);
+    const row=[...main.querySelectorAll('[data-block="specs"] .specs > div')].find(item=>item.querySelector('dt')?.textContent.trim()==='備註');
+    const value=row?.querySelector('dd')?.textContent.trim()||'';
+    const location=card.querySelector('.project-location');
+    if(!location)return;
+    card.querySelectorAll('.case-card-inline-note,.case-card-copy > .case-card-note').forEach(item=>item.remove());
+    if(!value)return;
+    const note=card.ownerDocument.createElement('small');
+    note.className='case-card-inline-note';
+    note.textContent=value;
+    location.append(note);
   }
   function syncCardStatus(card,main){
     const active=main?.dataset.projectCategory==='urban'&&main.dataset.selectingImplementer==='true';
@@ -640,7 +655,7 @@ window.ProjectBlocks = (() => {
     }
   }
   document.addEventListener('DOMContentLoaded',()=>{const main=document.querySelector('main');if(main&&applies(location.pathname.split('/').pop()+location.search)){prepare(main);upgradeAlbums(main);enhanceAlbumRails(main);cleanupAlbumZoom();new MutationObserver(()=>{enhanceAlbumRails(main);cleanupAlbumZoom()}).observe(main,{childList:true,subtree:true})}});
-  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,enhanceAlbumRails,cleanupAlbumZoom,normalizeCover,setCoverPartners,partnerIcon,updateCard,syncCardStatus,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
+  return {types,applies,prepare,newBlock,refresh,upgradeAlbums,enhanceAlbumRails,cleanupAlbumZoom,normalizeCover,setCoverPartners,partnerIcon,updateCard,syncCardNote,syncCardStatus,formatCardFacts,formatProjectLocation,appendProjectCardFacts,canonicalProjectFile,sourceProjectFile,canonicalizeProjectLinks};
 })();
 document.addEventListener('click',event=>{
   const note=event.target.closest?.('.case-card-inline-note');

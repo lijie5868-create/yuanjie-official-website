@@ -60,6 +60,27 @@ def format_case_card_facts(source):
         card=card.replace(note.group(1),'',1)
         return card[:location.start()]+f'<small class="case-card-inline-note">{note.group(2)}</small>'+card[location.start():]
     return re.sub(r'<a class="case-card".*?</a>',place_note,source,flags=re.S)
+def sync_case_card_notes(source,project_pages):
+    notes={}
+    for page in project_pages:
+        name=canonical_file(page['file_name'])
+        if not re.fullmatch(r'project-\d+\.html',name): continue
+        main=move_signing_note_to_specs(page.get('main_html',''))
+        specs=re.search(r'<dl class="specs">.*?</dl>',main,re.S)
+        note=re.search(r'<dt>備註</dt>\s*<dd>(.*?)</dd>',specs.group(0),re.S) if specs else None
+        notes[name]=html.unescape(re.sub(r'<[^>]*>','',note.group(1))).strip() if note else ''
+    def sync(match):
+        card=match.group(0)
+        link=re.search(r'href="([^"]+)"',card)
+        name=canonical_file(link.group(1)) if link else ''
+        if name not in notes: return card
+        card=re.sub(r'<small class="case-card-inline-note"[^>]*>.*?</small>','',card,flags=re.S)
+        card=re.sub(r'<p class="case-card-note"[^>]*>.*?</p>','',card,flags=re.S)
+        value=notes[name]
+        if not value: return card
+        marker=f'<small class="case-card-inline-note">{html.escape(value)}</small>'
+        return re.sub(r'(<p class="project-location"[^>]*>.*?)(</p>)',lambda m:m.group(1)+marker+m.group(2),card,count=1,flags=re.S)
+    return re.sub(r'<a class="case-card".*?</a>',sync,source,flags=re.S)
 def project_category(page):
     main=page.get('main_html','')
     match=re.search(r'data-project-category=["\'](urban|renewal)["\']',main,re.I)
@@ -122,6 +143,7 @@ for listing,category in [('urban.html','urban'),('renewal.html','renewal')]:
     if path.is_file():
         content=reorder_case_cards(path.read_text(encoding='utf-8'),category,pages)
         if category=='urban':content=mark_selecting_implementer(content,pages)
+        content=sync_case_card_notes(content,pages)
         path.write_text(content,encoding='utf-8')
 published_project_files={canonical_file(page['file_name']) for page in pages if re.fullmatch(r'project-\d+\.html',canonical_file(page['file_name']))}
 for path in DIST.glob('project-*.html'):
