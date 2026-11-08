@@ -67,6 +67,9 @@ def main():
                 continue
             checked_references += 1
             candidate = (source.parent / reference).resolve()
+            if not candidate.exists() and source.suffix.lower() == ".js":
+                # DOM image paths created by editor scripts resolve against the page.
+                candidate = (ROOT / "dist" / reference).resolve()
             if not candidate.is_relative_to(ROOT.resolve()) or not candidate.exists():
                 missing.append({"source": source.relative_to(ROOT).as_posix(), "reference": reference})
 

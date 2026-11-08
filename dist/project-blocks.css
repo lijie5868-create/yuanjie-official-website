@@ -175,8 +175,8 @@ main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover{d
 main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover figure{display:block;margin:0;background:#e6e9eb}
 main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;transition:transform .25s,filter .25s}
 main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover:hover img{transform:scale(1.025);filter:brightness(.92)}
-main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover figcaption{display:grid;gap:4px;min-height:0;padding:12px 14px;background:#ecebe6;font:600 17px/1.45 "Noto Serif TC",serif}
-main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover small{color:#758087;font:13px/1.45 sans-serif}
+main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover figcaption{display:grid;grid-template-rows:minmax(2.9em,auto) auto;align-content:start;gap:4px;min-height:0;padding:12px 14px;background:#ecebe6;font:600 17px/1.45 "Noto Serif TC",serif}
+main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-cover small{color:#758087;font:12px/1.4 sans-serif}
 main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-items[hidden]{display:none!important}
 .project-album-dialog{display:none;width:min(96vw,1500px);height:min(92vh,1000px);max-width:none;max-height:none;padding:14px 18px 10px;border:0;background:#172027;color:#fff;overflow:hidden}
 .project-album-dialog[open]{display:grid;grid-template-rows:42px minmax(0,1fr) 82px 32px;gap:7px}

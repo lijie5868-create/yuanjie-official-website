@@ -143,6 +143,7 @@ export function bindBlocks(main,panel,changed){
       const order=document.createElement('div');order.className='album-edit-actions';const all=[...grid.children].filter(node=>node.classList.contains('project-album'));const position=all.indexOf(album);const positionText=document.createElement('span');positionText.textContent=`相簿順序 ${position+1} / ${all.length}`;order.append(positionText);
       action(order,'相簿往前',()=>{if(position>0){all[position-1].before(album);update()}}).disabled=position===0;
       action(order,'相簿往後',()=>{if(position<all.length-1){all[position+1].after(album);update()}}).disabled=position===all.length-1;
+      action(order,'移除相簿',()=>{if(!confirm(`確定移除「${name.textContent.trim()}」及其中所有照片？`))return;const block=album.closest('[data-block="albums"]');album.remove();api.refresh(main);changed();dialog.close();if(block)select(block)}).className='album-delete-button';
       body.append(order);
       const heading=document.createElement('h3');heading.textContent=`內頁照片 ${items.querySelectorAll(':scope > figure').length} / 39`;body.append(heading);
       const photos=document.createElement('div');photos.className='album-edit-photos';body.append(photos);
