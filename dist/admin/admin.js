@@ -215,7 +215,7 @@ function snapshotPage(page){
   return page?{slug:page.slug,title:page.title,meta_description:page.meta_description,main_html:page.main_html,published_at:page.published_at}:null;
 }
 
-const isManagedProject=page=>Boolean(page?.file_name?.startsWith('project.html?case=')||/<main\b[^>]*data-project-category=/.test(page?.main_html||''));
+const isManagedProject=page=>Boolean(page?.file_name?.startsWith('project.html?case=')||/^project-\d+\.html$/.test(page?.file_name||'')||/<main\b[^>]*data-project-category=/.test(page?.main_html||''));
 
 function newProjectHtml({name,category,city,district,summary,selectingImplementer=false,layout=[]}){
   const main=document.createElement('main');
@@ -290,7 +290,7 @@ async function editorDocument(page,html){
   let previewScripts='';
   let previewHeader='';
   try{
-    const templateFile=isManagedProject(page)?'project.html':/^company-\d+\.html$/.test(page.file_name)?'chengyu.html':ProjectBlocks.canonicalProjectFile(page.file_name).split('?')[0];
+    const templateFile=page.file_name?.startsWith('project.html?case=')?'project.html':/^company-\d+\.html$/.test(page.file_name)?'chengyu.html':ProjectBlocks.canonicalProjectFile(page.file_name).split('?')[0];
     const response=await fetch(`${basePath}${templateFile}?admin-preview=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error(`無法載入頁面樣板：${response.status}`);
     const template=new DOMParser().parseFromString(await response.text(),'text/html');
