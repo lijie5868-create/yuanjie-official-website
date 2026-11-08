@@ -18,6 +18,17 @@ def canonicalize_links(source):
     for old,new in PROJECT_ALIASES.items():
         source=source.replace(f'href="{old}"',f'href="{new}"').replace(f'data-href="{old}"',f'data-href="{new}"')
     return source
+def move_signing_note_to_specs(source):
+    sentence='自主更新會成立後再行簽約'
+    status_pattern=r'<p class="case-status">\s*'+sentence+r'[。]?\s*</p>'
+    if not re.search(status_pattern,source): return source
+    specs=re.search(r'<dl class="specs">.*?</dl>',source,re.S)
+    if not specs: return source
+    table=specs.group(0)
+    if not re.search(r'<dt>備註</dt>',table):
+        table=table.replace('</dl>',f'<div><dt>備註</dt><dd>{sentence}</dd></div></dl>')
+    source=source[:specs.start()]+table+source[specs.end():]
+    return re.sub(status_pattern,'',source,count=1)
 def fetch(table, order='sort_order.asc'):
     req=Request(f'{URL}/rest/v1/{table}?'+urlencode({'select':'*','order':order}),headers={'apikey':KEY,'Authorization':f'Bearer {KEY}'})
     with urlopen(req,timeout=30) as response: return json.load(response)
@@ -95,6 +106,7 @@ for page in pages:
     if name=='project-1.html':
         main_html=main_html.replace('<p class="copy">由元捷建設整合開發，串聯實施者、建築設計與都市更新顧問的專業，共同推動士東路街廓更新。</p>','')
         main_html=main_html.replace('<div class="rule"></div><h2>承載天母底蘊','<h2>承載天母底蘊')
+    if re.fullmatch(r'project-\d+\.html',name): main_html=move_signing_note_to_specs(main_html)
     if page['file_name'] in ('urban.html','renewal.html'): main_html=format_case_card_facts(main_html)
     source=replace(r'<main\b.*?</main>',canonicalize_links(main_html),source)
     links=[]
