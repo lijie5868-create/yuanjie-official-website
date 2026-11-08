@@ -77,6 +77,9 @@ window.ProjectBlocks = (() => {
         for(const child of [...profile.children])if(child!==details)summary.append(child);
         profile.insertBefore(summary,details);
       }
+      for(const paragraph of summary.querySelectorAll('p.copy')){
+        if(paragraph.textContent.includes('由元捷建設整合開發，串聯實施者、建築設計與都市更新顧問的專業，共同推動士東路街廓更新'))paragraph.remove();
+      }
       if(!summary.querySelector(':scope > .case-amount')){
         const salesRow=[...details.children].find(row=>row.querySelector('dt')?.textContent.trim().startsWith('預估總銷'));
         const sales=salesRow?.querySelector('dd')?.textContent.trim();
@@ -278,6 +281,7 @@ window.ProjectBlocks = (() => {
       }
     }
     const copy=cover.querySelector(':scope > .page-head');if(!copy)return;
+    copy.querySelectorAll(':scope > .rule').forEach(rule=>rule.remove());
     copy.querySelector(':scope > h1')?.classList.add('page-title');
     const identity=copy.querySelector('.eyebrow');if(identity)identity.classList.add('project-signature');
     let narrative=copy.querySelector('.cover-narrative');

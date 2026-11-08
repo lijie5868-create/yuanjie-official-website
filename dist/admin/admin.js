@@ -330,6 +330,30 @@ async function editorDocument(page,html){
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}${basePath}"><link rel="stylesheet" href="${stylesheet}"><link rel="stylesheet" href="project-blocks.css?v=27"><link rel="stylesheet" href="company-blocks.css?v=1"><link rel="stylesheet" href="media-embed.css?v=1"><style>body{margin:0}main{min-height:100vh}main[contenteditable="true"]:focus{outline:none}a{pointer-events:none}main img,main svg image{cursor:pointer}main a img{pointer-events:auto}img[data-admin-selected]{outline:3px solid #a47c48;outline-offset:3px}svg image[data-admin-selected]{filter:drop-shadow(0 0 3px #a47c48)}.case-card{position:relative}.case-card .project-location .case-card-inline-note{position:static!important;display:block!important;width:auto!important;height:auto!important;min-height:0!important;padding:4px!important;border:0!important;border-radius:0!important;background:none!important;color:#687a84!important;font-size:12px!important;cursor:text!important}.case-card .project-location .case-card-inline-note::before{display:none!important}.case-card img{pointer-events:auto;cursor:pointer}.case-card [data-admin-card-upload],[data-block="cover"] figure.case-main [data-admin-card-upload]{position:absolute;z-index:3;right:12px;top:12px;padding:9px 14px;border:0;border-radius:999px;background:#fff;color:#25333a;box-shadow:0 4px 14px #0003;font:inherit;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;pointer-events:auto}[data-block="cover"] figure.case-main{position:relative}@media(max-width:600px){[data-block="cover"] figure.case-main [data-admin-card-upload]{right:8px;top:8px}}</style></head><body${attributes}>${previewHeader}${html}${previewScripts}</body></html>`;
 }
 
+function restorePublishedProjectSales(draftHtml,publishedHtml){
+  if(!publishedHtml)return draftHtml;
+  const parse=html=>new DOMParser().parseFromString(html,'text/html').querySelector('main');
+  const draft=parse(draftHtml),published=parse(publishedHtml);
+  if(!draft||!published)return draftHtml;
+  const sales=main=>{
+    const amount=main.querySelector('[data-block="specs"] .case-amount,.case-overview .case-amount,.details .case-amount')?.textContent.trim();
+    if(amount)return amount;
+    const row=[...main.querySelectorAll('dl.specs > div')].find(item=>item.querySelector('dt')?.textContent.trim().startsWith('預估總銷'));
+    if(row?.querySelector('dd')?.textContent.trim())return row.querySelector('dd').textContent.trim();
+    const metric=[...main.querySelectorAll('.metrics .metric')].find(item=>item.querySelector('label')?.textContent.trim()==='預估總銷售額');
+    return [metric?.querySelector('strong')?.textContent.trim(),metric?.querySelector('em')?.textContent.trim()].filter(Boolean).join(' ');
+  };
+  const value=sales(published);
+  if(!value||sales(draft))return draftHtml;
+  const specs=draft.querySelector('dl.specs');
+  if(!specs)return draftHtml;
+  const row=draft.ownerDocument.createElement('div');
+  const label=draft.ownerDocument.createElement('dt');label.textContent='預估總銷';
+  const amount=draft.ownerDocument.createElement('dd');amount.textContent=value;
+  row.append(label,amount);specs.append(row);
+  return draftHtml.replace(/<main\b[\s\S]*?<\/main>/i,draft.outerHTML);
+}
+
 function publishedProjectsForCategory(category){
   return [...publishedPages.values()].filter(project=>pageProjectCategory(project)===category).sort((a,b)=>(a.sort_order??0)-(b.sort_order??0));
 }
@@ -366,7 +390,10 @@ async function loadEditor(page){
     ?'正式網站版本比後台草稿新，已自動載入正式版本，避免舊草稿覆蓋。'
     :'預覽已套用正式頁面的版型；發布前會再次檢查版本，避免覆蓋其他人的更新。';
   $('blockPanel').hidden=true;
-  const previewDocument=await editorDocument(page,source.main_html);
+  const previewHtml=ProjectBlocks.applies(page.file_name)
+    ?restorePublishedProjectSales(source.main_html,published?.main_html)
+    :source.main_html;
+  const previewDocument=await editorDocument(page,previewHtml);
   if(loadToken!==editorLoadToken)return;
   frame.onload=()=>{
     const main=frame.contentDocument.querySelector('main');

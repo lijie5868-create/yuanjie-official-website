@@ -92,6 +92,9 @@ for page in pages:
     source=replace(r'<title>.*?</title>',f"<title>{page['title']}</title>",source)
     source=replace(r'<meta\s+name="description"\s+content=".*?"\s*/?>',f'<meta name="description" content="{page["meta_description"]}">',source)
     main_html=group_home_project_copy(page['main_html']) if page['file_name']=='index.html' else page['main_html']
+    if name=='project-1.html':
+        main_html=main_html.replace('<p class="copy">由元捷建設整合開發，串聯實施者、建築設計與都市更新顧問的專業，共同推動士東路街廓更新。</p>','')
+        main_html=main_html.replace('<div class="rule"></div><h2>承載天母底蘊','<h2>承載天母底蘊')
     if page['file_name'] in ('urban.html','renewal.html'): main_html=format_case_card_facts(main_html)
     source=replace(r'<main\b.*?</main>',canonicalize_links(main_html),source)
     links=[]
