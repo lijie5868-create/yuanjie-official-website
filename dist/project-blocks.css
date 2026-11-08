@@ -212,6 +212,19 @@ main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-items[h
 [data-block="featureStory"] .feature-story-grid h3{margin:0 0 20px;font-size:clamp(22px,2.15vw,32px);line-height:1.55;overflow-wrap:anywhere}
 [data-block="featureStory"] .feature-story-grid p{max-width:35em;margin:0;color:#59666d;font-size:16px;line-height:1.85}
 
+/* Section numbers follow the rendered block order; the English label stays editable. */
+main[data-case-layout="unified-v1"]{counter-reset:project-section}
+main[data-case-layout="unified-v1"]> [data-block]:not([data-block="cover"]):not([data-block="footer"]):not([data-block="metrics"]){counter-increment:project-section}
+main[data-case-layout="unified-v1"] .project-section-eyebrow{color:#4a6984;font-size:clamp(12px,.92vw,14px);font-weight:500;line-height:1.5;letter-spacing:.2em;text-transform:uppercase}
+main[data-case-layout="unified-v1"] .project-section-eyebrow::before{content:counter(project-section,decimal-leading-zero) " / ";white-space:pre}
+main[data-case-layout="unified-v1"] [data-block]:not([data-block="cover"]) :is(.section-head h2,.feature-story-head h2,.album-section-head h2,.case-profile-summary h2,.details h2){font-size:clamp(30px,3.3vw,48px);line-height:1.32}
+main[data-case-layout="unified-v1"] [data-block]:not([data-block="cover"]) :is(.section-head p,.feature-story-head p,.album-section-head p,.case-profile-summary>p,.details>p){font-size:clamp(15px,1.1vw,17px);line-height:1.75}
+main[data-case-layout="unified-v1"] [data-block="featureStory"] .feature-story-grid :is(h3,p){line-height:1.65}
+@media(max-width:650px){
+ main[data-case-layout="unified-v1"] [data-block]:not([data-block="cover"]) :is(.section-head h2,.feature-story-head h2,.album-section-head h2,.case-profile-summary h2,.details h2){font-size:clamp(26px,7vw,36px)}
+ main[data-case-layout="unified-v1"] [data-block]:not([data-block="cover"]) :is(.section-head p,.feature-story-head p,.album-section-head p,.case-profile-summary>p,.details>p){font-size:15px}
+}
+
 [data-block="albums"] .project-album-grid{display:block}
 [data-block="albums"] .project-album{display:flex;align-items:stretch;gap:2px;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-gutter:stable;overscroll-behavior-inline:contain;touch-action:pan-x;cursor:grab;user-select:none}
 [data-block="albums"] .project-album.is-dragging{cursor:grabbing;scroll-snap-type:none}

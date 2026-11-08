@@ -67,7 +67,7 @@ window.ProjectBlocks = (() => {
     }
   }
   function layoutProfiles(main){
-    for(const profile of main.querySelectorAll('[data-block="specs"] .case-overview > div')){
+    for(const profile of main.querySelectorAll('[data-block="specs"] .case-overview > div,[data-block="specs"] .details')){
       const details=profile.querySelector(':scope > dl.specs');
       if(!details)continue;
       let summary=profile.querySelector(':scope > .case-profile-summary');
@@ -90,6 +90,57 @@ window.ProjectBlocks = (() => {
       const amount=summary.querySelector(':scope > .case-amount');
       const label=amount?.previousElementSibling;
       if(label?.tagName==='P')amount.after(label);
+    }
+  }
+  function foldLegacyMetrics(main){
+    const sources=[...main.querySelectorAll('[data-block="metrics"], .metrics')].filter(node=>!node.parentElement?.closest('[data-block="metrics"], .metrics'));
+    if(!sources.length)return;
+    const specs=main.querySelector('[data-block="specs"] dl.specs');
+    const sourceValues=[];
+    for(const source of sources){
+      const countBefore=sourceValues.length;
+      for(const item of source.querySelectorAll('.metric')){
+        const label=item.querySelector('label,small,dt')?.textContent.trim()||'';
+        const value=[item.querySelector('strong')?.textContent.trim(),item.querySelector('em')?.textContent.trim()].filter(Boolean).join(' ');
+        if(label&&value)sourceValues.push({label,value});
+      }
+      if(sourceValues.length===countBefore){
+        for(const item of source.querySelectorAll('[data-metric-ref],.pb-items > *')){
+          const text=item.textContent.trim();if(text)sourceValues.push({label:'原始數據',value:text});
+        }
+      }
+      source.remove();
+    }
+    if(!specs)return;
+    const previous=JSON.parse(specs.dataset.legacyMetrics||'[]');
+    specs.dataset.legacyMetrics=JSON.stringify([...previous,...sourceValues]);
+    const mapped={'基地面積':'基地面積','地上規劃':'建築樓層','規劃戶數':'規劃戶數','預估總銷售額':'預估總銷'};
+    for(const {label,value} of sourceValues){
+      const field=mapped[label];if(!field)continue;
+      let row=[...specs.children].find(item=>item.querySelector('dt')?.textContent.trim()===field);
+      if(row?.querySelector('dd')?.textContent.trim())continue;
+      if(!row){row=main.ownerDocument.createElement('div');const dt=main.ownerDocument.createElement('dt');dt.textContent=field;row.append(dt,main.ownerDocument.createElement('dd'));specs.append(row)}
+      row.querySelector('dd').textContent=value;
+    }
+  }
+  const sectionLabels={specs:'PROJECT PROFILE',story:'PROJECT STORY',features:'PROJECT HIGHLIGHTS',featureStory:'PROJECT VISION',gallery:'PROJECT GALLERY',albums:'PROJECT JOURNAL',journal:'PROJECT JOURNAL',team:'PROJECT TEAM',customHtml:'CUSTOM SECTION'};
+  function normalizeSectionEyebrows(main){
+    for(const block of main.querySelectorAll(':scope > [data-block]')){
+      const type=block.dataset.block;if(!sectionLabels[type])continue;
+      let eyebrow=block.querySelector('.project-section-eyebrow');
+      if(!eyebrow){
+        eyebrow=[...block.querySelectorAll('.eyebrow')].find(node=>!node.closest('.feature-story-grid,.features,.project-album-grid,.pb-items,.case-highlights,.team,article'));
+      }
+      if(!eyebrow){
+        const heading=block.querySelector('h2');if(!heading)continue;
+        eyebrow=main.ownerDocument.createElement('div');eyebrow.className='eyebrow';heading.before(eyebrow);
+      }
+      if(!eyebrow.classList.contains('project-section-eyebrow')){
+        const raw=eyebrow.textContent.replace(/\s+/g,' ').trim();
+        const english=raw.replace(/^\d+\s*[/／|｜—–-]\s*/,'').replace(/\s*[/／|｜]\s*[\u3400-\u9fff].*$/,'').trim();
+        eyebrow.textContent=english||sectionLabels[type];
+        eyebrow.classList.add('project-section-eyebrow');
+      }
     }
   }
   function orderCaseProfile(main){
@@ -384,9 +435,9 @@ window.ProjectBlocks = (() => {
   function prepare(main){
     if(!main)return false;
     if(main.dataset.caseLayout==='unified-v1'){
-      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
+      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);foldLegacyMetrics(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);normalizeSectionEyebrows(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
     }
-    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
+    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);foldLegacyMetrics(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);normalizeSectionEyebrows(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -428,10 +479,12 @@ window.ProjectBlocks = (() => {
     formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);
     normalizeCover(main);
     normalizeHeroPartners(main);
+    foldLegacyMetrics(main);
     layoutProfiles(main);
     orderCaseProfile(main);
     ensureDraftSpecs(main);
     normalizeFeatureSections(main);
+    normalizeSectionEyebrows(main);
     upgradeAlbums(main);
     stripChineseFullStops(main.ownerDocument.body||main);
     enhanceAmounts(main);
@@ -475,6 +528,7 @@ window.ProjectBlocks = (() => {
       metric.textContent=field?field.textContent+'　'+field.nextElementSibling.textContent:'請選取資料欄位';
     }
     enhanceAlbumRails(main);
+    normalizeSectionEyebrows(main);
   }
   function updateCard(card,html){
     const main=new DOMParser().parseFromString(html,'text/html').querySelector('main[data-block-version]');
