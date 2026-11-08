@@ -317,6 +317,11 @@ async function editorDocument(page,html){
         .find(script=>script.textContent.includes("document.querySelector('.case-grid')"));
       if(layoutScript)previewScripts+=`<script>${layoutScript.textContent}</script>`;
     }
+    if(page.file_name==='qa.html'){
+      const layoutScript=[...template.querySelectorAll('script[data-site-init]')]
+        .find(script=>script.textContent.includes("document.querySelector('#search')"));
+      if(layoutScript)previewScripts+=`<script>${layoutScript.textContent}</script>`;
+    }
     previewScripts+='<script src="link-motion.js?v=3" defer></script>';
   }catch(error){
     console.warn('Using the basic editor preview.',error);
@@ -345,7 +350,7 @@ async function loadEditor(page){
   $('title').value=source.title;
   $('description').value=source.meta_description;
   $('projectFields').hidden=!isManagedProject(page);
-  $('qaTools').hidden=page.file_name!=='qa.html';
+  $('manageQuestions').hidden=page.file_name!=='qa.html';
   if(isManagedProject(page)){
     const projectMain=new DOMParser().parseFromString(source.main_html,'text/html').querySelector('main');
     $('projectCategory').value=projectMain?.dataset.projectCategory||'urban';
@@ -1505,50 +1510,90 @@ $('newCompanyForm').onsubmit=async event=>{
   }catch(error){$('newCompanyMessage').textContent=error.message;$('newCompanyMessage').classList.add('error')}
   finally{submit.disabled=false}
 };
-$('addQuestion').onclick=()=>{
-  if(current?.file_name!=='qa.html')return;
-  $('newQuestionForm').reset();
-  $('newQuestionDialog').showModal();
-  $('newQuestionText').focus();
-};
-$('cancelNewQuestion').onclick=()=>$('newQuestionDialog').close();
-$('newQuestionForm').onsubmit=event=>{
-  event.preventDefault();
-  if(current?.file_name!=='qa.html')return;
-  const question=$('newQuestionText').value.trim();
-  const answer=$('newAnswerText').value.trim();
-  const category=$('newQuestionCategory').value;
-  if(!question||!answer)return;
-  const doc=$('visualEditor').contentDocument;
-  const list=doc?.querySelector('main #questions');
-  if(!list){message('問答區塊未載入，請重新開啟問與答頁面。',true);return}
-  const rows=[...list.querySelectorAll(':scope > details')];
-  const nextId=Math.max(0,...rows.map(row=>Number(row.id.match(/^q(\d+)$/)?.[1]||0)))+1;
-  const row=doc.createElement('details');
-  row.id=`q${nextId}`;
-  row.dataset.category=category;
-  const summary=doc.createElement('summary');
-  const number=doc.createElement('span');
-  number.className='eyebrow';
-  number.style.marginRight='18px';
-  number.textContent=String(rows.length+1).padStart(2,'0');
-  summary.append(number,doc.createTextNode(question));
-  const body=doc.createElement('div');
-  body.className='answer';
-  for(const paragraph of answer.split(/\n\s*\n/)){
+function questionList(){return $('visualEditor').contentDocument?.querySelector('main #questions')||null}
+function questionRows(){return [...(questionList()?.querySelectorAll(':scope > details')||[])]}
+function questionText(row){const summary=row.querySelector('summary')?.cloneNode(true);summary?.querySelector('.eyebrow')?.remove();return summary?.textContent.trim()||''}
+function renumberQuestions(){questionRows().forEach((row,index)=>{let number=row.querySelector('summary .eyebrow');if(!number){number=row.ownerDocument.createElement('span');number.className='eyebrow';number.style.marginRight='18px';row.querySelector('summary')?.prepend(number)}number.textContent=String(index+1).padStart(2,'0')})}
+function refreshQuestionSelect(selectedId=''){
+  const select=$('manageQuestionSelect'),rows=questionRows();
+  select.replaceChildren(new Option('請選擇一題',''));
+  rows.forEach((row,index)=>select.add(new Option(`${String(index+1).padStart(2,'0')}｜${questionText(row)}`,row.id)));
+  if(selectedId&&rows.some(row=>row.id===selectedId))select.value=selectedId;
+  $('deleteQuestion').disabled=!select.value;
+  $('saveManagedQuestion').textContent=select.value?'儲存修改':'加入預覽';
+}
+function loadManagedQuestion(){
+  const row=questionRows().find(item=>item.id===$('manageQuestionSelect').value);
+  $('manageQuestionsMessage').textContent='';
+  $('deleteQuestion').disabled=!row;
+  $('saveManagedQuestion').textContent=row?'儲存修改':'加入預覽';
+  if(!row){$('manageQuestionCategory').value='都更基本認識';$('manageQuestionText').value='';$('manageAnswerText').value='';return}
+  $('manageQuestionCategory').value=row.dataset.category||'都更基本認識';
+  $('manageQuestionText').value=questionText(row);
+  const answer=row.querySelector('.answer');
+  $('manageAnswerText').value=answer?.innerText.trim()||'';
+  $('manageAnswerText').dataset.originalText=$('manageAnswerText').value;
+  $('manageAnswerText').dataset.originalHtml=answer?.innerHTML||'';
+}
+function startNewQuestion(){
+  $('manageQuestionSelect').value='';
+  $('manageQuestionCategory').value='都更基本認識';
+  $('manageQuestionText').value='';$('manageAnswerText').value='';
+  delete $('manageAnswerText').dataset.originalText;delete $('manageAnswerText').dataset.originalHtml;
+  $('manageQuestionsMessage').textContent='新增完成後會加入目前預覽，記得儲存草稿。';
+  $('deleteQuestion').disabled=true;$('saveManagedQuestion').textContent='加入預覽';
+  $('manageQuestionText').focus();
+}
+function writeQuestionAnswer(doc,answer,text){
+  answer.replaceChildren();
+  for(const paragraph of text.split(/\n\s*\n/).map(part=>part.trim()).filter(Boolean)){
     const p=doc.createElement('p');
     p.append(...paragraph.split('\n').flatMap((line,index)=>index?[doc.createElement('br'),doc.createTextNode(line)]:[doc.createTextNode(line)]));
-    body.append(p);
+    answer.append(p);
   }
-  row.append(summary,body);
-  list.append(row);
-  row.open=true;
-  const count=doc.querySelector('main .qa-count');
-  if(count)count.textContent=`共 ${rows.length+1} 個問題`;
-  pageDirty=true;
-  $('newQuestionDialog').close();
-  row.scrollIntoView({block:'center',behavior:'smooth'});
-  message('問答已加入預覽。請儲存草稿，確認後再發布網站。');
+}
+$('manageQuestions').onclick=()=>{
+  if(current?.file_name!=='qa.html')return;
+  if(!questionList()){message('問答區塊未載入，請重新開啟問與答頁面。',true);return}
+  refreshQuestionSelect(questionRows()[0]?.id||'');loadManagedQuestion();
+  $('manageQuestionsDialog').showModal();
+};
+$('closeManageQuestions').onclick=$('cancelManageQuestions').onclick=()=>$('manageQuestionsDialog').close();
+$('manageQuestionSelect').onchange=loadManagedQuestion;
+$('startNewQuestion').onclick=startNewQuestion;
+$('deleteQuestion').onclick=()=>{
+  const id=$('manageQuestionSelect').value,row=questionRows().find(item=>item.id===id);
+  if(!row||!confirm(`確定刪除「${questionText(row)}」嗎？`))return;
+  row.remove();renumberQuestions();refreshQuestionSelect(questionRows()[0]?.id||'');loadManagedQuestion();
+  $('manageAnswerText').dataset.originalText='';$('manageAnswerText').dataset.originalHtml='';
+  const doc=$('visualEditor').contentDocument,search=doc.querySelector('#search');search?.dispatchEvent(new doc.defaultView.Event('input',{bubbles:true}));
+  pageDirty=true;$('manageQuestionsMessage').textContent='問答已刪除。關閉視窗後請儲存草稿，再確認發布。';
+};
+$('manageQuestionsForm').onsubmit=event=>{
+  event.preventDefault();
+  if(current?.file_name!=='qa.html')return;
+  const doc=$('visualEditor').contentDocument,list=questionList();
+  if(!doc||!list){message('問答區塊未載入，請重新開啟問與答頁面。',true);return}
+  const question=$('manageQuestionText').value.trim(),answerText=$('manageAnswerText').value.trim(),category=$('manageQuestionCategory').value;
+  if(!question||!answerText)return;
+  let row=questionRows().find(item=>item.id===$('manageQuestionSelect').value);
+  const adding=!row;
+  if(adding){
+    const nextId=Math.max(0,...questionRows().map(item=>Number(item.id.match(/^q(\d+)$/)?.[1]||0)))+1;
+    row=doc.createElement('details');row.id=`q${nextId}`;
+    const summary=doc.createElement('summary'),number=doc.createElement('span');number.className='eyebrow';number.style.marginRight='18px';summary.append(number);
+    const answer=doc.createElement('div');answer.className='answer';row.append(summary,answer);list.append(row);
+  }
+  row.dataset.category=category;
+  const summary=row.querySelector('summary'),number=summary.querySelector('.eyebrow');
+  summary.replaceChildren(number||doc.createElement('span'),doc.createTextNode(question));
+  if(number){number.className='eyebrow';number.style.marginRight='18px'}else summary.firstElementChild.className='eyebrow';
+  const answer=row.querySelector('.answer');
+  if(adding||answerText!==$('manageAnswerText').dataset.originalText)writeQuestionAnswer(doc,answer,answerText);
+  renumberQuestions();row.open=true;refreshQuestionSelect(row.id);loadManagedQuestion();
+  doc.querySelector('#search')?.dispatchEvent(new doc.defaultView.Event('input',{bubbles:true}));
+  pageDirty=true;$('manageQuestionsDialog').close();row.scrollIntoView({block:'center',behavior:'smooth'});
+  message(adding?'問答已加入預覽。請儲存草稿，確認後再發布網站。':'問答已更新預覽。請儲存草稿，確認後再發布網站。');
 };
 $('saveNavigation').onclick=()=>saveNavigationDraft().catch(error=>navigationMessage(error.message,true));
 $('publishNavigation').onclick=()=>publishNavigation().catch(error=>navigationMessage(error.message,true));

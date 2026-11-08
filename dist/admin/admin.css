@@ -88,8 +88,6 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .project-fields label:first-child{grid-column:1/-1}
 .project-fields .project-stage-field,.new-project-dialog .project-stage-field{display:flex;align-items:center;gap:8px;grid-column:1/-1}.project-stage-field input{width:17px;height:17px;accent-color:#4a6984}
 .new-project-actions{display:flex;justify-content:flex-end;gap:8px}
-.qa-tools{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:0 0 16px}
-.qa-tools span{color:#70716c;font-size:13px}
 .new-project-dialog .message.error{color:#a02d22}
 @media(max-width:520px){.new-project-location,.project-fields{grid-template-columns:1fr}}
 .search-field input { padding-left: 12px; background: #f8f7f4; }
@@ -147,12 +145,27 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .preview-zoom-controls{display:flex;align-items:center;gap:6px;color:#66727a;font-size:12px}
 .preview-zoom-controls button{width:34px;height:34px;padding:0;border:1px solid #d8d3c9;border-radius:50%;font-size:20px;line-height:1}
 .preview-zoom-controls output{min-width:48px;text-align:center;color:#364b5b;font-variant-numeric:tabular-nums;font-weight:700}
+.qa-manage-button{position:absolute;z-index:2;top:12px;right:16px;background:#4a6984;color:#fff;font-size:13px;font-weight:650;box-shadow:0 4px 14px #0002}
+.manage-questions-dialog{box-sizing:border-box;width:min(680px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:24px;border:1px solid #deddd6;border-radius:14px;background:#fff;color:#26353d;box-shadow:0 20px 70px #0004;overflow:auto}
+.manage-questions-dialog::backdrop{background:#20211f88}
+.manage-questions-dialog form{display:grid;gap:14px}
+.manage-questions-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid #e2e3e2}
+.manage-questions-header h2{margin:3px 0 0;font:600 25px/1.35 serif}
+.manage-questions-close{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;padding:0;border-radius:50%;background:#eef0f1;color:#35464f;font:30px/1 system-ui}
+.manage-questions-help{margin:0;color:#66747b;font-size:13px;line-height:1.7}
+.manage-questions-dialog label{display:grid;gap:6px;color:#56636a;font-size:13px}
+.manage-questions-dialog textarea{resize:vertical;min-height:150px;line-height:1.65}
+.manage-questions-mode{display:flex;justify-content:space-between;gap:8px}
+.manage-questions-mode button{font-size:13px}
+.manage-questions-mode .danger-button{background:#fff1ef;color:#a4382d}
+.manage-questions-dialog .message{margin:0;min-height:1.3em;font-size:13px}
+.manage-questions-dialog .new-project-actions{padding-top:12px;border-top:1px solid #e2e3e2}
 .preview-stage{position:relative;width:100%;height:max(960px,calc(100dvh - 90px));overflow:hidden;border:1px solid #c9c8c0;border-radius:9px;background:#fff}
 .preview-stage iframe{max-width:none!important;height:100%;margin:0;border:0;border-radius:0}
 .case-list-preview-view[hidden]{display:none}
 .case-list-preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:10px 12px;border:1px solid #d8d3c9;border-radius:8px;background:#f7f5f1;color:#4a6984}
 .case-list-preview-toolbar button{flex:0 0 auto}
-.editor.case-list-preview-active>.toolbar,.editor.case-list-preview-active>.form-grid,.editor.case-list-preview-active>#projectFields,.editor.case-list-preview-active>.edit-tools,.editor.case-list-preview-active>#qaTools,.editor.case-list-preview-active>#contentSafetyStatus,.editor.case-list-preview-active>#blockPanel,.editor.case-list-preview-active>#visualEditorStage,.editor.case-list-preview-active>.hint{display:none!important}
+.editor.case-list-preview-active>.toolbar,.editor.case-list-preview-active>.form-grid,.editor.case-list-preview-active>#projectFields,.editor.case-list-preview-active>.edit-tools,.editor.case-list-preview-active>#contentSafetyStatus,.editor.case-list-preview-active>#blockPanel,.editor.case-list-preview-active>#visualEditorStage,.editor.case-list-preview-active>.hint{display:none!important}
 iframe { display: block; width: 100%; height: max(960px, calc(100dvh - 90px)); border: 1px solid #c9c8c0; border-radius: 9px; background: #fff; }
 .hint, small { font-size: 13px; }
 .navigation-card { padding: 26px; }
