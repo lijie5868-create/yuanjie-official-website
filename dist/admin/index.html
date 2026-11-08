@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=42">
+  <link rel="stylesheet" href="admin.css?v=43">
 <link rel="icon" type="image/png" href="../favicon-v1.png"><link rel="stylesheet" href="../media-embed.css?v=1"></head>
 <body>
   <div class="shell">
@@ -163,7 +163,7 @@
         <form id="manageQuestionsForm">
           <div class="manage-questions-header"><div><span class="eyebrow">Q &amp; A / 問答管理</span><h2 id="manageQuestionsTitle">管理問答</h2></div><button id="closeManageQuestions" class="manage-questions-close" type="button" aria-label="關閉問答管理">×</button></div>
           <p class="manage-questions-help">選擇既有問題進行編輯或刪除，也可以新增問題。完成後請儲存草稿，再確認發布。</p>
-          <label>選擇要編輯的問答<select id="manageQuestionSelect" aria-label="選擇要編輯的問答"></select></label>
+          <div id="manageQuestionList" class="manage-question-list" aria-label="問答排序清單"></div><label hidden>選擇要編輯的問答<select id="manageQuestionSelect" aria-label="選擇要編輯的問答"></select></label>
           <div class="manage-questions-mode"><button id="startNewQuestion" type="button" class="secondary">＋ 新增問答</button><button id="deleteQuestion" type="button" class="danger-button">刪除此問答</button></div>
           <label>分類<select id="manageQuestionCategory" required><option>都更基本認識</option><option>服務與流程</option><option>防災與政策</option><option>契約與權益</option><option>費用與分配</option></select></label>
           <label>問題<input id="manageQuestionText" required maxlength="200" placeholder="請輸入問題"></label>
@@ -293,6 +293,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js?v=38"></script><script type="module" src="admin.js?v=110"></script>
+  <script src="../project-blocks.js?v=38"></script><script type="module" src="admin.js?v=111"></script>
 </body>
 </html>

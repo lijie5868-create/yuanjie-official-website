@@ -1514,6 +1514,21 @@ function questionList(){return $('visualEditor').contentDocument?.querySelector(
 function questionRows(){return [...(questionList()?.querySelectorAll(':scope > details')||[])]}
 function questionText(row){const summary=row.querySelector('summary')?.cloneNode(true);summary?.querySelector('.eyebrow')?.remove();return summary?.textContent.trim()||''}
 function renumberQuestions(){questionRows().forEach((row,index)=>{let number=row.querySelector('summary .eyebrow');if(!number){number=row.ownerDocument.createElement('span');number.className='eyebrow';number.style.marginRight='18px';row.querySelector('summary')?.prepend(number)}number.textContent=String(index+1).padStart(2,'0')})}
+function renderManagedQuestionList(){
+  const list=$('manageQuestionList');list.replaceChildren();
+  questionRows().forEach((row,index)=>{
+    const item=document.createElement('button');item.type='button';item.className='manage-question-item';item.draggable=true;item.dataset.id=row.id;
+    item.classList.toggle('active',row.id===$('manageQuestionSelect').value);
+    const number=document.createElement('span');number.textContent=String(index+1).padStart(2,'0');
+    const title=document.createElement('span');title.textContent=questionText(row);
+    const handle=document.createElement('span');handle.textContent='⠿';handle.title='拖曳排序';
+    item.append(number,title,handle);item.onclick=()=>{$('manageQuestionSelect').value=row.id;loadManagedQuestion()};
+    item.ondragstart=e=>{e.dataTransfer.setData('text/plain',row.id);e.dataTransfer.effectAllowed='move'};
+    item.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move'};
+    item.ondrop=e=>{e.preventDefault();const source=questionRows().find(x=>x.id===e.dataTransfer.getData('text/plain'));if(!source||source===row)return;const rect=item.getBoundingClientRect();row.parentNode.insertBefore(source,e.clientY>rect.top+rect.height/2?row.nextSibling:row);renumberQuestions();refreshQuestionSelect(source.id);loadManagedQuestion();pageDirty=true;$('manageQuestionsMessage').textContent='順序已更新，請儲存草稿後發布。'};
+    list.append(item);
+  });
+}
 function refreshQuestionSelect(selectedId=''){
   const select=$('manageQuestionSelect'),rows=questionRows();
   select.replaceChildren(new Option('請選擇一題',''));
@@ -1521,10 +1536,12 @@ function refreshQuestionSelect(selectedId=''){
   if(selectedId&&rows.some(row=>row.id===selectedId))select.value=selectedId;
   $('deleteQuestion').disabled=!select.value;
   $('saveManagedQuestion').textContent=select.value?'儲存修改':'加入預覽';
+  renderManagedQuestionList();
 }
 function loadManagedQuestion(){
   const row=questionRows().find(item=>item.id===$('manageQuestionSelect').value);
   $('manageQuestionsMessage').textContent='';
+  renderManagedQuestionList();
   $('deleteQuestion').disabled=!row;
   $('saveManagedQuestion').textContent=row?'儲存修改':'加入預覽';
   if(!row){$('manageQuestionCategory').value='都更基本認識';$('manageQuestionText').value='';$('manageAnswerText').value='';return}
@@ -1555,6 +1572,13 @@ function writeQuestionAnswer(doc,answer,text){
 $('manageQuestions').onclick=()=>{
   if(current?.file_name!=='qa.html')return;
   if(!questionList()){message('問答區塊未載入，請重新開啟問與答頁面。',true);return}
+  const doc=$('visualEditor').contentDocument;
+  const search=doc.querySelector('#search');if(search)search.value='';
+  const all=doc.querySelector('.filters button[data-category="全部"]');if(all)all.click();
+  doc.querySelectorAll('.filters button').forEach(button=>{const active=button===all;button.classList.toggle('active',active);button.setAttribute('aria-pressed',active?'true':'false')});
+  questionRows().forEach(row=>row.hidden=false);
+  const count=doc.querySelector('.qa-count');if(count)count.textContent=`共 ${questionRows().length} 個問題`;
+  const empty=doc.querySelector('.empty');if(empty)empty.hidden=questionRows().length!==0;
   refreshQuestionSelect(questionRows()[0]?.id||'');loadManagedQuestion();
   $('manageQuestionsDialog').showModal();
 };
