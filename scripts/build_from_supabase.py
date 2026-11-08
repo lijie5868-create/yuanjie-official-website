@@ -29,6 +29,8 @@ def move_signing_note_to_specs(source):
         table=table.replace('</dl>',f'<div><dt>備註</dt><dd>{sentence}</dd></div></dl>')
     source=source[:specs.start()]+table+source[specs.end():]
     return re.sub(status_pattern,'',source,count=1)
+def remove_old_feature_tagline(source):
+    return re.sub(r'<p(?:\s+[^>]*)?>\s*生活底蘊\s*×\s*建築美學\s*×\s*更新願景\s*</p>','',source)
 def fetch(table, order='sort_order.asc'):
     req=Request(f'{URL}/rest/v1/{table}?'+urlencode({'select':'*','order':order}),headers={'apikey':KEY,'Authorization':f'Bearer {KEY}'})
     with urlopen(req,timeout=30) as response: return json.load(response)
@@ -127,7 +129,8 @@ for page in pages:
     if name=='project-1.html':
         main_html=main_html.replace('<p class="copy">由元捷建設整合開發，串聯實施者、建築設計與都市更新顧問的專業，共同推動士東路街廓更新。</p>','')
         main_html=main_html.replace('<div class="rule"></div><h2>承載天母底蘊','<h2>承載天母底蘊')
-    if re.fullmatch(r'project-\d+\.html',name): main_html=move_signing_note_to_specs(main_html)
+    if re.fullmatch(r'project-\d+\.html',name):
+        main_html=remove_old_feature_tagline(move_signing_note_to_specs(main_html))
     if page['file_name'] in ('urban.html','renewal.html'): main_html=format_case_card_facts(main_html)
     source=replace(r'<main\b.*?</main>',canonicalize_links(main_html),source)
     links=[]

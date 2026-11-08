@@ -183,6 +183,9 @@ window.ProjectBlocks = (() => {
       }else if(!head.querySelector('.feature-story-eyebrow,.eyebrow')){
         const kicker=main.ownerDocument.createElement('div');kicker.className='eyebrow feature-story-eyebrow';kicker.textContent='03 / PROJECT HIGHLIGHTS';head.prepend(kicker);
       }
+      for(const tagline of head.querySelectorAll('p')){
+        if(tagline.textContent.replace(/\s+/g,' ').trim()==='生活底蘊 × 建築美學 × 更新願景')tagline.remove();
+      }
       let grid=oldGrid;
       if(!grid){grid=main.ownerDocument.createElement('div');grid.className='feature-story-grid';list.replaceWith(grid)}
       else grid.replaceChildren();
