@@ -23,6 +23,7 @@ window.ProjectBlocks = (() => {
   function makeCardStats(doc,area,homes,sales){
     const stats=doc.createElement('div');stats.className='case-card-stats';
     for(const [kind,label,value] of [['area','基地',area],['homes','戶數',homes],['sales','預估總銷',sales]]){
+      if(!String(value||'').trim())continue;
       const item=doc.createElement('span');item.className=`case-card-stat case-card-stat--${kind}`;
       const icon=doc.createElement('span');icon.className='case-card-stat-icon';icon.setAttribute('aria-hidden','true');
       const words=doc.createElement('span');words.className='case-card-stat-copy';
@@ -37,7 +38,7 @@ window.ProjectBlocks = (() => {
     const value=label=>rows.find(row=>row.querySelector('dt')?.textContent.trim().startsWith(label))?.querySelector('dd')?.textContent.trim()||'';
     const area=value('基地面積'),homes=value('規劃戶數');
     const sales=value('預估總銷')||main.querySelector('.case-amount')?.textContent.trim()||'';
-    if(area&&homes&&sales)copy.append(makeCardStats(copy.ownerDocument,area,homes,sales));
+    if(area||homes||sales)copy.append(makeCardStats(copy.ownerDocument,area,homes,sales));
   }
   function formatCardFacts(root){
     for(const card of root.querySelectorAll('.case-card')){
@@ -54,7 +55,12 @@ window.ProjectBlocks = (() => {
       }
       const inlineNote=location?.querySelector('.case-card-inline-note');
       if(inlineNote){inlineNote.removeAttribute('tabindex');inlineNote.removeAttribute('role');inlineNote.removeAttribute('aria-label');inlineNote.classList.remove('is-open')}
-      if(copy.querySelector('.case-card-stats'))continue;
+      const existingStats=copy.querySelector('.case-card-stats');
+      if(existingStats){
+        existingStats.querySelectorAll('.case-card-stat').forEach(stat=>{if(!stat.querySelector('strong')?.textContent.trim())stat.remove()});
+        if(!existingStats.querySelector('.case-card-stat'))existingStats.remove();
+        continue;
+      }
       const paragraphs=[...copy.querySelectorAll(':scope > p:not(.project-location)')];
       const areaLine=paragraphs.find(node=>/^基地\s*.+[|｜]\s*.+戶/.test(node.textContent.trim()));
       const salesLine=paragraphs.find(node=>/^預估總銷\s*.+/.test(node.textContent.trim()));
