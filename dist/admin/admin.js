@@ -215,7 +215,7 @@ function snapshotPage(page){
   return page?{slug:page.slug,title:page.title,meta_description:page.meta_description,main_html:page.main_html,published_at:page.published_at}:null;
 }
 
-const isManagedProject=page=>Boolean(page?.file_name?.startsWith('project.html?case=')||/^project-\d+\.html$/.test(page?.file_name||'')||/<main\b[^>]*data-project-category=/.test(page?.main_html||''));
+const isManagedProject=page=>Boolean(page?.file_name&&(ProjectBlocks.applies(page.file_name)||/^project-\d+\.html$/.test(ProjectBlocks.canonicalProjectFile(page.file_name)))||/<main\b[^>]*data-project-category=/.test(page?.main_html||''));
 
 function newProjectHtml({name,category,city,district,summary,selectingImplementer=false,layout=[]}){
   const main=document.createElement('main');
@@ -676,7 +676,6 @@ function orderedCasePages(category,items=pages){
 }
 
 function appendProjectSubgroup(group,label,items,category){
-  if(!items.length)return;
   const categoryOrder=orderedCasePages(category);
   const visibleSlugs=new Set(items.map(item=>item.slug));
   const ordered=categoryOrder.filter(item=>visibleSlugs.has(item.slug));
@@ -687,7 +686,8 @@ function appendProjectSubgroup(group,label,items,category){
   const count=document.createElement('span');count.className='page-project-subgroup-count';count.textContent=ordered.length;count.setAttribute('aria-label',`${ordered.length} 件`);
   const preview=document.createElement('button');preview.type='button';preview.className='case-list-preview';preview.textContent='後台預覽';preview.title=`在後台預覽${label}前台列表`;
   preview.addEventListener('click',()=>openCaseListPreview(category));
-  tools.append(count,preview);heading.append(title,tools);
+  const add=document.createElement('button');add.type='button';add.className='case-add-project';add.textContent='＋ 新增';add.setAttribute('aria-label',`新增${label}`);add.addEventListener('click',()=>openNewProject(category));
+  tools.append(count,preview,add);heading.append(title,tools);
   section.append(heading,...ordered.map(page=>pageButton(page,categoryOrder)));group.append(section);
 }
 
@@ -1522,7 +1522,12 @@ order.ondrop=e=>{
   e.preventDefault();placeComponent(Number(e.target.closest('li')?.dataset.index??projectLayout.length),layoutDrag);layoutDrag=null;
 };
 $('newProjectLayout').ondragend=()=>{layoutDrag=null;order.querySelector('[data-over]')?.removeAttribute('data-over')};
-$('newProject').onclick=()=>{renderProjectOrder();$('newProjectMessage').textContent='';$('newProjectMessage').classList.remove('error');$('newProjectDialog').showModal();$('newProjectName').focus()};
+function openNewProject(category='urban'){
+  renderProjectOrder();$('newProjectCategory').value=category;
+  $('newProjectMessage').textContent='';$('newProjectMessage').classList.remove('error');
+  $('newProjectDialog').showModal();$('newProjectName').focus();
+}
+$('newProject').onclick=()=>openNewProject();
 $('cancelNewProject').onclick=()=>$('newProjectDialog').close();
 $('newProjectForm').onsubmit=async event=>{
   event.preventDefault();
