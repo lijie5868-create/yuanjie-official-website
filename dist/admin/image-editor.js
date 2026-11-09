@@ -9,6 +9,15 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   let offsetX=0;
   let offsetY=0;
   let drawInfo=null;
+  const cropFrame=canvas.closest('.crop-frame');
+
+  function previewDisplayWidth(){
+    const percent=Number($('imageWidth').value);
+    $('imageWidthValue').textContent=`${percent}%`;
+    const availableHeight=Math.max(180,window.innerHeight*0.45);
+    const fullWidth=Math.min(canvas.width,availableHeight*canvas.width/canvas.height);
+    cropFrame.style.width=`${Math.round(fullWidth*percent/100)}px`;
+  }
 
   const isImageNode=node=>node?.tagName==='IMG'||node?.tagName?.toLowerCase()==='image';
   const imageSource=node=>{
@@ -101,6 +110,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     if(ratio>=1){canvas.width=640;canvas.height=Math.round(640/ratio)}
     else {canvas.height=420;canvas.width=Math.round(420*ratio)}
     $('cropFrameLabel').textContent=$('cropRatio').selectedOptions[0].textContent;
+    previewDisplayWidth();
   }
 
   function render(){
@@ -145,6 +155,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     const currentWidth=existing?.style.width?.match(/^(\d+)%$/)?.[1]||'100';
     $('imageWidth').value=currentWidth;
     $('imageWidthValue').textContent=`${currentWidth}%`;
+    previewDisplayWidth();
     dialog.showModal();
     try{await loadSource(source)}catch(error){setMessage('圖片無法載入，請選擇其他圖片。',true)}
   }
@@ -282,7 +293,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   $('closeImageDialog').onclick=()=>dialog.close();
   $('cropRatio').onchange=()=>{if(image){dimensions();offsetX=offsetY=0;render()}};
   $('cropZoom').oninput=render;
-  $('imageWidth').oninput=()=>{$('imageWidthValue').textContent=`${$('imageWidth').value}%`};
+  $('imageWidth').oninput=previewDisplayWidth;
   $('resizeImage').onclick=()=>{if(selected)applySize(selected)};
 
   let drag=null;

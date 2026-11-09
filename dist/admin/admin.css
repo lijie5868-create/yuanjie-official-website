@@ -248,7 +248,7 @@ iframe { display: block; width: 100%; height: max(960px, calc(100dvh - 90px)); b
 .crop-stage { display: grid; min-height: 180px; place-items: center; margin: 16px 0; padding: 12px; border-radius: 10px; background: #e6e3dd; }
 .crop-frame{position:relative;width:max-content;max-width:100%;border:3px solid #a88755;box-shadow:0 8px 24px #0003;line-height:0}
 .crop-frame-label{position:absolute;left:8px;bottom:8px;padding:6px 8px;border-radius:4px;background:#26343cde;color:#fff;font:600 12px/1.2 system-ui;pointer-events:none}
-.crop-stage canvas { display: block; max-width: 100%; max-height: 45vh; height: auto; cursor: grab; touch-action: none; }
+.crop-stage canvas { display: block; width: 100%; max-width: 100%; height: auto; cursor: grab; touch-action: none; }
 .crop-stage canvas:active { cursor: grabbing; }
 .image-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
 .image-controls label { display: flex; flex-direction: column; gap: 6px; color: #555; font-size: 14px; }

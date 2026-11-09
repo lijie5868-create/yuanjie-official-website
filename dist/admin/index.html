@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>元捷建設｜網站後台</title>
-  <link rel="stylesheet" href="admin.css?v=51">
+  <link rel="stylesheet" href="admin.css?v=52">
 <link rel="icon" type="image/png" href="../favicon-v1.png"><link rel="stylesheet" href="../media-embed.css?v=1"></head>
 <body>
   <div class="shell">
@@ -281,7 +281,7 @@
   </div>
   <dialog id="imageDialog" class="image-dialog" aria-labelledby="imageDialogTitle">
     <div class="image-dialog-heading"><h2 id="imageDialogTitle">編輯圖片</h2><button type="button" id="closeImageDialog" class="quiet-button" aria-label="關閉">×</button></div>
-    <p class="hint">選擇畫框比例，再拖曳圖片調整位置、使用滑桿縮放。金色外框內就是裁切後保留的畫面。</p>
+    <p class="hint">選擇畫框比例，再拖曳圖片調整位置、使用滑桿縮放。金色外框內就是裁切後保留的畫面；「頁面顯示寬度」會即時改變下方預覽大小，不會改變裁切內容。</p>
     <div class="crop-stage"><div class="crop-frame"><canvas id="cropCanvas" width="640" height="400" aria-label="圖片裁切預覽"></canvas><span id="cropFrameLabel" class="crop-frame-label">原圖比例</span></div></div>
     <div class="image-controls">
       <label>畫框比例<select id="cropRatio"><option value="free">原圖比例</option><option value="1">正方形 1:1</option><option value="0.75">直式 3:4</option><option value="0.666667">直式 2:3</option><option value="1.333333">橫式 4:3</option><option value="1.777778">橫式 16:9</option></select></label>
@@ -293,6 +293,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js?v=46"></script><script type="module" src="admin.js?v=134"></script>
+  <script src="../project-blocks.js?v=46"></script><script type="module" src="admin.js?v=135"></script>
 </body>
 </html>
