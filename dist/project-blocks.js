@@ -195,7 +195,7 @@ window.ProjectBlocks = (() => {
         label=label.replace(/^\d+\s*(?:[-—–－−·]\s*)?/,'').trim();
         const existingHeading=item.querySelector(':scope > h3,:scope > h4,:scope > strong');
         const paragraphs=[...item.querySelectorAll(':scope > p')];
-        let title=existingHeading?.textContent.trim()||'';
+        let title=existingHeading?.innerText.trim()||'';
         if(!title){
           const plain=item.cloneNode(true);
           plain.querySelectorAll('small,.number,.eyebrow,p,time,img,svg,figure').forEach(node=>node.remove());

@@ -292,3 +292,5 @@ main[data-case-layout="unified-v1"] [data-block="featureStory"] .feature-story-g
  [data-block="cover"] .cover-explore{gap:12px;font-size:17px}
  [data-block="cover"] .cover-explore svg{width:52px;height:52px;padding:14px}
 }
+
+[data-block="featureStory"] .feature-story-grid h3{white-space:pre-line}
