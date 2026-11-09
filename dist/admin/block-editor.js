@@ -46,6 +46,7 @@ export function bindBlocks(main,panel,changed){
   function insert(type,before){
     const block=api.newBlock(doc,type);
     main.insertBefore(block,before);
+    api.refresh(main);
     select(block);changed();block.scrollIntoView({block:'center'});
   }
   for(const [type,label] of insertTypes){
