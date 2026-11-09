@@ -177,7 +177,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       target.style.height='auto';
       target.style.aspectRatio=`${width} / ${height}`;
       target.style.objectFit='contain';
-      target.style.alignSelf='center';
+      target.style.alignSelf='start';
       target.style.justifySelf='center';
     }else{
       target.style.width=`${$('imageWidth').value}%`;
