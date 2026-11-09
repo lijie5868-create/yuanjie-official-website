@@ -100,6 +100,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     const ratio=$('cropRatio').value==='free'?image.naturalWidth/image.naturalHeight:Number($('cropRatio').value);
     if(ratio>=1){canvas.width=640;canvas.height=Math.round(640/ratio)}
     else {canvas.height=420;canvas.width=Math.round(420*ratio)}
+    $('cropFrameLabel').textContent=$('cropRatio').selectedOptions[0].textContent;
   }
 
   function render(){
@@ -139,7 +140,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     const svgImage=selected?.tagName?.toLowerCase()==='image';
     dialog.toggleAttribute('data-album-image',albumImage);
     $('imageWidth').closest('label').hidden=albumImage||svgImage;
-    $('cropRatio').closest('label').firstChild.textContent=albumImage?'圖庫照片裁切比例':'裁切比例';
+    $('cropRatio').closest('label').firstChild.textContent=albumImage?'圖庫照片畫框比例':'畫框比例';
     $('imageAlt').value=existing?.alt||existing?.getAttribute?.('aria-label')||name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
     const currentWidth=existing?.style.width?.match(/^(\d+)%$/)?.[1]||'100';
     $('imageWidth').value=currentWidth;
@@ -161,6 +162,13 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       target.style.removeProperty('width');
       target.style.removeProperty('max-width');
       target.style.removeProperty('height');
+    }else if(target.closest('a.case-card')){
+      target.style.width=`${$('imageWidth').value}%`;
+      target.style.maxWidth='100%';
+      target.style.height='auto';
+      target.style.objectFit='contain';
+      target.style.display='block';
+      target.style.marginInline='auto';
     }else{
       target.style.width=`${$('imageWidth').value}%`;
       target.style.maxWidth='100%';
