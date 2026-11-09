@@ -243,6 +243,8 @@ function newProjectHtml({name,category,city,district,summary,selectingImplemente
   return main.outerHTML;
 }
 
+const defaultProjectSearchSummary='元捷建設股份有限公司，以地主立場為初心，以公平誠信為根本，專業推動都市更新與危老重建。';
+
 function newCompanyHtml(name,summary){
   const main=document.createElement('main');main.dataset.companyBlocks='1';
   main.innerHTML='<section class="page-head" data-company-block="intro"><div class="crumb"><a href="index.html">首頁</a> ／ <span></span></div><div class="eyebrow">COMPANY / PARTNER</div><h1 class="page-title"></h1><p class="lead"></p></section><section class="company-content-block" data-company-block="text"><div class="wrap"><div class="eyebrow">COMPANY / 公司介紹</div><h2>關於我們</h2><p class="copy"></p></div></section>';
@@ -1545,7 +1547,7 @@ $('newProjectForm').onsubmit=async event=>{
     const slug=`custom-${crypto.randomUUID()}`;
     const usedNumbers=pages.map(page=>Number(ProjectBlocks.canonicalProjectFile(page.file_name).match(/^project-(\d+)\.html$/)?.[1]||0));
     let nextNumber=Math.max(23,...usedNumbers)+1;
-    const payload={slug,file_name:`project-${nextNumber}.html`,title:`${name}｜元捷建設`,meta_description:summary,main_html:newProjectHtml({name,category,city,district,summary,selectingImplementer:$('newProjectSelectingImplementer').checked,layout:projectLayout}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
+    const payload={slug,file_name:`project-${nextNumber}.html`,title:`${name}｜元捷建設`,meta_description:defaultProjectSearchSummary,main_html:newProjectHtml({name,category,city,district,summary,selectingImplementer:$('newProjectSelectingImplementer').checked,layout:projectLayout}),sort_order:Math.max(0,...pages.map(page=>page.sort_order||0))+10,updated_at:new Date().toISOString()};
     let data,error;
     for(let attempt=0;attempt<5;attempt++){
       payload.file_name=`project-${nextNumber++}.html`;

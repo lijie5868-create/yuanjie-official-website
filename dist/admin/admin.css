@@ -89,6 +89,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .project-fields .project-stage-field,.new-project-dialog .project-stage-field{display:flex;align-items:center;gap:8px;grid-column:1/-1}.project-stage-field input{width:17px;height:17px;accent-color:#4a6984}
 .project-fields .project-stage-field[hidden]{display:none}
 .new-project-actions{display:flex;justify-content:flex-end;gap:8px}
+.new-project-summary-note{margin:-4px 0 4px;color:#68757c;font-size:12px;line-height:1.5}
 .new-project-dialog .message.error{color:#a02d22}
 @media(max-width:520px){.new-project-location,.project-fields{grid-template-columns:1fr}}
 .search-field input { padding-left: 12px; background: #f8f7f4; }
