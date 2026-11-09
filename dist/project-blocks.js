@@ -158,6 +158,21 @@ window.ProjectBlocks = (() => {
     if(/權利|更新|同意|整合|分回|稅|獎勵|危老|都更/.test(text))return 'REGENERATION';
     return 'PROJECT HIGHLIGHT';
   }
+  function editableLines(node){
+    if(!node)return '';
+    const parts=[];
+    function read(current){
+      if(current.nodeType===3){parts.push(current.nodeValue);return}
+      if(current.nodeType!==1)return;
+      if(current.tagName==='BR'){parts.push('\n');return}
+      const block=['DIV','P'].includes(current.tagName);
+      if(block&&parts.length&&!parts.at(-1).endsWith('\n'))parts.push('\n');
+      for(const child of current.childNodes)read(child);
+      if(block&&parts.length&&!parts.at(-1).endsWith('\n'))parts.push('\n');
+    }
+    for(const child of node.childNodes)read(child);
+    return parts.join('').replace(/\u00a0/g,' ').replace(/[ \t]*\n[ \t]*/g,'\n').trim();
+  }
   function normalizeFeatureSections(main){
     for(const section of main.querySelectorAll(':scope > [data-block="features"],:scope > [data-block="featureStory"]')){
       const oldGrid=section.querySelector('.feature-story-grid');
@@ -170,7 +185,7 @@ window.ProjectBlocks = (() => {
         const sourceEyebrow=[...section.querySelectorAll('.eyebrow')].find(item=>!item.closest('.feature-story-grid,.features,.heping-highlights,.case-highlights,.pb-items,ul'));
         const kicker=main.ownerDocument.createElement('div');kicker.className='eyebrow feature-story-eyebrow';kicker.textContent=sourceEyebrow?.textContent.trim()||'03 / PROJECT HIGHLIGHTS';
         const heading=[...section.querySelectorAll('h2,h3')].find(item=>!item.closest('.feature-story-grid,.features,.heping-highlights,.case-highlights,.pb-items,ul'));
-        const title=main.ownerDocument.createElement('h2');title.textContent=heading?.textContent.trim()||'個案特色';
+        const title=main.ownerDocument.createElement('h2');title.textContent=editableLines(heading)||'個案特色';
         const candidate=[...section.querySelectorAll('p,.section-head p')].find(item=>!item.closest('.feature-story-grid,.features,.heping-highlights,.case-highlights,.pb-items,ul'));
         const tagline=candidate?.cloneNode(true)||null;
         head.append(kicker,title);if(tagline)head.append(tagline);
@@ -195,7 +210,7 @@ window.ProjectBlocks = (() => {
         label=label.replace(/^\d+\s*(?:[-—–－−·]\s*)?/,'').trim();
         const existingHeading=item.querySelector(':scope > h3,:scope > h4,:scope > strong');
         const paragraphs=[...item.querySelectorAll(':scope > p')];
-        let title=existingHeading?.innerText.trim()||'';
+        let title=editableLines(existingHeading);
         if(!title){
           const plain=item.cloneNode(true);
           plain.querySelectorAll('small,.number,.eyebrow,p,time,img,svg,figure').forEach(node=>node.remove());
