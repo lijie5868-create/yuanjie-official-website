@@ -209,7 +209,7 @@ window.ProjectBlocks = (() => {
         let label=small?.textContent.trim()||'';
         label=label.replace(/^\d+\s*(?:[-—–－−·]\s*)?/,'').trim();
         const existingHeading=item.querySelector(':scope > h3,:scope > h4,:scope > strong');
-        const paragraphs=[...item.querySelectorAll(':scope > p')];
+        const paragraphs=[...item.querySelectorAll(':scope > p,:scope > div')].filter(node=>!node.matches('[data-editor-ui],[data-admin-ui]'));
         let title=editableLines(existingHeading);
         if(!title){
           const plain=item.cloneNode(true);
@@ -217,7 +217,7 @@ window.ProjectBlocks = (() => {
           title=plain.textContent.replace(/\s+/g,' ').trim();
         }
         if(!title&&paragraphs.length){title=paragraphs[0].textContent.trim();paragraphs.shift()}
-        const description=paragraphs.map(p=>p.textContent.trim()).filter(Boolean).join('\n');
+        const description=paragraphs.map(editableLines).filter(Boolean).join('\n');
         const descriptor=`${title} ${description}`;
         const card=main.ownerDocument.createElement('article');
         card.dataset.featureMode=description&&item.dataset.featureMode!=='title-only'?'title-body':'title-only';

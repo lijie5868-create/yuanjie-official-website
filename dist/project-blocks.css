@@ -296,3 +296,5 @@ main[data-case-layout="unified-v1"] [data-block="featureStory"] .feature-story-g
 [data-block="featureStory"] .feature-story-grid h3{white-space:pre-line}
 
 [data-block="featureStory"] .feature-story-head h2{white-space:pre-line}
+
+[data-block="featureStory"] .feature-story-grid p{white-space:pre-line}
