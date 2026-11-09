@@ -169,6 +169,16 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       target.style.objectFit='contain';
       target.style.display='block';
       target.style.marginInline='auto';
+    }else if(target.matches('.home-project-category .portal > img')){
+      const width=Number(target.getAttribute('width'))||target.naturalWidth;
+      const height=Number(target.getAttribute('height'))||target.naturalHeight;
+      target.style.width=`${$('imageWidth').value}%`;
+      target.style.maxWidth='100%';
+      target.style.height='auto';
+      target.style.aspectRatio=`${width} / ${height}`;
+      target.style.objectFit='contain';
+      target.style.alignSelf='center';
+      target.style.justifySelf='center';
     }else{
       target.style.width=`${$('imageWidth').value}%`;
       target.style.maxWidth='100%';
