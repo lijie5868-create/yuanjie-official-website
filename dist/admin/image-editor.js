@@ -157,7 +157,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       onMessage('圖片說明已更新，請儲存草稿或發布。');
       return;
     }
-    if(target.closest('a.case-card,[data-block="albums"] .project-album')){
+    if(target.closest('[data-block="albums"] .project-album')){
       target.style.removeProperty('width');
       target.style.removeProperty('max-width');
       target.style.removeProperty('height');
