@@ -214,7 +214,7 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 .home-project-category.renewal h2{border-color:#CFD4D7}
 .home-project-category .category-feature{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);grid-template-rows:auto auto;row-gap:36px;column-gap:52px;align-items:start}
 .home-project-category .portal{display:contents}
-.home-project-category .portal>img{grid-column:1;grid-row:1/3;align-self:start;width:100%;height:auto;max-height:min(560px,70vh);aspect-ratio:4/3;object-fit:contain;object-position:left top;background:transparent}
+.home-project-category .portal>img{grid-column:1;grid-row:1/3;align-self:start;width:100%;height:auto;max-height:min(560px,70vh);aspect-ratio:4/3;object-fit:contain;object-position:center top;background:transparent;justify-self:center}
 .home-project-category .portal>.category-copy{grid-column:2;grid-row:1;align-self:start}
 .home-project-category .category-copy>.eyebrow{margin:0 0 16px!important;padding-top:18px;border-top:2px solid #C5A880}
 .home-project-category.urban .category-copy>.eyebrow{color:#C5A880}
