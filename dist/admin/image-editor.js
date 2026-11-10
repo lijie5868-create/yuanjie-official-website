@@ -144,15 +144,15 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     image=null;
     context.clearRect(0,0,canvas.width,canvas.height);
     setMessage('');
-    $('resizeImage').hidden=!showResize||selected?.tagName?.toLowerCase()==='image';
+    $('resizeImage').hidden=!showResize;
     $('imageDialogTitle').textContent=existing?'更換或編輯圖片':'上傳並裁切圖片';
     const albumImage=Boolean(selected?.closest?.('[data-block="albums"] .project-album'));
     const svgImage=selected?.tagName?.toLowerCase()==='image';
     dialog.toggleAttribute('data-album-image',albumImage);
-    $('imageWidth').closest('label').hidden=albumImage||svgImage;
+    $('imageWidth').closest('label').hidden=albumImage;
     $('cropRatio').closest('label').firstChild.textContent=albumImage?'圖庫照片畫框比例':'畫框比例';
     $('imageAlt').value=existing?.alt||existing?.getAttribute?.('aria-label')||name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
-    const currentWidth=existing?.style.width?.match(/^(\d+)%$/)?.[1]||'100';
+    const currentWidth=(svgImage?existing?.closest('.group-photo-stable')?.style.width:existing?.style.width)?.match(/^(\d+)%$/)?.[1]||'100';
     $('imageWidth').value=currentWidth;
     $('imageWidthValue').textContent=`${currentWidth}%`;
     previewDisplayWidth();
@@ -162,6 +162,8 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
 
   function applySize(target){
     if(target.tagName.toLowerCase()==='image'){
+      const photo=target.closest('.group-photo-stable');
+      if(photo){photo.style.width=`${$('imageWidth').value}%`;photo.style.maxWidth='100%';photo.style.marginInline='auto'}
       target.setAttribute('aria-label',$('imageAlt').value.trim());
       target.removeAttribute('data-admin-selected');
       onChange(target);
