@@ -154,7 +154,7 @@ export function bindBlocks(main,panel,changed){
         const thumb=document.createElement('img');thumb.src=image?.src||'';thumb.alt=`內頁照片 ${index+1}`;card.append(thumb);
         const captionInput=document.createElement('input');captionInput.value=caption?.textContent.trim()||'';captionInput.placeholder='照片說明';captionInput.setAttribute('aria-label',`照片 ${index+1} 說明`);captionInput.onchange=()=>{caption.textContent=captionInput.value.trim();update()};card.append(captionInput);
         const controls=document.createElement('div');controls.className='album-edit-photo-actions';
-        action(controls,'設為封面',()=>{const current={src:coverImage.getAttribute('src'),alt:coverImage.alt};coverImage.setAttribute('src',image.getAttribute('src'));coverImage.alt=image.alt;image.setAttribute('src',current.src);image.alt=current.alt;update()});
+        action(controls,'設為封面',()=>{coverImage.setAttribute('src',image.dataset.originalSrc||image.getAttribute('src'));coverImage.alt=image.alt;if(image.dataset.originalSrc)coverImage.dataset.originalSrc=image.dataset.originalSrc;else delete coverImage.dataset.originalSrc;update()});
         action(controls,'更換',()=>upload(image));
         action(controls,'←',()=>{if(figure.previousElementSibling){figure.previousElementSibling.before(figure);update()}}).disabled=index===0;
         action(controls,'→',()=>{if(figure.nextElementSibling){figure.nextElementSibling.after(figure);update()}}).disabled=index===figures.length-1;

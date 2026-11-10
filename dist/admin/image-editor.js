@@ -9,6 +9,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   let offsetX=0;
   let offsetY=0;
   let drawInfo=null;
+  let originalFile=null;
   const cropFrame=canvas.closest('.crop-frame');
 
   function previewDisplayWidth(){
@@ -262,13 +263,15 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
       onMessage('請選擇 JPG、PNG 或 WebP 圖片。',true);return;
     }
+    originalFile=file;
     const objectUrl=URL.createObjectURL(file);
     await open(objectUrl,file.name,isImageNode(selected)?selected:null,false);
     URL.revokeObjectURL(objectUrl);
   };
   $('editImage').onclick=()=>{
     if(!selected)return;
-    open(imageSource(selected),selected.alt||selected.getAttribute?.('aria-label')||'image',selected);
+    originalFile=null;
+    open(selected.dataset.originalSrc||imageSource(selected),selected.alt||selected.getAttribute?.('aria-label')||'image',selected);
   };
   $('closeImageDialog').onclick=()=>dialog.close();
   $('cropRatio').onchange=()=>{if(image){dimensions();offsetX=offsetY=0;render()}};
@@ -312,7 +315,16 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       const {error}=await supabase.storage.from('site-media').upload(path,blob,{contentType:'image/webp',upsert:false});
       if(error)throw error;
       const {data}=supabase.storage.from('site-media').getPublicUrl(path);
+      let originalSrc=selected?.dataset?.originalSrc||'';
+      if(originalFile&&selected?.closest?.('[data-block="albums"] .project-album')){
+        const originalPath=`${Date.now()}-${crypto.randomUUID()}-original.${originalFile.type.split('/')[1]}`;
+        const {error:originalError}=await supabase.storage.from('site-media').upload(originalPath,originalFile,{contentType:originalFile.type,upsert:false});
+        if(originalError)throw originalError;
+        originalSrc=supabase.storage.from('site-media').getPublicUrl(originalPath).data.publicUrl;
+      }
       insertImage(data.publicUrl,output.width,output.height);
+      if(originalSrc&&selected?.tagName==='IMG')selected.dataset.originalSrc=originalSrc;
+      originalFile=null;
       onMessage('圖片已套用，請儲存草稿或發布。');
     }catch(error){setMessage(error.message||'圖片處理失敗，請重試。',true)}
     finally{button.disabled=false}
