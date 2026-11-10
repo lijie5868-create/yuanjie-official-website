@@ -323,7 +323,9 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       outputContext.drawImage(image,x*output.width/canvas.width,y*output.height/canvas.height,image.naturalWidth*scale*output.width/canvas.width,image.naturalHeight*scale*output.height/canvas.height);
       const blob=await new Promise(resolve=>output.toBlob(resolve,'image/webp',0.88));
       if(!blob)throw new Error('無法產生裁切圖片。');
-      const path=`${Date.now()}-${crypto.randomUUID()}.webp`;
+      const path=selected?.matches?.('.project-album-cover img')
+        ?`album-covers/${Date.now()}-${crypto.randomUUID()}.webp`
+        :`${Date.now()}-${crypto.randomUUID()}.webp`;
       const {error}=await supabase.storage.from('site-media').upload(path,blob,{contentType:'image/webp',upsert:false});
       if(error)throw error;
       const {data}=supabase.storage.from('site-media').getPublicUrl(path);

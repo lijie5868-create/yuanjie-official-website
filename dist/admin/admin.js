@@ -2,7 +2,7 @@ import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=29';
 import {createFloatingEditor} from './floating-editor.js?v=32';
 import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
-import {createImageEditor} from "./image-editor.js?v=20";
+import {createImageEditor} from "./image-editor.js?v=21";
 
 const cfg=window.YUANJIE_CONFIG;
 const allowedEmails=new Set(["lijie5868@gmail.com","ru8ru8u8@gmail.com","lazyunclek@gmail.com"]);
@@ -38,6 +38,43 @@ const pageResizer=$('pageResizer');
 const sidebarToggle=$('sidebarToggle');
 const sidebarWidthKey='yuanjie-admin-sidebar-width';
 const sidebarCollapsedKey='yuanjie-admin-sidebar-collapsed';
+const albumCoverRetentionMs=7*24*60*60*1000;
+let albumCoverCleanup=null;
+function cleanupUnusedAlbumCovers(){
+  if(albumCoverCleanup)return albumCoverCleanup;
+  albumCoverCleanup=(async()=>{
+    const files=[];
+    for(let offset=0;;offset+=100){
+      const {data,error}=await supabase.storage.from('site-media').list('album-covers',{limit:100,offset});
+      if(error)throw error;
+      files.push(...data);
+      if(data.length<100)break;
+    }
+    const old=files.filter(file=>/^\d{13}-[\da-f-]+\.webp$/i.test(file.name)&&Date.now()-Number(file.name.slice(0,13))>=albumCoverRetentionMs);
+    if(!old.length)return;
+    const [drafts,published,draftPosts,publishedPosts]=await Promise.all([
+      supabase.from('cms_pages').select('main_html'),
+      supabase.from('published_pages').select('main_html,file_name'),
+      supabase.from('cms_posts').select('body_html,cover_image_url'),
+      supabase.from('published_posts').select('body_html,cover_image_url')
+    ]);
+    for(const result of [drafts,published,draftPosts,publishedPosts])if(result.error)throw result.error;
+    const references=[...drafts.data,...published.data,...draftPosts.data,...publishedPosts.data].map(row=>Object.values(row).join(' '));
+    const staticPages=await Promise.all(published.data.map(async page=>{
+      if(!page.file_name||!/^[-\w]+\.html(?:\?case=[-\w]+)?$/.test(page.file_name))throw new Error('靜態頁檔名無法核對，跳過圖片清理。');
+      const response=await fetch(new URL(page.file_name,location.origin+basePath),{cache:'no-store'});
+      if(!response.ok)throw new Error('靜態頁無法核對，跳過圖片清理。');
+      return response.text();
+    }));
+    const unused=old.filter(file=>![...references,...staticPages].some(content=>content.includes(file.name)));
+    for(let index=0;index<unused.length;index+=100){
+      const paths=unused.slice(index,index+100).map(file=>`album-covers/${file.name}`);
+      const {error}=await supabase.storage.from('site-media').remove(paths);
+      if(error)throw error;
+    }
+  })().catch(error=>console.warn('未使用相簿封面清理已略過：',error)).finally(()=>{albumCoverCleanup=null});
+  return albumCoverCleanup;
+}
 let preferredSidebarWidth=250;
 let resizePointer=null;
 let sidebarCollapsed=false;
@@ -1318,6 +1355,7 @@ async function saveDraft(){
   $('savedAt').textContent=`上次儲存：${new Date(current.updated_at).toLocaleString('zh-TW')}`;
   renderPageList($('pageSearch').value);
   message('草稿已儲存，正式網站尚未變更。');
+  cleanupUnusedAlbumCovers();
 }
 
 async function publish(){
@@ -1346,6 +1384,7 @@ async function publish(){
   $('contentSafetyStatus').classList.remove('warning');
   $('contentSafetyStatus').textContent='發布完成，後台草稿與正式網站已同步；本次發布前後版本已保留在管理員操作紀錄。';
   message('發布完成。重新整理正式網站即可看到更新。');
+  cleanupUnusedAlbumCovers();
 }
 
 function switchView(view){
@@ -1660,6 +1699,7 @@ async function loadDashboard(){
   try{
     await fetchPages();
     await fetchNavigation();
+    cleanupUnusedAlbumCovers();
   }catch(error){
     message(error.message,true);
   }finally{
