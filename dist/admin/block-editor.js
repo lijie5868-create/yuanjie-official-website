@@ -123,6 +123,9 @@ export function bindBlocks(main,panel,changed){
     title.textContent='編輯相簿';close.type='button';close.textContent='×';close.setAttribute('aria-label','關閉');close.onclick=()=>dialog.close();header.append(title,close);
     const body=document.createElement('div');body.className='album-edit-body';dialog.append(header,body);
     const update=()=>{api.refresh(main);changed();render()};
+    const coverApplied=event=>{if(album.contains(event.detail?.cover))update()};
+    main.ownerDocument.addEventListener('yuanjie:album-cover-applied',coverApplied);
+    dialog.addEventListener('close',()=>main.ownerDocument.removeEventListener('yuanjie:album-cover-applied',coverApplied),{once:true});
     const upload=(image)=>{
       const picker=document.createElement('input');picker.type='file';picker.accept='image/jpeg,image/png,image/webp';picker.hidden=true;dialog.append(picker);
       picker.onchange=()=>{
@@ -154,7 +157,7 @@ export function bindBlocks(main,panel,changed){
         const thumb=document.createElement('img');thumb.src=image?.src||'';thumb.alt=`內頁照片 ${index+1}`;card.append(thumb);
         const captionInput=document.createElement('input');captionInput.value=caption?.textContent.trim()||'';captionInput.placeholder='照片說明';captionInput.setAttribute('aria-label',`照片 ${index+1} 說明`);captionInput.onchange=()=>{caption.textContent=captionInput.value.trim();update()};card.append(captionInput);
         const controls=document.createElement('div');controls.className='album-edit-photo-actions';
-        action(controls,'設為封面',()=>{coverImage.setAttribute('src',image.dataset.originalSrc||image.getAttribute('src'));coverImage.alt=image.alt;if(image.dataset.originalSrc)coverImage.dataset.originalSrc=image.dataset.originalSrc;else delete coverImage.dataset.originalSrc;update()});
+        action(controls,'設為封面',()=>{main.dispatchEvent(new CustomEvent('yuanjie:edit-album-cover',{detail:{cover:coverImage,source:image.dataset.originalSrc||image.src,alt:image.alt}}))});
         action(controls,'更換',()=>upload(image));
         action(controls,'←',()=>{if(figure.previousElementSibling){figure.previousElementSibling.before(figure);update()}}).disabled=index===0;
         action(controls,'→',()=>{if(figure.nextElementSibling){figure.nextElementSibling.after(figure);update()}}).disabled=index===figures.length-1;
