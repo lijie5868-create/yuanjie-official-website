@@ -253,6 +253,9 @@ iframe { display: block; width: 100%; height: max(960px, calc(100dvh - 90px)); b
 .crop-stage canvas:active { cursor: grabbing; }
 .image-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
 .image-controls label { display: flex; flex-direction: column; gap: 6px; color: #555; font-size: 14px; }
+.image-controls #albumFitControl { flex-direction: row; align-items: center; gap: 10px; }
+.image-controls #albumFit { flex: none; width: 18px; height: 18px; min-width: 18px; margin: 0; padding: 0; accent-color: #6a5035; }
+.image-controls label[hidden] { display: none; }
 .image-controls input[type="range"] { padding: 0; accent-color: #6a5035; }
 .image-controls output { font-size: 13px; }
 .image-dialog-actions { justify-content: flex-end; }
