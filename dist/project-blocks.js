@@ -650,7 +650,8 @@ window.ProjectBlocks = (() => {
       doc.body.append(dialog);dialog.querySelector('.project-album-close').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
       dialog.addEventListener('keydown',e=>{if(!dialog.open)return;if(e.key==='ArrowLeft'){e.preventDefault();dialog.querySelector('.project-album-prev').click()}if(e.key==='ArrowRight'){e.preventDefault();dialog.querySelector('.project-album-next').click()}});
     }
-    const figures=[article.querySelector('.project-album-cover figure'),...article.querySelectorAll('.project-album-items figure')].filter(Boolean);
+    const insideFigures=[...article.querySelectorAll('.project-album-items figure')].filter(figure=>figure.querySelector('img'));
+    const figures=insideFigures.length?insideFigures:[article.querySelector('.project-album-cover figure')].filter(Boolean);
     if(!figures.length)return;
     let index=0,zoom=1,fitWidth=0,fitHeight=0;
     const viewer=dialog.querySelector('.project-album-viewer'),image=viewer.querySelector('img'),caption=dialog.querySelector('.project-album-info p'),counter=dialog.querySelector('[data-album-counter]'),thumbs=dialog.querySelector('.project-album-thumbs'),zoomOut=dialog.querySelector('[data-album-zoom-out]'),zoomIn=dialog.querySelector('[data-album-zoom-in]'),zoomLevel=dialog.querySelector('[data-album-zoom-level]');
