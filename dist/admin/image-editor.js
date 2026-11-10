@@ -184,6 +184,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
       const width=Number(target.getAttribute('width'))||target.naturalWidth;
       const height=Number(target.getAttribute('height'))||target.naturalHeight;
       target.style.width=`${$('imageWidth').value}%`;
+      target.style.setProperty('--image-display-scale',String(Number($('imageWidth').value)/100));
       target.style.maxWidth='100%';
       target.style.height='auto';
       target.style.aspectRatio=`${width} / ${height}`;

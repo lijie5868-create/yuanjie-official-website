@@ -49,6 +49,10 @@
       const existing=document.querySelector('main');
       if(incoming&&existing){
         if(fileName==='index.html'){
+          for(const image of incoming.querySelectorAll('.home-project-category .portal > img')){
+            const percent=Number(image.style.width.match(/^(\d+(?:\.\d+)?)%$/)?.[1]);
+            if(percent>0&&percent<=100)image.style.setProperty('--image-display-scale',String(percent/100));
+          }
           for(const portal of incoming.querySelectorAll('.home-project-category .portal')){
             if(portal.querySelector(':scope > .category-copy'))continue;
             const image=portal.querySelector(':scope > img');
