@@ -116,13 +116,14 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   function render(){
     if(!image)return;
     const zoom=Number($('cropZoom').value);
-    const scale=Math.max(canvas.width/image.naturalWidth,canvas.height/image.naturalHeight)*zoom;
+    const fit=Boolean(dialog.hasAttribute('data-album-image')&&$('albumFit').checked);
+    const scale=(fit?Math.min(canvas.width/image.naturalWidth,canvas.height/image.naturalHeight):Math.max(canvas.width/image.naturalWidth,canvas.height/image.naturalHeight))*zoom;
     const width=image.naturalWidth*scale,height=image.naturalHeight*scale;
-    const x=Math.min(0,Math.max(canvas.width-width,(canvas.width-width)/2+offsetX));
-    const y=Math.min(0,Math.max(canvas.height-height,(canvas.height-height)/2+offsetY));
+    const x=fit?Math.max(Math.min(0,canvas.width-width),Math.min(Math.max(0,canvas.width-width),(canvas.width-width)/2+offsetX)):Math.min(0,Math.max(canvas.width-width,(canvas.width-width)/2+offsetX));
+    const y=fit?Math.max(Math.min(0,canvas.height-height),Math.min(Math.max(0,canvas.height-height),(canvas.height-height)/2+offsetY)):Math.min(0,Math.max(canvas.height-height,(canvas.height-height)/2+offsetY));
     offsetX=x-(canvas.width-width)/2;
     offsetY=y-(canvas.height-height)/2;
-    context.clearRect(0,0,canvas.width,canvas.height);
+    context.fillStyle=fit?'#000':'#fff';context.fillRect(0,0,canvas.width,canvas.height);
     context.drawImage(image,x,y,width,height);
     drawInfo={x,y,scale};
   }
@@ -149,6 +150,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     const albumImage=Boolean(selected?.closest?.('[data-block="albums"] .project-album'));
     const svgImage=selected?.tagName?.toLowerCase()==='image';
     dialog.toggleAttribute('data-album-image',albumImage);
+    $('albumFitControl').hidden=!albumImage;$('albumFit').checked=false;
     $('imageWidth').closest('label').hidden=albumImage;
     $('cropRatio').closest('label').firstChild.textContent=albumImage?'圖庫照片畫框比例':'畫框比例';
     $('imageAlt').value=existing?.alt||existing?.getAttribute?.('aria-label')||name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
@@ -271,6 +273,7 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
   $('closeImageDialog').onclick=()=>dialog.close();
   $('cropRatio').onchange=()=>{if(image){dimensions();offsetX=offsetY=0;render()}};
   $('cropZoom').oninput=render;
+  $('albumFit').onchange=()=>{offsetX=offsetY=0;render()};
   $('imageWidth').oninput=previewDisplayWidth;
   $('resizeImage').onclick=()=>{if(selected)applySize(selected)};
 
@@ -296,12 +299,13 @@ export function createImageEditor({frame,supabase,onChange,onMessage}){
     setMessage('正在處理並上傳圖片…');
     try{
       const {x,y,scale}=drawInfo;
-      const sourceX=-x/scale,sourceY=-y/scale;
       const sourceWidth=canvas.width/scale,sourceHeight=canvas.height/scale;
       const output=document.createElement('canvas');
-      output.width=Math.min(2000,Math.max(1,Math.round(sourceWidth)));
+      output.width=$('albumFit').checked&&dialog.hasAttribute('data-album-image')?1200:Math.min(2000,Math.max(1,Math.round(sourceWidth)));
       output.height=Math.max(1,Math.round(output.width*canvas.height/canvas.width));
-      output.getContext('2d').drawImage(image,sourceX,sourceY,sourceWidth,sourceHeight,0,0,output.width,output.height);
+      const outputContext=output.getContext('2d');
+      outputContext.fillStyle='#000';outputContext.fillRect(0,0,output.width,output.height);
+      outputContext.drawImage(image,x*output.width/canvas.width,y*output.height/canvas.height,image.naturalWidth*scale*output.width/canvas.width,image.naturalHeight*scale*output.height/canvas.height);
       const blob=await new Promise(resolve=>output.toBlob(resolve,'image/webp',0.88));
       if(!blob)throw new Error('無法產生裁切圖片。');
       const path=`${Date.now()}-${crypto.randomUUID()}.webp`;

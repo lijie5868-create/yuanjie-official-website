@@ -286,6 +286,7 @@
     <div class="image-controls">
       <label>畫框比例<select id="cropRatio"><option value="free">原圖比例</option><option value="1">正方形 1:1</option><option value="0.75">直式 3:4</option><option value="0.666667">直式 2:3</option><option value="1.333333">橫式 4:3</option><option value="1.777778">橫式 16:9</option></select></label>
       <label>裁切縮放 <input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1"></label>
+      <label id="albumFitControl" hidden><input id="albumFit" type="checkbox"> 完整顯示圖片，空白處補黑色</label>
       <label>頁面顯示寬度 <input id="imageWidth" type="range" min="25" max="100" step="5" value="100"><output id="imageWidthValue">100%</output></label>
       <label>圖片說明文字 <input id="imageAlt" type="text" placeholder="描述這張圖片"></label>
     </div>
@@ -293,6 +294,6 @@
     <div class="image-dialog-actions"><button type="button" id="resizeImage" class="secondary" hidden>只調整顯示大小</button><button type="button" id="applyImage">裁切並套用圖片</button></div>
   </dialog>
   <script src="config.js"></script>
-  <script src="../project-blocks.js?v=50"></script><script type="module" src="admin.js?v=139"></script>
+  <script src="../project-blocks.js?v=50"></script><script type="module" src="admin.js?v=140"></script>
 </body>
 </html>
