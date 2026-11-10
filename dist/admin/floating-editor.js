@@ -323,13 +323,19 @@ export function createFloatingEditor({frame,supabase,onChange,onMessage}){
         lastTarget.closest('[data-block="features"] li,[data-block="features"] article,[data-block="featureStory"] article')&&!textSelected?'feature':
         lastTarget.closest('[data-block="team"] .team > div,[data-block="team"] .pb-items > article')&&!textSelected?'team':
         lastTarget.closest('[data-block="specs"] dl.specs > div')?'row':'text';
-      const rect=savedRange?.getBoundingClientRect();
+      const rect=textSelected?savedRange?.getBoundingClientRect():null;
       const x=rect?.right||event.clientX||40,y=rect?.top||event.clientY||40;
       root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-44))}px`;
       root.style.top=`${Math.max(10,Math.min(y-40,win.innerHeight-44))}px`;
       toggle.querySelector('span').textContent=selectedLevel==='block'?'區塊':selectedLevel==='feature'?'特色':selectedLevel==='team'?'單位':selectedLevel==='album'?'相簿':selectedLevel==='row'?'欄位':'編輯';
       root.dataset.selection=String(textSelected);root.hidden=false;menu.hidden=!(textSelected||imageSelected);menu.style.left='0px';media.hidden=true;toggle.setAttribute('aria-expanded',String(textSelected||imageSelected));
       updateActions();
+      if(imageSelected){
+        const menuWidth=menu.getBoundingClientRect().width;
+        const menuHeight=menu.getBoundingClientRect().height;
+        root.style.left=`${Math.max(10,Math.min(event.clientX+8,win.innerWidth-menuWidth-12))}px`;
+        root.style.top=`${Math.max(10,Math.min(event.clientY+12,win.innerHeight-menuHeight-12))}px`;
+      }
       if(textSelected)root.style.left=`${Math.max(10,Math.min(x+8,win.innerWidth-menu.getBoundingClientRect().width-12))}px`;
       if(textSelected&&root.getBoundingClientRect().bottom+80>win.innerHeight)root.classList.add('open-up');else root.classList.remove('open-up');
     }
