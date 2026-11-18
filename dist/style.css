@@ -629,3 +629,6 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 @font-face{font-family:'Yuanjie Editorial Complete';font-style:normal;font-weight:400;font-display:swap;src:url('assets/fonts/noto-serif-tc-400-complete.woff') format('woff')}
 @font-face{font-family:'Yuanjie Editorial Complete';font-style:normal;font-weight:500 900;font-display:swap;src:url('assets/fonts/noto-serif-tc-600-complete.woff') format('woff')}
 :root{--editorial:'Yuanjie Editorial','Yuanjie Editorial Complete','Noto Serif TC','Songti TC','PMingLiU',serif}
+
+/* Keep CMS text and static text on the same complete font. */
+:root{--editorial:'Yuanjie Editorial Complete','Yuanjie Editorial','Noto Serif TC','Songti TC','PMingLiU',serif}
