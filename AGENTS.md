@@ -14,6 +14,8 @@
 
 每次開始處理本專案的請求（包含檢查、回答現況與修改）時，自動檢查公開網站與同層私人備份兩庫的 `git status --short --branch`，並對兩庫執行 `git fetch origin`。若位於乾淨的 `main` 且僅落後於 `origin/main`，自動執行 `git pull --ff-only`，不必等待使用者另行要求同步。若有未提交修改、分支分歧或無法快轉，保留現場並向使用者說明；不要強制覆蓋。
 
+若終端 `git fetch`／`git push` 因 DNS、網路或權限失敗，須先檢查已授權的 GitHub 工具與登入中的 GPT 瀏覽器能否查遠端、提交公開庫及私人備份；不得直接宣稱無法部署或備份。網頁上傳前比對遠端檔案與本機基準，僅提交必要檔案並避免覆蓋遠端新修改。提交後核對 commit、部署與私人庫檔案；記錄網頁提交與本地 commit 不同的 Git 歷史，連線恢復後安全合併兩庫，禁止強制推送或重置。詳細步驟依私人庫 `AGENTS.md` 與 `docs/DEVELOPMENT.md`。
+
 1. 閱讀本庫 `README.md` 和私人庫的完整維運文件。
    每次接到新的修改任務，都要在動手前重新閱讀私人庫 `AGENTS.md`、`docs/DEVELOPMENT.md`、`docs/ADMIN-GUIDE.md`、`docs/BACKUP-RESTORE.md`、`docs/NEW-COMPUTER-HANDOFF.md` 與 `CHANGELOG.md` 的相關現況；不能只憑前次聊天記憶或只查程式片段。
 2. 每次在任何電腦開始修改前，先執行 `git status --short --branch` 與 `git fetch origin`，比較本機分支和 `origin/main`；保留使用者尚未提交的修改。
