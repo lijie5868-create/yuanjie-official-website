@@ -466,9 +466,9 @@ window.ProjectBlocks = (() => {
   function prepare(main){
     if(!main)return false;
     if(main.dataset.caseLayout==='unified-v1'){
-      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);foldLegacyMetrics(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);normalizeSectionEyebrows(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
+      stripChineseFullStops(main.ownerDocument.body||main);formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);syncBreadcrumbTitle(main);normalizeHeroPartners(main);foldLegacyMetrics(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);normalizeSectionEyebrows(main);upgradeAlbums(main);enhanceAmounts(main);enhanceAlbumRails(main);return true;
     }
-    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);normalizeHeroPartners(main);foldLegacyMetrics(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);normalizeSectionEyebrows(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
+    if(main.dataset.blockVersion){formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);normalizeCover(main);syncBreadcrumbTitle(main);normalizeHeroPartners(main);foldLegacyMetrics(main);layoutProfiles(main);orderCaseProfile(main);ensureDraftSpecs(main);normalizeFeatureSections(main);normalizeSectionEyebrows(main);upgradeAlbums(main);stripChineseFullStops(main.ownerDocument.body||main);enhanceAmounts(main);main.dataset.caseLayout='unified-v1';enhanceAlbumRails(main);return true}
     // Work on a clone. An unfamiliar layout keeps its complete original page.
     const work=main.cloneNode(true);
     const specs=work.querySelector('dl.specs');
@@ -509,6 +509,7 @@ window.ProjectBlocks = (() => {
     main.dataset.blockVersion='1';
     formatProjectLocation(main,main.dataset.projectCity,main.dataset.projectDistrict);
     normalizeCover(main);
+    syncBreadcrumbTitle(main);
     normalizeHeroPartners(main);
     foldLegacyMetrics(main);
     layoutProfiles(main);
@@ -590,7 +591,20 @@ window.ProjectBlocks = (() => {
     el.querySelector('img')?.setAttribute('src','assets/project-placeholder.svg');
     return el;
   }
+  function syncBreadcrumbTitle(main){
+    const cover=main.querySelector('[data-block="cover"]');
+    const title=cover?.querySelector('h1')?.textContent.replace(/\s+/g,' ').trim();
+    const crumb=cover?.querySelector('.crumb,.breadcrumbs');
+    if(!title||!crumb)return;
+    const named=crumb.querySelector('.project-name');
+    if(named){named.textContent=title;return}
+    const last=crumb.lastChild;
+    if(last?.nodeType===3&&/[／/]\s*[^／/]*$/.test(last.textContent)){
+      last.textContent=last.textContent.replace(/([／/]\s*)[^／/]*$/,'$1'+title);
+    }
+  }
   function refresh(main){
+    syncBreadcrumbTitle(main);
     const fields=[...main.querySelectorAll('[data-block="specs"] dt')];
     for(const metric of main.querySelectorAll('[data-metric-ref]')){
       const field=fields.find(dt=>dt.parentElement.dataset.fieldId===metric.dataset.metricRef);

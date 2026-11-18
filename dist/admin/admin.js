@@ -1,4 +1,4 @@
-import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=29';
+import {bindBlocks,sanitizeCustomHtml} from './block-editor.js?v=30';
 import {createFloatingEditor} from './floating-editor.js?v=32';
 import {bindCompanyBlocks,isCompanyPage} from './company-blocks.js?v=1';
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.75.1";
@@ -499,6 +499,7 @@ async function loadEditor(page){
 function mainHtml(){
   const main=$('visualEditor').contentDocument.querySelector('main');
   if(!main)throw new Error('頁面內容缺少 main 區塊，請重新載入後再試。');
+  if(ProjectBlocks.applies(current.file_name))ProjectBlocks.refresh(main);
   if((current?.file_name==='urban.html'||current?.file_name==='renewal.html')&&!main.querySelector('.project-filter'))
     throw new Error('新版建案篩選版型未載入，已停止儲存與發布；請重新整理後台。');
   if(current?.file_name==='index.html'&&main.querySelector('.home-project-category .portal')&&!main.querySelector('.home-project-category .category-copy'))

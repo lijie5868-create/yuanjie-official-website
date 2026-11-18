@@ -189,7 +189,7 @@ export function bindBlocks(main,panel,changed){
   },true);
   function decorate(block){
     for(const node of block.querySelectorAll('h1,h2,h3,p,dt,dd,li,figcaption,small,time,strong,em,label,span,a,.eyebrow,.case-amount')){
-      if(node.closest('[data-editor-ui],[data-metric-ref],.cover-explore')||node.querySelector('img,button,p,h3'))continue;
+      if(node.closest('[data-editor-ui],[data-metric-ref],.cover-explore,.crumb,.breadcrumbs')||node.querySelector('img,button,p,h3'))continue;
       node.setAttribute('contenteditable','true');
     }
     if(block.dataset.block==='cover'){
