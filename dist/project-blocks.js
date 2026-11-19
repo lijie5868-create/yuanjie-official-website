@@ -593,7 +593,7 @@ window.ProjectBlocks = (() => {
   }
   function syncBreadcrumbTitle(main){
     const cover=main.querySelector('[data-block="cover"]');
-    const title=cover?.querySelector('h1')?.textContent.replace(/\s+/g,' ').trim();
+    const title=editableLines(cover?.querySelector('h1')).replace(/\s+/g,' ').trim();
     const crumb=cover?.querySelector('.crumb,.breadcrumbs');
     if(!title||!crumb)return;
     const named=crumb.querySelector('.project-name');
@@ -604,6 +604,8 @@ window.ProjectBlocks = (() => {
     }
   }
   function refresh(main){
+    const heading=main.querySelector('[data-block="cover"] h1');
+    if(heading?.querySelector('br,div,p'))heading.textContent=editableLines(heading);
     syncBreadcrumbTitle(main);
     const fields=[...main.querySelectorAll('[data-block="specs"] dt')];
     for(const metric of main.querySelectorAll('[data-metric-ref]')){
@@ -617,7 +619,7 @@ window.ProjectBlocks = (() => {
     const main=new DOMParser().parseFromString(html,'text/html').querySelector('main[data-block-version]');
     if(!main)return;
     const cover=main.querySelector('[data-block="cover"]');
-    const title=cover?.querySelector('h1')?.textContent;
+    const title=editableLines(cover?.querySelector('h1')).replace(/\s+/g,' ').trim();
     const img=cover?.querySelector('img'),thumb=card.querySelector('img');
     if(title && card.querySelector('h2'))card.querySelector('h2').textContent=card.dataset.cardTitle||title;
     if(img&&thumb){thumb.src=img.getAttribute('src');thumb.alt=img.alt}
