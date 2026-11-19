@@ -364,6 +364,7 @@ header>*,header nav,.brand-lines,.hero-copy,.founder>*{min-width:0}
 :is(.urban-page,.renewal-page) .case-grid .case-card-copy{flex:0 0 auto;padding-bottom:10px}
 :is(.urban-page,.renewal-page) .case-card .eyebrow{line-height:1.4}
 :is(.urban-page,.renewal-page) .case-card h2{margin:3px 0 8px}
+:is(.urban-page,.renewal-page) .case-card h2{white-space:pre-wrap}
 :is(.urban-page,.renewal-page) .case-card .project-location{margin-bottom:6px!important}
 :is(.urban-page,.renewal-page) .case-card-stats{margin-top:6px;padding-top:9px}
 @media(max-width:360px){.case-card-stats{gap:3px}.case-card-stat{gap:4px}.case-card-stat-icon{flex-basis:13px;width:13px;height:13px}.case-card-stat-copy strong{font-size:13px}}

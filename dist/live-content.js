@@ -69,7 +69,8 @@
           const assets=[...copy.querySelectorAll('img,a')].map(node=>node.getAttribute('src')||node.getAttribute('href')||'').join('|');
           const photoOverrides=copy.querySelector('[data-card-photo-overrides]')?.outerHTML||'';
           const imageStyles=[...copy.querySelectorAll('img')].map(node=>node.getAttribute('style')||'').join('|');
-          return `${text}|${assets}|${photoOverrides}|${imageStyles}`;
+          const cardTitles=[...copy.querySelectorAll('.case-card h2')].map(node=>node.textContent).join('|');
+          return `${text}|${assets}|${photoOverrides}|${imageStyles}|${cardTitles}`;
         };
         const normalizedMarkup=main=>{
           const copy=main.cloneNode(true);

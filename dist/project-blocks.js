@@ -619,7 +619,7 @@ window.ProjectBlocks = (() => {
     const cover=main.querySelector('[data-block="cover"]');
     const title=cover?.querySelector('h1')?.textContent;
     const img=cover?.querySelector('img'),thumb=card.querySelector('img');
-    if(title && card.querySelector('h2'))card.querySelector('h2').textContent=title;
+    if(title && card.querySelector('h2'))card.querySelector('h2').textContent=card.dataset.cardTitle||title;
     if(img&&thumb){thumb.src=img.getAttribute('src');thumb.alt=img.alt}
     const address=cover?.querySelector('.project-location')?.textContent.trim().match(/^(.+?[市縣])(.+)$/);
     if(address){

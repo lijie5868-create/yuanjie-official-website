@@ -362,6 +362,7 @@ async function editorDocument(page,html){
             if(project.main_html.includes('data-block-version')){
               existing.dataset.originalCard=existing.outerHTML;
               ProjectBlocks.updateCard(existing,project.main_html);
+              existing.dataset.initialCardTitle=existing.querySelector('h2')?.textContent||'';
             }else ProjectBlocks.syncCardNote(existing,new DOMParser().parseFromString(project.main_html,'text/html').querySelector('main'));
             continue;
           }
@@ -518,7 +519,16 @@ function mainHtml(){
       for(const attr of ['contenteditable','data-selected-block','data-drop'])node.removeAttribute(attr);
     }
   }
-  copy.querySelectorAll('[data-original-card]').forEach(card=>card.outerHTML=card.dataset.originalCard);
+  copy.querySelectorAll('[data-original-card]').forEach(card=>{
+    const original=new DOMParser().parseFromString(card.dataset.originalCard,'text/html').querySelector('.case-card');
+    if(!original)return;
+    const editedTitle=card.querySelector('h2')?.textContent;
+    if(editedTitle?.trim()&&editedTitle!==card.dataset.initialCardTitle){
+      original.dataset.cardTitle=editedTitle;
+      original.querySelector('h2').textContent=editedTitle;
+    }
+    card.replaceWith(original);
+  });
   copy.querySelectorAll('[data-managed-card]').forEach(card=>card.remove());
   applyCaseCardPhotoOverrides(copy);
   ProjectBlocks.canonicalizeProjectLinks(copy);
