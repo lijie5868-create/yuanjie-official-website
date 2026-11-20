@@ -167,7 +167,7 @@ main[data-case-layout="unified-v1"] [data-block="cover"] .cover-explore svg{widt
 main[data-case-layout="unified-v1"] [data-block="cover"] .cover-rule{flex:1;border-top:1px solid #ad8d5c}
 main[data-case-layout="unified-v1"] [data-block="cover"]>figure{display:flex;flex-direction:column;margin:0;padding:12px 12px 0;background:#e4e7e9}
 main[data-case-layout="unified-v1"] [data-block="cover"]>figure img{display:block;width:100%;height:clamp(360px,47vw,650px);min-height:0;max-height:none;object-fit:contain;background:#e4e7e9}
-main[data-case-layout="unified-v1"] [data-block="cover"]>figure figcaption{align-self:stretch;width:calc(100% + 24px);margin:0 -12px!important;padding:10px 14px!important;background:#e4e1d9!important;color:#59666d!important;text-align:center;font:13px/1.5 sans-serif!important}
+main[data-case-layout="unified-v1"] [data-block="cover"]>figure figcaption{align-self:stretch;width:calc(100% + 24px);margin:0 -12px!important;padding:10px 14px!important;background:#e4e1d9!important;color:#59666d!important;text-align:center;font-family:var(--editorial)!important;font-size:13px!important;line-height:1.5!important}
 main[data-case-layout="unified-v1"] [data-block="specs"] .specs>div{min-height:42px;padding:7px 0;font-size:clamp(15px,1.15vw,17px)}
 main[data-case-layout="unified-v1"] [data-block="albums"] .project-album-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,1.5vw,20px);overflow:visible}
 main[data-case-layout="unified-v1"] [data-block="albums"] .project-album{display:block;flex:none;width:100%;overflow:visible;scroll-snap-type:none;touch-action:auto;cursor:default;user-select:auto}
