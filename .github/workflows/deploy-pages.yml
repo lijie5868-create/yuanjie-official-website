@@ -20,7 +20,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url || steps.deployment_final.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -40,6 +40,24 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+      - name: Wait for uploaded artifact to become available
+        run: sleep 15
       - name: Deploy to GitHub Pages
         id: deployment
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Wait before retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - name: Retry GitHub Pages deployment
+        if: steps.deployment.outcome == 'failure'
+        id: deployment_retry
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Wait before final retry
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome == 'failure'
+        run: sleep 60
+      - name: Final GitHub Pages deployment attempt
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome == 'failure'
+        id: deployment_final
         uses: actions/deploy-pages@v4
